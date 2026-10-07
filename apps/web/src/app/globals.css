@@ -1,0 +1,265 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* HeroUI: only the InputOTP and Tabs styles. Its full theme would overwrite
+   shadcn's tokens (--muted, --accent, the radius scale), so the field tokens
+   they need are mapped onto ours below instead. */
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/components/input-otp.css" layer(components);
+@import "@heroui/styles/components/tabs.css" layer(components);
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-vivid-cyan: #108a8b;
+  --color-ocean-green: #00b894;
+  --color-ocean-blue: #32d1df;
+  /* The pale mint page background behind the white dashboard cards. */
+  --color-canvas: #f4f4f5;
+
+  --animate-caret-blink: caret-blink 1.2s ease-out infinite;
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+
+/*
+ * Fonts are loaded by next/font in app/[locale]/layout.tsx, which sets the
+ * --font-manrope / --font-outfit / --font-roman / --font-arabic variables.
+ * Every stack ends in the Arabic font: the Latin fonts have no Arabic letters,
+ * so Arabic text falls through to it automatically.
+ */
+body {
+  box-sizing: border-box;
+  user-select: none;
+  scroll-behavior: smooth;
+  font-family: var(--font-sans);
+}
+
+
+
+/* Target the scrollbar specifically */
+.scrollbar-pill::-webkit-scrollbar {
+  width: 6px; /* Width of the pill */
+  height: 6px; /* Same pill for horizontal scrollbars */
+}
+
+/* Where a vertical and a horizontal scrollbar meet */
+.scrollbar-pill::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* The "Track" (the background it sits on) */
+.scrollbar-pill::-webkit-scrollbar-track {
+  background: transparent; /* Makes the dark gray background disappear */
+}
+
+/* The "Thumb" (the actual pill) */
+.scrollbar-pill::-webkit-scrollbar-thumb {
+  background: #52525b; /* zinc-600 color */
+  border-radius: 100px; /* Makes it a pill shape */
+}
+
+/* Remove the arrows (buttons) */
+.scrollbar-pill::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* Hover effect for the pill */
+.scrollbar-pill::-webkit-scrollbar-thumb:hover {
+  background: #71717a; /* zinc-500 color */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
+p {
+  font-family: var(--font-outfit), var(--font-arabic), sans-serif;
+}
+
+.hero {
+  font-family: var(--font-roman), var(--font-arabic), serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-manrope), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-manrope), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-success: var(--success);
+  --color-border-strong: var(--border-strong);
+
+  /* HeroUI tokens (InputOTP, Tabs), mapped onto the palette. */
+  --color-default: var(--secondary);
+  --color-segment: var(--primary);
+  --color-segment-foreground: var(--primary-foreground);
+  --shadow-surface: 0 0 #0000;
+  --color-field: var(--field-background);
+  --color-field-hover: var(--field-background);
+  --color-field-focus: var(--field-focus);
+  --color-field-foreground: var(--foreground);
+  --color-field-placeholder: var(--muted-foreground);
+  --color-focus: transparent; /* focus shows as a lighter fill, not a ring */
+  --color-danger: var(--destructive);
+  --color-separator: var(--input);
+  --shadow-field: 0 0 #0000;
+  --radius-field: calc(var(--radius) * 1.4);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Palette: near-black with a violet cast, brand blue (#00457C) for actions,
+ * filled fields without borders, pink for errors. Dark is the default
+ * theme; light keeps the same brand colours on light surfaces.
+ * Rounding is small everywhere (--radius 6px) and nothing has a shadow.
+ */
+:root {
+  --radius: 0.375rem;
+  --background: #ffffff;
+  --foreground: #05030b;
+  --card: #ffffff;
+  --card-foreground: #05030b;
+  --popover: #ffffff;
+  --popover-foreground: #05030b;
+  --primary: #00457c;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f0f4;
+  --secondary-foreground: #05030b;
+  --muted: #f1f0f4;
+  --muted-foreground: #6b6975;
+  --accent: #e9e3ee;
+  --accent-foreground: #05030b;
+  --destructive: #e0115c;
+  --success: #0fbf7b;
+  --border: rgb(5 3 11 / 10%);
+  --border-strong: rgb(5 3 11 / 30%);
+  --input: rgb(5 3 11 / 28%);
+  --ring: rgb(5 3 11 / 70%);
+  --field-background: #f1f0f4;
+  --field-focus: #e7e6ec;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: #fafafa;
+  --sidebar-foreground: #05030b;
+  --sidebar-primary: #00457c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f0f4;
+  --sidebar-accent-foreground: #05030b;
+  --sidebar-border: rgb(5 3 11 / 10%);
+  --sidebar-ring: rgb(5 3 11 / 70%);
+  /* Read directly by the HeroUI field styles. Fields are filled, without a border. */
+  --field-border: transparent;
+  --field-border-hover: transparent;
+  --field-border-focus: transparent;
+  --border-width-field: 0px;
+  --ease-smooth: ease;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-out-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+  --cursor-interactive: pointer;
+  --disabled-opacity: 0.5;
+  --cursor-disabled: not-allowed;
+}
+
+.dark {
+  --background: #05030b;
+  --foreground: #ffffff;
+  --card: #0e0b16;
+  --card-foreground: #ffffff;
+  --popover: #0e0b16;
+  --popover-foreground: #ffffff;
+  --primary: #00457c;
+  --primary-foreground: #ffffff;
+  --secondary: #18181c;
+  --secondary-foreground: #ffffff;
+  --muted: #18181c;
+  --muted-foreground: #8e8c98;
+  --accent: #533e5e;
+  --accent-foreground: #ffffff;
+  --destructive: #f41468;
+  --success: #10de8f;
+  --border: rgb(255 255 255 / 12%);
+  --border-strong: rgb(255 255 255 / 55%);
+  --input: rgb(255 255 255 / 40%);
+  --ring: rgb(255 255 255 / 80%);
+  --field-background: #141318;
+  --field-focus: #1d1c23;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: #0e0b16;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #00457c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #18181c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 12%);
+  --sidebar-ring: rgb(255 255 255 / 80%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
