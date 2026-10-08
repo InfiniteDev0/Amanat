@@ -41,7 +41,7 @@ import {
 } from '@sarrif/core';
 import type { ZodType } from 'zod';
 
-import { getDb, type MockDb, resetDb, saveDb } from './db';
+import { clearRecords, getDb, type MockDb, resetDb, saveDb } from './db';
 import { DEMO_CODE } from './seed';
 
 // The backend, faked in the browser. It keeps the rules the real one will:
@@ -666,6 +666,11 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   (window as unknown as { sarrifMock: object }).sarrifMock = {
     reset: () => {
       resetDb();
+      window.location.reload();
+    },
+    /** Your shops' balances back to zero, keeping you, your shops and accounts. */
+    clearRecords: () => {
+      clearRecords();
       window.location.reload();
     },
     db: getDb,

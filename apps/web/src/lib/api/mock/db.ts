@@ -78,6 +78,31 @@ export function saveDb(): void {
   }
 }
 
+/**
+ * Every balance back to zero in the signed-in user's shops: all records and
+ * their entries (and day closings) gone, opening balances 0. The user, shops,
+ * accounts and rates stay. Also on `window.sarrifMock.clearRecords()` in
+ * development.
+ */
+export function clearRecords(): void {
+  const current = getDb();
+  const shops = new Set(current.members.filter((m) => m.userId === current.sessionUserId).map((m) => m.workspaceId));
+  const elsewhere = <T extends { workspaceId: string }>(rows: T[]) => rows.filter((row) => !shops.has(row.workspaceId));
+  current.entries = elsewhere(current.entries);
+  current.exchanges = elsewhere(current.exchanges);
+  current.expenses = elsewhere(current.expenses);
+  current.transfers = elsewhere(current.transfers);
+  current.amanats = elsewhere(current.amanats);
+  current.debts = elsewhere(current.debts);
+  current.debtPayments = elsewhere(current.debtPayments);
+  current.closings = elsewhere(current.closings);
+  current.activity = elsewhere(current.activity);
+  for (const account of current.accounts) {
+    if (shops.has(account.workspaceId)) account.openingBalance = 0;
+  }
+  saveDb();
+}
+
 /** Back to the demo shops. Also on `window.sarrifMock.reset()` in development. */
 export function resetDb(): void {
   db = seedDb();
