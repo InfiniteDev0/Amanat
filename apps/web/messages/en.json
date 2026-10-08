@@ -302,6 +302,64 @@
       "invitation_accepted": "Open the team",
       "role_changed": "Open the shop",
       "new_device": "Check it"
+    },
+    "types": {
+      "rates_not_set": {
+        "title": "Rates not set",
+        "body": "{shop} has no rate yet today for {currencies}."
+      },
+      "day_not_closed": {
+        "title": "Yesterday wasn't closed",
+        "body": "{shop} didn't close {date}. Count the cash to close it."
+      },
+      "closing_difference": {
+        "title": "Closing difference",
+        "body": "{shop} closed {date} with a difference of {difference}."
+      },
+      "daily_summary": {
+        "title": "{shop} closed {date}",
+        "body": "The day is closed and locked."
+      },
+      "large_transaction": {
+        "title": "Large entry",
+        "body": "{who} recorded {amount}."
+      },
+      "past_entry_changed": {
+        "title": "A closed day was changed",
+        "body": "{who} changed an entry from {date}."
+      },
+      "entry_deleted": {
+        "title": "Entry deleted",
+        "body": "{who} deleted an entry."
+      },
+      "debt_due": {
+        "title": "{client}'s debt is due",
+        "body": "{amount}, due today."
+      },
+      "debt_overdue": {
+        "title": "{client}'s debt is overdue",
+        "body": "{amount}, due {days, plural, one {# day} other {# days}} ago."
+      },
+      "amanat_withdrawal": {
+        "title": "Amanat withdrawn",
+        "body": "{client} withdrew {amount} of amanat."
+      },
+      "low_balance": {
+        "title": "{account} is running low",
+        "body": "Only {amount} left."
+      },
+      "invitation_accepted": {
+        "title": "{person} joined {shop}",
+        "body": "{person} is {role, select, owner {an Owner} editor {an Editor} other {a Viewer}} there now."
+      },
+      "role_changed": {
+        "title": "Your role changed",
+        "body": "You're {role, select, owner {an Owner} editor {an Editor} other {a Viewer}} in {shop} now."
+      },
+      "new_device": {
+        "title": "Signed in on a new device",
+        "body": "{device}. If it wasn’t you, sign out everywhere."
+      }
     }
   },
   "home": {

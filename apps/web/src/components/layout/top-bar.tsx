@@ -16,8 +16,9 @@ import { AccountItems } from '@/components/layout/account-items';
 import { NotificationsButton } from '@/features/notifications/notifications-sheet';
 import { ShopBadge } from '@/components/shop-badge';
 import { useStartNewShop } from '@/features/onboarding/setup-wizard';
+import { pageKeyFor } from '@/features/workspaces/navigation';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link, usePathname, useRouter } from '@/i18n/navigation';
 
 /** Settings and People: two quiet buttons side by side under the shop's name. */
 const MENU_BUTTON_CLASS =
@@ -25,7 +26,8 @@ const MENU_BUTTON_CLASS =
 
 /**
  * The bar across the top of the app, on the page itself (no panel): which
- * shop you're in, and the menu to another; at the other end, the bell. The
+ * shop you're in, and the menu to another, then the page you're on; at the
+ * other end, the bell. The
  * menu: the shop (big badge, name, your role and plan), its Settings and
  * People, every shop you're in to switch to, Create shop (opens the setup
  * wizard), then your language, theme and sign out.
@@ -34,6 +36,8 @@ export function TopBar({ workspaceId, shopName }: { workspaceId: string; shopNam
   const t = useTranslations();
   const router = useRouter();
   const startNewShop = useStartNewShop();
+  const page = pageKeyFor(usePathname(), workspaceId);
+  const pageLabel = page && t.has(`nav.${page}` as never) ? t(`nav.${page}` as never) : null;
   const shops = useMyWorkspaces().data ?? [];
   const role = shops.find(({ workspace }) => workspace.id === workspaceId)?.role;
 
@@ -97,6 +101,9 @@ export function TopBar({ workspaceId, shopName }: { workspaceId: string; shopNam
           <AccountItems />
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Where you are, after the shop: the breadcrumb (Home has none). */}
+      {pageLabel ? <span className="ms-2 truncate text-[15px] font-semibold">{pageLabel}</span> : null}
 
       <NotificationsButton className="ms-auto" />
     </div>

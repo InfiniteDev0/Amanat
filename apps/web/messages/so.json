@@ -302,6 +302,64 @@
       "invitation_accepted": "Fur kooxda",
       "role_changed": "Fur dukaanka",
       "new_device": "Hubi"
+    },
+    "types": {
+      "rates_not_set": {
+        "title": "Sicirka lama dhigin",
+        "body": "{shop} maanta weli sicir uma dhigin {currencies}."
+      },
+      "day_not_closed": {
+        "title": "Shalay lama xirin",
+        "body": "{shop} ma xirin {date}. Tiri lacagta si aad u xirto."
+      },
+      "closing_difference": {
+        "title": "Farqi xiritaan",
+        "body": "{shop} wuxuu xiray {date} farqi dhan {difference}."
+      },
+      "daily_summary": {
+        "title": "{shop} wuu xirmay {date}",
+        "body": "Maalinta waa la xiray waana la quful."
+      },
+      "large_transaction": {
+        "title": "Diiwaan weyn",
+        "body": "{who} wuxuu diiwaan geliyay {amount}."
+      },
+      "past_entry_changed": {
+        "title": "Maalin xiran ayaa la beddelay",
+        "body": "{who} wuxuu beddelay diiwaan {date}."
+      },
+      "entry_deleted": {
+        "title": "Diiwaan waa la tirtiray",
+        "body": "{who} wuxuu tirtiray diiwaan."
+      },
+      "debt_due": {
+        "title": "Deynta {client} waa la gaaray",
+        "body": "{amount}, waqtigeedu waa maanta."
+      },
+      "debt_overdue": {
+        "title": "Deynta {client} waa dib u dhacday",
+        "body": "{amount}, waxay ahayd {days} maalmood ka hor."
+      },
+      "amanat_withdrawal": {
+        "title": "Amaano waa la qaatay",
+        "body": "{client} wuxuu qaatay {amount} amaano ah."
+      },
+      "low_balance": {
+        "title": "{account} wuu yaraanayaa",
+        "body": "Kaliya {amount} ayaa haray."
+      },
+      "invitation_accepted": {
+        "title": "{person} wuxuu ku biiray {shop}",
+        "body": "{person} hadda waa {role, select, owner {Milkiile} editor {Shaqaale} other {Daawade}}."
+      },
+      "role_changed": {
+        "title": "Doorkaagii waa la beddelay",
+        "body": "Hadda waxaad tahay {role, select, owner {Milkiile} editor {Shaqaale} other {Daawade}} {shop}."
+      },
+      "new_device": {
+        "title": "Laga soo galay qalab cusub",
+        "body": "{device}. Haddii aanad adigu ahayn, ka bax meel kasta."
+      }
     }
   },
   "home": {

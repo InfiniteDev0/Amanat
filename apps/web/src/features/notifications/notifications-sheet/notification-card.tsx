@@ -21,6 +21,7 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 
 import { ShopBadge } from '@/components/shop-badge';
+import { ltr } from '@/lib/ltr';
 import { cn } from '@/lib/utils';
 
 /**
@@ -121,6 +122,25 @@ function useWhen() {
   };
 }
 
+/** Params that are amounts, dates or codes: kept left to right inside Arabic. */
+const LTR_PARAMS = new Set(['amount', 'difference', 'date', 'currencies']);
+
+/**
+ * A notification's title and body in the viewer's language, built from its
+ * type and params. Rows without params (written before them) show the text
+ * they were saved with.
+ */
+export function useNotificationText() {
+  const t = useTranslations('notifications.types');
+  return (notification: Notification) => {
+    if (!notification.params) return { title: notification.title, body: notification.body };
+    const values = Object.fromEntries(
+      Object.entries(notification.params).map(([key, value]) => [key, typeof value === 'string' && LTR_PARAMS.has(key) ? ltr(value) : value]),
+    );
+    return { title: t(`${notification.type}.title`, values), body: t(`${notification.type}.body`, values) };
+  };
+}
+
 export interface NotificationCardProps {
   notification: Notification;
   /** The shop it's about, shown when you're in more than one. */
@@ -141,6 +161,7 @@ export function NotificationCard({ notification, shop, now, onOpen }: Notificati
   const when = useWhen();
   const { icon: Icon, tone, cta } = KINDS[notification.type];
   const read = Boolean(notification.readAt);
+  const { title, body } = useNotificationText()(notification);
 
   return (
     <div className={cn('transition-opacity', read && 'opacity-60')}>
@@ -148,7 +169,7 @@ export function NotificationCard({ notification, shop, now, onOpen }: Notificati
         <Icon className="size-[18px] shrink-0" />
         {/* dir="auto": the text is in the receiver's language, which may not be the page's. */}
         <span dir="auto" className="truncate text-[13px] leading-none font-bold">
-          {notification.title}
+          {title}
         </span>
         {read ? null : <span aria-label={t('unreadMark')} className="size-1.5 shrink-0 rounded-full bg-current" />}
         {/* The curve from the pill's side down into the body's top edge (mirrored in Arabic). */}
@@ -160,7 +181,7 @@ export function NotificationCard({ notification, shop, now, onOpen }: Notificati
 
       <div className="bg-card rounded-2xl rounded-ss-none p-3">
         <p dir="auto" className="text-foreground text-start text-[13px] leading-snug">
-          {notification.body}
+          {body}
         </p>
         <div className="text-muted-foreground mt-2 flex items-center gap-1.5 text-[11px] leading-tight">
           {shop ? (

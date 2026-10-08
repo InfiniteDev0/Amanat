@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Flag } from '@/components/flag';
 import { MoneyText } from '@/components/money-text';
 import { StatCard, StatCardSkeleton } from '@/components/stat-card';
+import { useAccountLabel } from '@/features/accounts/account-label';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { currencyFlag } from '@/lib/currency-flag';
 import { ltr } from '@/lib/ltr';
@@ -45,6 +46,7 @@ export function AccountCards({
   const locale = useLocale();
   const { workspace } = useWorkspace();
   const summary = useDaySummary(workspace.id, date);
+  const label = useAccountLabel();
   const plain = (amount: number, code: CurrencyCode) => ltr(formatMoney({ amount, currency: code }, { locale, showCurrency: false }));
 
   if (!summary.data) {
@@ -74,12 +76,12 @@ export function AccountCards({
       {s.accounts.map(({ account, balance, todayIn, todayOut }) => (
         <StatCard
           key={account.id}
-          badge={account.name}
+          badge={label(account)}
           icon={<Flag code={currencyFlag(account.currency)} className="h-3" />}
           tone="plain"
           value={<Amount amount={balance} currency={account.currency} />}
           caption={t('accountDay', { in: plain(todayIn, account.currency), out: plain(todayOut, account.currency) })}
-          action={{ label: t('openAccount', { account: account.name }), onClick: () => onOpen(account.id) }}
+          action={{ label: t('openAccount', { account: label(account) }), onClick: () => onOpen(account.id) }}
         />
       ))}
     </section>

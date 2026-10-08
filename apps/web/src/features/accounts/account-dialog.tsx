@@ -18,6 +18,7 @@ import { currencyFlag } from '@/lib/currency-flag';
 import { promiseToast } from '@/lib/promise-toast';
 import { cn } from '@/lib/utils';
 
+import { useAccountLabel } from './account-label';
 import { useUpdateAccount } from './queries';
 
 type Tab = 'balance' | 'move';
@@ -58,8 +59,13 @@ export function AccountDialog({ position, ...props }: AccountDialogProps) {
   );
 }
 
-function AccountForms({ position, positions, board, onClose }: Omit<AccountDialogProps, 'position'> & { position: AccountPosition }) {
+function AccountForms({ position: given, positions: all, board, onClose }: Omit<AccountDialogProps, 'position'> & { position: AccountPosition }) {
   const t = useTranslations('accountDialog');
+  // Names as shown (suggested cash names in today's language), for every form below.
+  const label = useAccountLabel();
+  const named = (p: AccountPosition) => ({ ...p, account: { ...p.account, name: label(p.account) } });
+  const position = named(given);
+  const positions = all.map(named);
   const { can } = useWorkspace();
   const tabs = (['balance', 'move'] as const).filter((tab) => (tab === 'balance' ? can('manage_accounts') : can('record')));
   const [tab, setTab] = useState<Tab>(tabs[0] ?? 'balance');

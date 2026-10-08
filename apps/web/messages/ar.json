@@ -302,6 +302,64 @@
       "invitation_accepted": "فتح الفريق",
       "role_changed": "فتح المتجر",
       "new_device": "تحقّق"
+    },
+    "types": {
+      "rates_not_set": {
+        "title": "لم تُحدَّد الأسعار",
+        "body": "لا يوجد سعر اليوم في {shop} لـ {currencies}."
+      },
+      "day_not_closed": {
+        "title": "لم يُغلق يوم أمس",
+        "body": "لم يُغلق {shop} يوم {date}. عُدّ النقد لإغلاقه."
+      },
+      "closing_difference": {
+        "title": "فرق في الإغلاق",
+        "body": "أُغلق {shop} يوم {date} بفرق {difference}."
+      },
+      "daily_summary": {
+        "title": "أُغلق {shop} يوم {date}",
+        "body": "اليوم مغلق ومقفل."
+      },
+      "large_transaction": {
+        "title": "قيد كبير",
+        "body": "سجّل {who} مبلغ {amount}."
+      },
+      "past_entry_changed": {
+        "title": "تغيير في يوم مغلق",
+        "body": "غيّر {who} قيدًا من {date}."
+      },
+      "entry_deleted": {
+        "title": "حُذف قيد",
+        "body": "حذف {who} قيدًا."
+      },
+      "debt_due": {
+        "title": "دين {client} مستحق",
+        "body": "{amount}، مستحق اليوم."
+      },
+      "debt_overdue": {
+        "title": "دين {client} متأخر",
+        "body": "{amount}، كان مستحقًا قبل {days} أيام."
+      },
+      "amanat_withdrawal": {
+        "title": "سحب أمانة",
+        "body": "سحب {client} مبلغ {amount} من الأمانة."
+      },
+      "low_balance": {
+        "title": "رصيد {account} منخفض",
+        "body": "بقي {amount} فقط."
+      },
+      "invitation_accepted": {
+        "title": "انضم {person} إلى {shop}",
+        "body": "أصبح {person} {role, select, owner {مالكًا} editor {محررًا} other {مشاهدًا}} هناك."
+      },
+      "role_changed": {
+        "title": "تغيّر دورك",
+        "body": "أصبحت {role, select, owner {مالكًا} editor {محررًا} other {مشاهدًا}} في {shop}."
+      },
+      "new_device": {
+        "title": "تسجيل دخول من جهاز جديد",
+        "body": "{device}. إن لم يكن أنت، سجّل الخروج من كل مكان."
+      }
     }
   },
   "home": {

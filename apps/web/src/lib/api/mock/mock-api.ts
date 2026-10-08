@@ -245,7 +245,7 @@ function bookRows(db: MockDb, workspaceId: Id): BookRow[] {
   return rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-/** "Rates not set", in the receiver's own language (the backend will use the translation files). */
+/** "Rates not set" in the receiver's own language, for push and SMS (the app builds its text from params). */
 const RATES_NOT_SET: Record<Language, (shop: string, codes: string) => { title: string; body: string }> = {
   en: (shop, codes) => ({ title: 'Rates not set', body: `${shop} has no rate yet today for ${codes}.` }),
   so: (shop, codes) => ({ title: 'Sicirka lama dhigin', body: `${shop} maanta weli sicir uma dhigin ${codes}.` }),
@@ -268,13 +268,21 @@ function writeDueNotifications(db: MockDb, user: User): boolean {
       db.rates.filter((rate) => rate.workspaceId === workspace.id && rate.date === day),
     );
     const id = dailyNotificationId('rates_not_set', workspace.id, day, user.id);
-    if (missing.length === 0 || db.notifications.some((n) => n.id === id)) continue;
+    const params = { shop: workspace.name, currencies: missing.join(', ') };
+    const existing = db.notifications.find((n) => n.id === id);
+    // Written before notifications had params: give it its details.
+    if (existing && !existing.params) {
+      existing.params = params;
+      wrote = true;
+    }
+    if (missing.length === 0 || existing) continue;
     db.notifications.push({
       id,
       userId: user.id,
       workspaceId: workspace.id,
       type: 'rates_not_set',
       ...RATES_NOT_SET[user.language](workspace.name, missing.join(', ')),
+      params,
       link: `/w/${workspace.id}`,
       priority: 'high',
       readAt: null,

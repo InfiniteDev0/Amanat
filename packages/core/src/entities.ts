@@ -266,13 +266,23 @@ export const NOTIFICATION_TYPES = [
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 export type NotificationPriority = 'low' | 'normal' | 'high';
 
+/** What a notification is about (a shop, a client, an amount…), as text or numbers. */
+export type NotificationParams = Record<string, string | number>;
+
 export interface Notification {
   id: Id;
   userId: Id;
   workspaceId: Id;
   type: NotificationType;
+  /** Written in the receiver's language when it was sent: for push and SMS, and old rows without params. */
   title: string;
   body: string;
+  /**
+   * The details its text is built from, so the app shows it in whatever
+   * language the viewer has now (the type picks the sentence). Null on rows
+   * written before these existed: the title and body are shown as they are.
+   */
+  params: NotificationParams | null;
   /** In-app path to the record it is about. */
   link: string | null;
   priority: NotificationPriority;

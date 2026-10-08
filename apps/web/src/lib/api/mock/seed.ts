@@ -306,6 +306,7 @@ export function seedDb(): MockDb {
     body: string,
     link: string,
     createdAt: string,
+    params: Notification['params'],
     read = false,
   ): Notification => ({
     id,
@@ -316,16 +317,17 @@ export function seedDb(): MockDb {
     body,
     link,
     priority,
+    params,
     readAt: read ? createdAt : null,
     clearedAt: null,
     createdAt,
   });
   db.notifications.push(
-    note('n-amanat', eastleigh.id, 'amanat_withdrawal', 'normal', 'Amanat withdrawn', 'Fatuma Noor withdrew 500.00 USD of amanat.', `/w/${eastleigh.id}/clients`, ago(60)),
-    note('n-overdue', eastleigh.id, 'debt_overdue', 'high', "Ali Abdi's debt is overdue", '200.00 USD, due 3 days ago.', `/w/${eastleigh.id}/clients`, ago(180)),
-    note('n-not-closed', garissa.id, 'day_not_closed', 'high', "Yesterday wasn't closed", `Sarrif – Garissa didn't close ${yesterday}. Count the cash to close it.`, `/w/${garissa.id}/book`, ago(60 * 15)),
-    note('n-summary', eastleigh.id, 'daily_summary', 'normal', `Eastleigh closed ${yesterday}`, 'Every account counted exactly as expected.', `/w/${eastleigh.id}/reports`, ago(60 * 15), true),
-    note('n-joined', eastleigh.id, 'invitation_accepted', 'low', 'Amina Hassan joined Sarrif – Eastleigh', 'Amina Hassan is an Editor there now.', `/w/${eastleigh.id}/team`, cashier.createdAt, true),
+    note('n-amanat', eastleigh.id, 'amanat_withdrawal', 'normal', 'Amanat withdrawn', 'Fatuma Noor withdrew 500.00 USD of amanat.', `/w/${eastleigh.id}/clients`, ago(60), { client: 'Fatuma Noor', amount: '500.00 USD' }),
+    note('n-overdue', eastleigh.id, 'debt_overdue', 'high', "Ali Abdi's debt is overdue", '200.00 USD, due 3 days ago.', `/w/${eastleigh.id}/clients`, ago(180), { client: 'Ali Abdi', amount: '200.00 USD', days: 3 }),
+    note('n-not-closed', garissa.id, 'day_not_closed', 'high', "Yesterday wasn't closed", `Sarrif – Garissa didn't close ${yesterday}. Count the cash to close it.`, `/w/${garissa.id}/book`, ago(60 * 15), { shop: garissa.name, date: yesterday }),
+    note('n-summary', eastleigh.id, 'daily_summary', 'normal', `Eastleigh closed ${yesterday}`, 'Every account counted exactly as expected.', `/w/${eastleigh.id}/reports`, ago(60 * 15), { shop: eastleigh.name, date: yesterday }, true),
+    note('n-joined', eastleigh.id, 'invitation_accepted', 'low', 'Amina Hassan joined Sarrif – Eastleigh', 'Amina Hassan is an Editor there now.', `/w/${eastleigh.id}/team`, cashier.createdAt, { person: cashier.name, shop: eastleigh.name, role: 'editor' }, true),
   );
 
   return db;

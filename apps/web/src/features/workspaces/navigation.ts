@@ -33,7 +33,13 @@ export function isLinkActive(pathname: string, workspaceId: string, item: Pick<N
   return item.path === '' ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** The page the pathname is on, for the breadcrumb (Home has none: the shop's name says it). */
-export function pageFor(pathname: string, workspaceId: string): NavItem | null {
-  return [...NAV_MAIN, ...NAV_BOTTOM].find((item) => item.path !== '' && isLinkActive(pathname, workspaceId, item)) ?? null;
+/**
+ * The page the pathname is on, for the breadcrumb in the top bar: the first
+ * part after the shop ('book', 'team', …), whose label is `nav.<key>`. Null on
+ * Home (the shop's name already says where you are).
+ */
+export function pageKeyFor(pathname: string, workspaceId: string): string | null {
+  const prefix = `/w/${workspaceId}/`;
+  if (!pathname.startsWith(prefix)) return null;
+  return pathname.slice(prefix.length).split('/')[0] || null;
 }

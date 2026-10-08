@@ -1,7 +1,8 @@
-// The paid plans, shown in the plans dialog. Prices in whole US dollars.
+// The paid plans, shown in the plans dialog. Prices in US dollars.
 //
-// PROVISIONAL: the spec has no plans yet. Names and prices are the user's
-// (Pro $30 a month or $250 a year, Team $40 a month or $300 a year); what
+// PROVISIONAL: the spec has no plans yet. Names and prices are the user's:
+// Pro $49.99 a month, Team $89.99; yearly is ten months' price for twelve
+// (about 17% off): $499.99 and $899.99. What
 // each plan includes is placeholder wording to be confirmed. There is no
 // payment provider yet, so choosing a plan changes nothing.
 
@@ -33,13 +34,13 @@ export interface Plan {
 export const PLANS: Plan[] = [
   {
     id: 'pro',
-    price: { monthly: 30, yearly: 250 },
+    price: { monthly: 49.99, yearly: 499.99 },
     popular: true,
     features: ['oneShop', 'unlimitedEntries', 'threeMembers', 'dailySummary', 'excel', 'pushAlerts'],
   },
   {
     id: 'team',
-    price: { monthly: 40, yearly: 300 },
+    price: { monthly: 89.99, yearly: 899.99 },
     popular: false,
     features: ['manyShops', 'allShops', 'unlimitedMembers', 'shopTransfers', 'smsSummary', 'prioritySupport'],
   },

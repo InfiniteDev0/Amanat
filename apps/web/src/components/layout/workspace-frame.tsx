@@ -5,7 +5,6 @@ import { type CSSProperties, type ReactNode, useState } from 'react';
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { TopBar } from '@/components/layout/top-bar';
-import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { directionOf } from '@/i18n/routing';
 
@@ -23,8 +22,8 @@ function sidebarWasOpen(): boolean {
  *
  * 1. Top bar: across the whole width, on the page itself (the shop switch).
  * 2. Sidebar: a rounded card under it, folded to icons until opened (remembered).
- * 3. Main: a rounded, bordered panel beside it with the page's header; only
- *    its contents scroll.
+ * 3. Main: a rounded, bordered panel beside it; only its contents scroll. The
+ *    page's name is in the top bar, so the panel has no header.
  *
  * Sidebar and main start at the same height and end the same gap above the
  * bottom. The setup wizard draws the same frame behind itself.
@@ -52,7 +51,6 @@ export function WorkspaceFrame({ workspaceId, shopName, children }: { workspaceI
             "inset") is the gap to the screen's edges and to the main panel. */}
         <AppSidebar variant="inset" dir={dir} workspaceId={workspaceId} className="top-12 bottom-0 h-auto pt-0" />
         <SidebarInset className="border-border mt-0! min-h-0 overflow-hidden rounded-lg! border">
-          <SiteHeader workspaceId={workspaceId} shopName={shopName} />
           <div className="scrollbar-pill flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">{children}</div>
         </SidebarInset>
       </SidebarProvider>

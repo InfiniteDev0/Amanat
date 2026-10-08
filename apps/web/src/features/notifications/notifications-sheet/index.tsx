@@ -16,7 +16,7 @@ import { directionOf } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 import { useClearNotifications, useMarkNotificationsRead, useNotifications, useRestoreNotifications } from '../queries';
-import { localDay, NotificationCard } from './notification-card';
+import { localDay, NotificationCard, useNotificationText } from './notification-card';
 import { SwipeNotification } from './swipe-notification';
 import { type Revealed, SwipeReveal } from './swipe-reveal';
 
@@ -41,6 +41,7 @@ export function NotificationsButton({ className }: { className?: string }) {
   const notifications = useNotifications();
   const shops = useMyWorkspaces().data ?? [];
   const markRead = useMarkNotificationsRead();
+  const text = useNotificationText();
   const clearMutation = useClearNotifications();
   const restore = useRestoreNotifications();
   const [open, setOpen] = React.useState(false);
@@ -80,7 +81,7 @@ export function NotificationsButton({ className }: { className?: string }) {
     const ids = cleared.map(({ id }) => id);
     clearMutation.mutate(ids);
     setRevealed(null);
-    gooeyToast.success(cleared.length === 1 ? t('clearedOne', { title: cleared[0]!.title }) : t('clearedMany', { count: cleared.length }), {
+    gooeyToast.success(cleared.length === 1 ? t('clearedOne', { title: text(cleared[0]!).title }) : t('clearedMany', { count: cleared.length }), {
       action: { label: t('undo'), successLabel: t('restored'), onClick: () => restore.mutate(ids) },
     });
   };
