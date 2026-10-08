@@ -14,6 +14,7 @@ import {
   createExpenseSchema,
   createTransferSchema,
   createWorkspaceSchema,
+  updateAccountSchema,
   type CurrencyCode,
   daySummary,
   type Debt,
@@ -463,6 +464,17 @@ export const mockApi: SarrifApi = {
       }
       const account = { id: newId(), workspaceId, ...data, archived: false, createdAt: nowIso() };
       db.accounts.push(account);
+      saveDb();
+      return account;
+    },
+
+    async update(workspaceId, accountId, input) {
+      await latency();
+      const { db } = access(getDb(), workspaceId, 'manage_accounts');
+      const data = parse(updateAccountSchema, input);
+      const account = db.accounts.find((a) => a.id === accountId && a.workspaceId === workspaceId);
+      if (!account) throw new ApiError('not_found');
+      Object.assign(account, data);
       saveDb();
       return account;
     },

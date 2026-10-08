@@ -47,6 +47,8 @@ export interface AccountPosition {
 export interface DaySummary {
   date: string;
   baseCurrency: CurrencyCode;
+  /** The day's rates, for showing figures in another currency (valueFromBase). */
+  board: RateBoard;
   /** Traded currencies with no rate today. */
   missingRates: CurrencyCode[];
   exchangeCount: number;
@@ -130,6 +132,7 @@ export function daySummary(input: DaySummaryInput): DaySummary {
   return {
     date,
     baseCurrency: workspace.baseCurrency,
+    board,
     missingRates: missingRates(workspace, board),
     exchangeCount: todaysExchanges.length,
     exchangedIn: totalsToList(exchangedIn),

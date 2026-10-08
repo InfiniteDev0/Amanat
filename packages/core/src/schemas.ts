@@ -113,6 +113,11 @@ export const createAccountSchema = z.object({
   minimumBalance: z.int('validation.amount').min(0).nullable().default(null),
 });
 
+/** What an Owner can change on an account: so far, the money it started with. */
+export const updateAccountSchema = z.object({
+  openingBalance: z.int('validation.amount').min(0, 'validation.amountPositive'),
+});
+
 export const ratePairSchema = z
   .object({ currency, buy: rate, sell: rate })
   .refine(
@@ -236,6 +241,7 @@ export type SignUpInput = z.input<typeof signUpSchema>;
 export type ProfileInput = z.input<typeof profileSchema>;
 export type CreateWorkspaceInput = z.input<typeof createWorkspaceSchema>;
 export type CreateAccountInput = z.input<typeof createAccountSchema>;
+export type UpdateAccountInput = z.input<typeof updateAccountSchema>;
 export type SetRatesInput = z.input<typeof setRatesSchema>;
 export type CreateClientInput = z.input<typeof createClientSchema>;
 export type OnboardingInput = z.input<typeof onboardingSchema>;

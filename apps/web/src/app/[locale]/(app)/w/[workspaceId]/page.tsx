@@ -1,4 +1,5 @@
-/** Home: blank until its design is decided. */
+import { HomeScreen } from '@/features/home/home-screen';
+
 export default function HomePage() {
-  return null;
+  return <HomeScreen />;
 }

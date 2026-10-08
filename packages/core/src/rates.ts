@@ -126,6 +126,20 @@ export function valueInBase(board: RateBoard, money: Money): number | null {
   return toMinor(fromMinor(money.amount, money.currency).div(midRate(pair)), board.base);
 }
 
+/**
+ * A base-currency amount (base minor units) in another currency at today's
+ * mid rate (that currency's minor units), or null when it has no rate today.
+ * The other way round from valueInBase.
+ */
+export function valueFromBase(board: RateBoard, baseAmount: number, to: CurrencyCode): number | null {
+  if (to === board.base) {
+    return baseAmount;
+  }
+  const pair = board.rates[to];
+  if (!pair) return null;
+  return toMinor(fromMinor(baseAmount, board.base).mul(midRate(pair)), to);
+}
+
 export interface DisplayRate {
   /** "129.5" */
   value: string;

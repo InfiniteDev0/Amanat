@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { profileSchema, ratePairSchema, signUpSchema, verifyCodeSchema } from './schemas';
+import { profileSchema, ratePairSchema, signUpSchema, updateAccountSchema, verifyCodeSchema } from './schemas';
 
 const signUp = {
   firstName: 'Amina',
@@ -76,5 +76,17 @@ describe('rates typed by hand', () => {
     expect(ratePairSchema.safeParse({ currency: 'KES', buy: '130', sell: '129' }).error?.issues[0]?.message).toBe(
       'validation.buyAboveSell',
     );
+  });
+});
+
+describe('updateAccountSchema', () => {
+  it('takes a whole number of minor units, zero or more', () => {
+    expect(updateAccountSchema.safeParse({ openingBalance: 250000 }).success).toBe(true);
+    expect(updateAccountSchema.safeParse({ openingBalance: 0 }).success).toBe(true);
+  });
+
+  it('refuses a negative or fractional amount', () => {
+    expect(updateAccountSchema.safeParse({ openingBalance: -1 }).error?.issues[0]?.message).toBe('validation.amountPositive');
+    expect(updateAccountSchema.safeParse({ openingBalance: 1.5 }).error?.issues[0]?.message).toBe('validation.amount');
   });
 });

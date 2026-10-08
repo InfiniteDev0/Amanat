@@ -5,7 +5,8 @@
     "description": "Hawlaha maalinlaha ah ee dukaamada sarrifka: sarrif, amaano, deyn iyo xisaab-xiridda maalinta.",
     "copyright": "© {year} Amanat. Xuquuqda oo dhan way xifdisan tahay.",
     "shortTagline": "Buugaagta dukaanka sarrifka",
-    "plan": "Qorshe bilaash ah"
+    "plan": "Qorshe bilaash ah",
+    "seePlans": "Qorshe bilaash: eeg qorshayaasha"
   },
   "language": {
     "label": "Luqadda",
@@ -301,6 +302,91 @@
       "invitation_accepted": "Fur kooxda",
       "role_changed": "Fur dukaanka",
       "new_device": "Hubi"
+    }
+  },
+  "home": {
+    "accounts": "Akoonnada",
+    "accountDay": "Gal {in} · Bax {out} maalintaas",
+    "total": "Wadarta {currency}",
+    "totalCaption": "Dhammaan akoonnada sicirka dhexe ee maalinta",
+    "totalMissing": "Weli sicir looma dhigin {currencies}",
+    "unknown": "—",
+    "today": "Maanta",
+    "pickDay": "Dooro maalin",
+    "showIn": "Ku muuji wadarta",
+    "rates": "Sicirrada",
+    "ratesMissingTitle": "Sicirrada maanta lama dhigin",
+    "ratesMissingBody": "Dhig iibsiga iyo iibinta {currencies} ka hor sarifka ugu horreeya.",
+    "setRates": "Dhig sicirka",
+    "rateCaption": "Iibsi / iibin, 1 {base}",
+    "editRate": "Beddel sicirka {currency}",
+    "openAccount": "{account}: haraaga ama wareejin"
+  },
+  "rates": {
+    "title": "Sicirrada maanta",
+    "titleOne": "Sicirka {currency}",
+    "hint": "1 {base}: inta aad ku iibsato iyo inta aad ku iibiso.",
+    "save": "Kaydi sicirrada",
+    "cancel": "Jooji",
+    "close": "Xir",
+    "saving": "Sicirrada waa la kaydinayaa…",
+    "saved": "Sicirrada waa la kaydiyay",
+    "savingDescription": "Looxa maanta waa la cusboonaysiinayaa.",
+    "savedDescription": "Faa'iidada iyo wadarta hadda waxay isticmaalaan sicirradan.",
+    "failedDescription": "Waxba lama beddelin."
+  },
+  "accountDialog": {
+    "close": "Xir",
+    "balanceNow": "Haraaga hadda",
+    "tabs": {
+      "balance": "Haraaga",
+      "move": "Wareeji"
+    },
+    "opening": "Lacagta ku jirtay bilowga",
+    "openingHint": "Waxa akoonku haystay ka hor intaan wax la diiwaan gelin. Haraagu waa kan iyo wixii lagu diiwaan geliyay.",
+    "balanceWillBe": "Haraagu wuxuu noqonayaa",
+    "saveBalance": "Kaydi haraaga",
+    "saving": "Waa la kaydinayaa…",
+    "balanceSaved": "{account} waa la cusboonaysiiyay",
+    "noRate": "Marka hore dhig sicirrada maanta.",
+    "pickAccount": "Dooro akoon",
+    "recording": "Waa la diiwaan gelinayaa…",
+    "amountMove": "Ka qaad {account}",
+    "moveTo": "Geli",
+    "recordMove": "Wareeji lacagta",
+    "moved": "Lacagta waa la wareejiyay",
+    "noOtherAccount": "Ma jiro akoon kale oo loo wareejiyo.",
+    "arrivesAs": "Wuxuu {account} u gaarayaa"
+  },
+  "plans": {
+    "title": "Si aad u sii wadato, dooro qorshe",
+    "period": "Muddada lacag bixinta",
+    "monthly": "Bishii",
+    "yearly": "Sannadkii",
+    "names": {
+      "pro": "Pro",
+      "team": "Koox"
+    },
+    "popular": "Caan",
+    "perMonth": "Bishii",
+    "perYear": "Sannadkii",
+    "select": "Dooro qorshe",
+    "back": "Dib u noqo",
+    "chosen": "{plan} waa la doortay",
+    "chosenDescription": "Waan kula soo xiriiri doonnaa si loo diyaariyo.",
+    "features": {
+      "oneShop": "Hal dukaan, diiwaan kasta",
+      "unlimitedEntries": "Diiwaanno aan xad lahayn",
+      "threeMembers": "Ilaa 3 xubnood oo koox ah",
+      "dailySummary": "Soo koobid maalinle marka maalinta la xiro",
+      "excel": "U dhoofi Excel",
+      "pushAlerts": "Digniino taleefan",
+      "manyShops": "Dukaamo badan hal akoon",
+      "allShops": "Dhammaan dukaamada iyo wadarta guud",
+      "unlimitedMembers": "Xubno aan xad lahayn",
+      "shopTransfers": "Wareejin dukaamada dhexdooda",
+      "smsSummary": "Soo koobid SMS iyo WhatsApp",
+      "prioritySupport": "Taageero degdeg ah"
     }
   }
 }

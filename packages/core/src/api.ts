@@ -31,6 +31,7 @@ import type {
   ProfileInput,
   SendCodeInput,
   SetRatesInput,
+  UpdateAccountInput,
   VerifyCodeInput,
 } from './schemas';
 import type { DaySummary } from './summary';
@@ -168,6 +169,8 @@ export interface SarrifApi {
   accounts: {
     list(workspaceId: Id): Promise<Account[]>;
     create(workspaceId: Id, input: CreateAccountInput): Promise<Account>;
+    /** Owners: set the money the account started with (its balance = that + its entries). */
+    update(workspaceId: Id, accountId: Id, input: UpdateAccountInput): Promise<Account>;
   };
 
   rates: {

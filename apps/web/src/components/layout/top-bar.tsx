@@ -21,7 +21,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 
 /** Settings and People: two quiet buttons side by side under the shop's name. */
 const MENU_BUTTON_CLASS =
-  'bg-muted hover:bg-accent focus:bg-accent flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium [&_svg]:size-4';
+  'bg-foreground/8 hover:bg-foreground/12 focus:bg-foreground/12 dark:bg-muted dark:hover:bg-accent dark:focus:bg-accent flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium [&_svg]:size-4';
 
 /**
  * The bar across the top of the app, on the page itself (no panel): which
@@ -42,13 +42,13 @@ export function TopBar({ workspaceId, shopName }: { workspaceId: string; shopNam
       <DropdownMenu>
         <DropdownMenuTrigger
           aria-label={t('shell.switchShop')}
-          className="hover:bg-muted aria-expanded:bg-muted flex h-8 max-w-80 items-center gap-2.5 rounded-md bg-white/5 px-1 text-[15px] font-semibold transition-colors"
+          className="bg-foreground/5 hover:bg-foreground/10 aria-expanded:bg-foreground/10 dark:bg-white/5 dark:hover:bg-muted dark:aria-expanded:bg-muted flex h-8 max-w-80 items-center gap-2.5 rounded-md px-1 text-[15px] font-semibold transition-colors"
         >
           <ShopBadge id={workspaceId} name={shopName} />
           <span className="truncate">{shopName}</span>
           <ChevronDownIcon className="text-muted-foreground size-4 shrink-0" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" sideOffset={6} className="border-border bg-black w-80 rounded-xl border p-2 shadow-none ring-0">
+        <DropdownMenuContent align="start" sideOffset={6} className="border-border bg-popover w-80 rounded-xl border p-2 shadow-none ring-0 dark:bg-black">
           <div className="flex items-center gap-3 p-2">
             <ShopBadge id={workspaceId} name={shopName} className="size-11 rounded-xl text-lg" />
             <div className="min-w-0">

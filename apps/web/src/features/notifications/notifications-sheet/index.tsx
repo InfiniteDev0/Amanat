@@ -24,7 +24,7 @@ import { type Revealed, SwipeReveal } from './swipe-reveal';
 // their own file; the bell and its panel here.
 
 const HEADER_BUTTON =
-  'text-foreground hover:bg-white/10 flex size-9 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-5';
+  'text-foreground hover:bg-foreground/10 flex size-9 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-5';
 
 /**
  * The bell at the end of the top bar, with the unread count, and the panel it
@@ -108,7 +108,7 @@ export function NotificationsButton({ className }: { className?: string }) {
             type="button"
             aria-label={unread.length > 0 ? t('buttonUnread', { count: unread.length }) : t('button')}
             className={cn(
-              'text-foreground/80 hover:bg-muted hover:text-foreground aria-expanded:bg-muted relative flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/5 transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
+              'text-foreground/80 hover:text-foreground bg-foreground/5 hover:bg-foreground/10 aria-expanded:bg-foreground/10 dark:bg-white/5 dark:hover:bg-muted dark:aria-expanded:bg-muted relative flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
               className,
             )}
           />
@@ -143,7 +143,7 @@ export function NotificationsButton({ className }: { className?: string }) {
               type="button"
               disabled={visible.length === 0}
               onClick={() => clear(visible)}
-              className="text-foreground me-1 h-8 rounded-full bg-white/10 px-3 text-[13px] font-semibold transition-colors outline-none hover:bg-white/15 focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-40"
+              className="text-foreground me-1 h-8 rounded-full bg-foreground/5 px-3 text-[13px] font-semibold transition-colors outline-none hover:bg-foreground/10 focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-40"
             >
               {t('clearAll')}
             </button>

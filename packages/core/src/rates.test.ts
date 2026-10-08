@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { displayRate, isValidRatePair, quoteByGet, quoteByGive, type RateBoard, valueInBase } from './rates';
+import { displayRate, isValidRatePair, quoteByGet, quoteByGive, type RateBoard, valueFromBase, valueInBase } from './rates';
 
 const board: RateBoard = {
   base: 'USD',
@@ -59,5 +59,17 @@ describe('rate helpers', () => {
     const quote = quoteByGet(board, 'KES', { amount: 10000, currency: 'USD' })!;
     expect(displayRate(quote.rate, 'KES', 'USD')).toEqual({ value: '130.5', unit: 'KES', per: 'USD' });
     expect(displayRate('129', 'USD', 'KES')).toEqual({ value: '129', unit: 'KES', per: 'USD' });
+  });
+});
+
+describe('valueFromBase', () => {
+  it('converts a base amount at the mid rate', () => {
+    // 100.00 USD at KES mid 129.75 = 12,975.00 KES
+    expect(valueFromBase(board, 10000, 'KES')).toBe(1297500);
+  });
+
+  it('leaves the base as it is and is null without a rate', () => {
+    expect(valueFromBase(board, 10000, 'USD')).toBe(10000);
+    expect(valueFromBase(board, 10000, 'EUR')).toBeNull();
   });
 });

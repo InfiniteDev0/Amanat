@@ -4,6 +4,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 
 import { Flag } from '@/components/flag';
 import { FieldAlert } from '@/components/ui/field-alert';
+import { formatMarket } from '@/features/rates/format-market';
 import { useMarketRates } from '@/features/rates/queries';
 import { currencyFlag } from '@/lib/currency-flag';
 
@@ -20,13 +21,6 @@ import { StepHeader } from './step-header';
  * public feed); the shop's own buy and sell stay theirs to type.
  */
 
-/** Enough digits to be useful: 129.61, 3.6725, 0.892949. Latin digits, read left to right. */
-function formatMarket(value: string): string {
-  const number = Number(value);
-  const options: Intl.NumberFormatOptions =
-    number >= 100 ? { maximumFractionDigits: 2 } : number >= 1 ? { maximumFractionDigits: 4 } : { maximumSignificantDigits: 6 };
-  return new Intl.NumberFormat('en-US', options).format(number);
-}
 export default function RatesStep({ draft, update, problem }: StepProps) {
   const t = useTranslations('onboarding.rates');
   const base = draft.baseCurrency;

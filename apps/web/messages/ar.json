@@ -5,7 +5,8 @@
     "description": "العمليات اليومية لمحلات الصرافة: التحويلات والأمانات والديون وإغلاق اليوم.",
     "copyright": "© {year} أمانات. جميع الحقوق محفوظة.",
     "shortTagline": "دفاتر محلات الصرافة",
-    "plan": "الخطة المجانية"
+    "plan": "الخطة المجانية",
+    "seePlans": "الخطة المجانية: عرض الخطط"
   },
   "language": {
     "label": "اللغة",
@@ -301,6 +302,91 @@
       "invitation_accepted": "فتح الفريق",
       "role_changed": "فتح المتجر",
       "new_device": "تحقّق"
+    }
+  },
+  "home": {
+    "accounts": "الحسابات",
+    "accountDay": "وارد {in} · صادر {out} في ذلك اليوم",
+    "total": "الإجمالي بـ {currency}",
+    "totalCaption": "كل الحسابات بسعر اليوم المتوسط",
+    "totalMissing": "لا يوجد سعر بعد لـ {currencies}",
+    "unknown": "—",
+    "today": "اليوم",
+    "pickDay": "اختر يومًا",
+    "showIn": "اعرض الإجمالي بـ",
+    "rates": "الأسعار",
+    "ratesMissingTitle": "لم تُحدَّد أسعار اليوم",
+    "ratesMissingBody": "حدّد سعر الشراء والبيع لـ {currencies} قبل أول عملية صرف.",
+    "setRates": "تحديد الأسعار",
+    "rateCaption": "نشتري / نبيع، لكل 1 {base}",
+    "editRate": "تغيير سعر {currency}",
+    "openAccount": "{account}: الرصيد أو التحويل"
+  },
+  "rates": {
+    "title": "أسعار اليوم",
+    "titleOne": "سعر {currency}",
+    "hint": "لكل 1 {base}: ما تدفعه عند الشراء وما تتقاضاه عند البيع.",
+    "save": "حفظ الأسعار",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "saving": "جارٍ حفظ الأسعار…",
+    "saved": "تم حفظ الأسعار",
+    "savingDescription": "تحديث لوحة اليوم.",
+    "savedDescription": "الربح والإجماليات تستخدم هذه الأسعار الآن.",
+    "failedDescription": "لم يتغيّر شيء."
+  },
+  "accountDialog": {
+    "close": "إغلاق",
+    "balanceNow": "الرصيد الآن",
+    "tabs": {
+      "balance": "الرصيد",
+      "move": "تحويل"
+    },
+    "opening": "المبلغ في البداية",
+    "openingHint": "ما كان في الحساب قبل تسجيل أي شيء. الرصيد هو هذا مع كل ما سُجّل عليه.",
+    "balanceWillBe": "سيصبح الرصيد",
+    "saveBalance": "حفظ الرصيد",
+    "saving": "جارٍ الحفظ…",
+    "balanceSaved": "تم تحديث {account}",
+    "noRate": "حدّد أسعار اليوم أولًا.",
+    "pickAccount": "اختر حسابًا",
+    "recording": "جارٍ التسجيل…",
+    "amountMove": "اسحب من {account}",
+    "moveTo": "ضعه في",
+    "recordMove": "تحويل المال",
+    "moved": "تم تحويل المال",
+    "noOtherAccount": "لا يوجد حساب آخر للتحويل إليه.",
+    "arrivesAs": "يصل إلى {account} بقيمة"
+  },
+  "plans": {
+    "title": "للمتابعة، اختر خطة",
+    "period": "فترة الفوترة",
+    "monthly": "شهري",
+    "yearly": "سنوي",
+    "names": {
+      "pro": "برو",
+      "team": "فريق"
+    },
+    "popular": "الأكثر طلبًا",
+    "perMonth": "شهريًا",
+    "perYear": "سنويًا",
+    "select": "اختر الخطة",
+    "back": "رجوع",
+    "chosen": "تم اختيار {plan}",
+    "chosenDescription": "سنتواصل معك لإعدادها.",
+    "features": {
+      "oneShop": "متجر واحد بكل السجلات",
+      "unlimitedEntries": "قيود غير محدودة في الدفتر",
+      "threeMembers": "حتى 3 أعضاء في الفريق",
+      "dailySummary": "ملخص يومي عند إغلاق اليوم",
+      "excel": "تصدير إلى Excel",
+      "pushAlerts": "تنبيهات على الهاتف",
+      "manyShops": "عدة متاجر في حساب واحد",
+      "allShops": "عرض كل المتاجر مع الإجماليات",
+      "unlimitedMembers": "أعضاء غير محدودين",
+      "shopTransfers": "تحويلات بين المتاجر",
+      "smsSummary": "ملخصات عبر SMS وواتساب",
+      "prioritySupport": "دعم ذو أولوية"
     }
   }
 }

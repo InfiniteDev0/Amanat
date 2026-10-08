@@ -5,7 +5,8 @@
     "description": "Daily operations for currency exchange shops: exchanges, amanat, debts and the daily closing.",
     "copyright": "© {year} Amanat. All rights reserved.",
     "shortTagline": "Exchange Os",
-    "plan": "Free Plan"
+    "plan": "Free Plan",
+    "seePlans": "Free Plan: see the plans"
   },
   "language": {
     "label": "Language",
@@ -301,6 +302,91 @@
       "invitation_accepted": "Open the team",
       "role_changed": "Open the shop",
       "new_device": "Check it"
+    }
+  },
+  "home": {
+    "accounts": "Accounts",
+    "accountDay": "In {in} · Out {out} that day",
+    "total": "Total in {currency}",
+    "totalCaption": "All accounts at the day's mid rates",
+    "totalMissing": "No rate yet for {currencies}",
+    "unknown": "—",
+    "today": "Today",
+    "pickDay": "Pick a day",
+    "showIn": "Show the total in",
+    "rates": "Rates",
+    "ratesMissingTitle": "Today's rates aren't set",
+    "ratesMissingBody": "Set buy and sell",
+    "setRates": "Set rates",
+    "rateCaption": "We buy / we sell, for 1 {base}",
+    "editRate": "Change the {currency} rate",
+    "openAccount": "{account}: balance or move"
+  },
+  "rates": {
+    "title": "Today's rates",
+    "titleOne": "{currency} rate",
+    "hint": "For 1 {base}: what you pay when you buy it and charge when you sell it.",
+    "save": "Save rates",
+    "cancel": "Cancel",
+    "close": "Close",
+    "saving": "Saving rates…",
+    "saved": "Rates saved",
+    "savingDescription": "Updating today's board.",
+    "savedDescription": "Profit and totals now use these rates.",
+    "failedDescription": "Nothing was changed."
+  },
+  "accountDialog": {
+    "close": "Close",
+    "balanceNow": "Balance now",
+    "tabs": {
+      "balance": "Balance",
+      "move": "Move"
+    },
+    "opening": "Money in it at the start",
+    "openingHint": "What the account held before anything was recorded. Its balance is this plus everything recorded on it.",
+    "balanceWillBe": "Balance will be",
+    "saveBalance": "Save balance",
+    "saving": "Saving…",
+    "balanceSaved": "{account} updated",
+    "noRate": "Set today's rates first.",
+    "pickAccount": "Pick an account",
+    "recording": "Recording…",
+    "amountMove": "Take from {account}",
+    "moveTo": "Put it in",
+    "recordMove": "Move the money",
+    "moved": "Money moved",
+    "noOtherAccount": "There is no other account to move to.",
+    "arrivesAs": "Arrives in {account} as"
+  },
+  "plans": {
+    "title": "To continue, choose a plan",
+    "period": "Billing period",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "names": {
+      "pro": "Pro",
+      "team": "Team"
+    },
+    "popular": "Popular",
+    "perMonth": "Per month",
+    "perYear": "Per year",
+    "select": "Select plan",
+    "back": "Go back",
+    "chosen": "{plan} chosen",
+    "chosenDescription": "We'll get in touch to set it up.",
+    "features": {
+      "oneShop": "One shop, every record",
+      "unlimitedEntries": "Unlimited entries in the Book",
+      "threeMembers": "Up to 3 team members",
+      "dailySummary": "Daily summary when the day closes",
+      "excel": "Export to Excel",
+      "pushAlerts": "Phone alerts for big entries and late rates",
+      "manyShops": "Several shops on one account",
+      "allShops": "All shops view with combined totals",
+      "unlimitedMembers": "Unlimited team members",
+      "shopTransfers": "Transfers between shops",
+      "smsSummary": "SMS and WhatsApp summaries",
+      "prioritySupport": "Priority support"
     }
   }
 }
