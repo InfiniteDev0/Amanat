@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 
 import { BILLING_PERIODS, type BillingPeriod, PLANS } from './plans';
 
-/** "$49.99", read left to right. */
-const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+/** "$30": whole dollars (cents only when a price has them), read left to right. */
+const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 });
 
 /**
  * "Choose a plan": the plans side by side, a Monthly / Yearly switch at the
