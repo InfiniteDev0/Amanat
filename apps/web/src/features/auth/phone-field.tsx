@@ -11,6 +11,7 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import { FieldAlert } from '@/components/ui/field-alert';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { directionOf } from '@/i18n/routing';
+import { cn } from '@/lib/utils';
 
 import { dialCode, matchesCountry, PINNED_COUNTRIES, type PhoneCountry, phoneCountries } from './countries';
 import type { PhoneInput } from './schemas';
@@ -42,7 +43,9 @@ export function PhoneField({
   const pick = (country: CountryCode) => onChange({ ...value, country });
 
   return (
-    <Field data-invalid={Boolean(error)} className="relative">
+    // Raised while the list is open: it drops over the fields below, and the
+    // currency field's box sits at the same z-index (later in the page wins a tie).
+    <Field data-invalid={Boolean(error)} className={cn('relative', open && 'z-30')}>
       <FieldLabel htmlFor={id} className="sr-only">
         {t('phone')}
       </FieldLabel>

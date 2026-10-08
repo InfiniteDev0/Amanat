@@ -265,5 +265,42 @@
     "label": "Muuqaalka",
     "light": "Iftiin",
     "dark": "Mugdi"
+  },
+  "notifications": {
+    "title": "Ogeysiisyada",
+    "button": "Ogeysiisyada",
+    "buttonUnread": "Ogeysiisyada, {count} aan la akhrin",
+    "unread": "{count} aan la akhrin",
+    "caughtUp": "Wax cusub ma jiraan",
+    "emptyBody": "Xasuusinta sicirka, xiritaanka, deymaha iyo lacagaha waaweyn halkan ayay ka muuqdaan.",
+    "clearAll": "Tirtir dhammaan",
+    "markAllRead": "Dhammaan calaamadee la akhriyay",
+    "close": "Xir",
+    "today": "Maanta",
+    "earlier": "Hore",
+    "unreadMark": "Aan la akhrin",
+    "clearedOne": "\"{title}\" waa la tirtiray",
+    "clearedMany": "{count, plural, one {# ogeysiis waa la tirtiray} other {# ogeysiis waa la tirtiray}}",
+    "undo": "Celi",
+    "restored": "Waa la celiyay",
+    "clear": "Tirtir",
+    "open": "Fur",
+    "loadFailed": "Ogeysiisyada lama soo dejin karin",
+    "actions": {
+      "rates_not_set": "Dhig sicirka",
+      "day_not_closed": "Xir maalinta",
+      "closing_difference": "Eeg xiritaanka",
+      "daily_summary": "Eeg warbixinta",
+      "large_transaction": "Fur diiwaanka",
+      "past_entry_changed": "Eeg isbeddelka",
+      "entry_deleted": "Fur buugga",
+      "debt_due": "Fur deynta",
+      "debt_overdue": "Fur deynta",
+      "amanat_withdrawal": "Fur macmiilka",
+      "low_balance": "Fur akoonka",
+      "invitation_accepted": "Fur kooxda",
+      "role_changed": "Fur dukaanka",
+      "new_device": "Hubi"
+    }
   }
 }

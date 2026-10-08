@@ -25,10 +25,10 @@ export function SidebarToggle() {
         aria-expanded={open}
         className="text-sidebar-foreground flex h-10 w-full items-center gap-3 rounded-md px-3 text-start text-base font-semibold transition-colors hover:bg-white/10 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl group-data-[collapsible=icon]:px-0"
       >
-        <Icon className="size-6 shrink-0 rtl:rotate-180" strokeWidth={2.5} />
-        <span className="truncate group-data-[collapsible=icon]:hidden">{t('collapse')}</span>
+        <Icon className="size-5 shrink-0 rtl:rotate-180" strokeWidth={2.5} />
+        <span className="truncate text-sm group-data-[collapsible=icon]:hidden">{t('collapse')}</span>
       </button>
-      <span aria-hidden className="bg-sidebar-foreground/40 h-0.5 w-full rounded-full group-data-[collapsible=icon]:w-6" />
+      <span aria-hidden className="bg-sidebar-foreground/10 h-0.5 w-full rounded-full group-data-[collapsible=icon]:w-6" />
     </div>
   );
 }

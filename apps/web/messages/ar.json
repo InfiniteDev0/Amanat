@@ -265,5 +265,42 @@
     "label": "المظهر",
     "light": "فاتح",
     "dark": "داكن"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "button": "الإشعارات",
+    "buttonUnread": "الإشعارات، {count} غير مقروءة",
+    "unread": "{count} غير مقروءة",
+    "caughtUp": "لا جديد",
+    "emptyBody": "تظهر هنا تذكيرات الأسعار والإغلاق والديون والعمليات الكبيرة.",
+    "clearAll": "مسح الكل",
+    "markAllRead": "تعليم الكل كمقروء",
+    "close": "إغلاق",
+    "today": "اليوم",
+    "earlier": "سابقًا",
+    "unreadMark": "غير مقروء",
+    "clearedOne": "تم مسح \"{title}\"",
+    "clearedMany": "{count, plural, one {تم مسح إشعار واحد} other {تم مسح # إشعارات}}",
+    "undo": "تراجع",
+    "restored": "تمت الاستعادة",
+    "clear": "مسح",
+    "open": "فتح",
+    "loadFailed": "تعذّر تحميل الإشعارات",
+    "actions": {
+      "rates_not_set": "تحديد الأسعار",
+      "day_not_closed": "إغلاق اليوم",
+      "closing_difference": "عرض الإغلاق",
+      "daily_summary": "عرض التقرير",
+      "large_transaction": "فتح القيد",
+      "past_entry_changed": "عرض التغيير",
+      "entry_deleted": "فتح الدفتر",
+      "debt_due": "فتح الدين",
+      "debt_overdue": "فتح الدين",
+      "amanat_withdrawal": "فتح العميل",
+      "low_balance": "فتح الحساب",
+      "invitation_accepted": "فتح الفريق",
+      "role_changed": "فتح المتجر",
+      "new_device": "تحقّق"
+    }
   }
 }

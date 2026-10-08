@@ -11,6 +11,7 @@ import type {
   Exchange,
   Expense,
   Member,
+  Notification,
   Transfer,
   User,
   Workspace,
@@ -39,12 +40,13 @@ export interface MockDb {
   debtPayments: DebtPayment[];
   closings: DailyClosing[];
   activity: ActivityLog[];
+  notifications: Notification[];
   /** Who is signed in on this browser. */
   sessionUserId: string | null;
 }
 
 /** Bump when the shape changes: old saved data is thrown away and reseeded. */
-const VERSION = 1;
+const VERSION = 2;
 const STORAGE_KEY = 'sarrif-mock-db';
 
 let db: MockDb | null = null;
@@ -53,7 +55,9 @@ function load(): MockDb | null {
   if (typeof window === 'undefined') return null;
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    const parsed = saved ? (JSON.parse(saved) as MockDb) : null;
+    const parsed = saved ? (JSON.parse(saved) as MockDb | (Omit<MockDb, 'version' | 'notifications'> & { version: 1 })) : null;
+    // Version 1 had no notifications: keep everything recorded, start them empty.
+    if (parsed?.version === 1) return { ...parsed, version: VERSION, notifications: [] };
     return parsed?.version === VERSION ? parsed : null;
   } catch {
     return null;

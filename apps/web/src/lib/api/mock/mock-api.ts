@@ -33,6 +33,10 @@ import {
   type User,
   verifyCodeSchema,
   type Workspace,
+  dailyNotificationId,
+  isNotificationKept,
+  type Language,
+  overdueRates,
 } from '@sarrif/core';
 import type { ZodType } from 'zod';
 
@@ -238,6 +242,53 @@ function bookRows(db: MockDb, workspaceId: Id): BookRow[] {
       }),
   ];
   return rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/** "Rates not set", in the receiver's own language (the backend will use the translation files). */
+const RATES_NOT_SET: Record<Language, (shop: string, codes: string) => { title: string; body: string }> = {
+  en: (shop, codes) => ({ title: 'Rates not set', body: `${shop} has no rate yet today for ${codes}.` }),
+  so: (shop, codes) => ({ title: 'Sicirka lama dhigin', body: `${shop} maanta weli sicir uma dhigin ${codes}.` }),
+  ar: (shop, codes) => ({ title: 'لم تُحدَّد الأسعار', body: `لا يوجد سعر اليوم في ${shop} لـ ${codes}.` }),
+};
+
+/**
+ * What the backend's schedule would have written by now, for this user: one
+ * "Rates not set" per shop per day, for Owners and Editors, once it's past
+ * 9:00 there and rates are still missing.
+ */
+function writeDueNotifications(db: MockDb, user: User): boolean {
+  let wrote = false;
+  for (const member of db.members.filter((m) => m.userId === user.id && (m.role === 'owner' || m.role === 'editor'))) {
+    const workspace = db.workspaces.find((w) => w.id === member.workspaceId && w.status === 'active');
+    if (!workspace) continue;
+    const day = today(workspace);
+    const missing = overdueRates(
+      workspace,
+      db.rates.filter((rate) => rate.workspaceId === workspace.id && rate.date === day),
+    );
+    const id = dailyNotificationId('rates_not_set', workspace.id, day, user.id);
+    if (missing.length === 0 || db.notifications.some((n) => n.id === id)) continue;
+    db.notifications.push({
+      id,
+      userId: user.id,
+      workspaceId: workspace.id,
+      type: 'rates_not_set',
+      ...RATES_NOT_SET[user.language](workspace.name, missing.join(', ')),
+      link: `/w/${workspace.id}`,
+      priority: 'high',
+      readAt: null,
+      clearedAt: null,
+      createdAt: nowIso(),
+    });
+    wrote = true;
+  }
+  return wrote;
+}
+
+/** The user's own notifications with these ids. */
+function ownNotifications(db: MockDb, user: User, ids: Id[]) {
+  const wanted = new Set(ids);
+  return db.notifications.filter((n) => n.userId === user.id && wanted.has(n.id));
 }
 
 function matchesFilter(row: BookRow, filter: BookFilter): boolean {
@@ -528,6 +579,43 @@ export const mockApi: SarrifApi = {
       const { db, workspace } = access(getDb(), workspaceId);
       const date = filter.date ?? today(workspace);
       return bookRows(db, workspaceId).filter((row) => row.date === date && matchesFilter(row, filter));
+    },
+  },
+
+  notifications: {
+    async list() {
+      await latency();
+      const db = getDb();
+      const user = signedIn(db);
+      if (writeDueNotifications(db, user)) saveDb();
+      // Only shops the user is still in.
+      const shops = new Set(db.members.filter((m) => m.userId === user.id).map((m) => m.workspaceId));
+      return db.notifications
+        .filter((n) => n.userId === user.id && shops.has(n.workspaceId) && isNotificationKept(n))
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    },
+
+    async markRead(ids) {
+      await latency();
+      const db = getDb();
+      const now = nowIso();
+      for (const n of ownNotifications(db, signedIn(db), ids)) n.readAt ??= now;
+      saveDb();
+    },
+
+    async clear(ids) {
+      await latency();
+      const db = getDb();
+      const now = nowIso();
+      for (const n of ownNotifications(db, signedIn(db), ids)) n.clearedAt = now;
+      saveDb();
+    },
+
+    async restore(ids) {
+      await latency();
+      const db = getDb();
+      for (const n of ownNotifications(db, signedIn(db), ids)) n.clearedAt = null;
+      saveDb();
     },
   },
 

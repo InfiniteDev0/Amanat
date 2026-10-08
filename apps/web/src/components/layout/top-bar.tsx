@@ -13,31 +13,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AccountItems } from '@/components/layout/account-items';
+import { NotificationsButton } from '@/features/notifications/notifications-sheet';
+import { ShopBadge } from '@/components/shop-badge';
 import { useStartNewShop } from '@/features/onboarding/setup-wizard';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { Link, useRouter } from '@/i18n/navigation';
-import { cn } from '@/lib/utils';
-
-/** A steady colour per shop, so each one is recognisable at a glance. */
-const SHOP_COLOURS = ['bg-teal-600', 'bg-sky-600', 'bg-violet-600', 'bg-amber-600', 'bg-rose-600', 'bg-emerald-600'];
-
-function colourFor(id: string) {
-  let hash = 0;
-  for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  return SHOP_COLOURS[hash % SHOP_COLOURS.length];
-}
-
-/** The shop's first letter in its colour. */
-function ShopBadge({ id, name, className }: { id: string; name: string; className?: string }) {
-  return (
-    <span
-      aria-hidden
-      className={cn('flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white', colourFor(id), className)}
-    >
-      {name.trim().charAt(0).toLocaleUpperCase() || '·'}
-    </span>
-  );
-}
 
 /** Settings and People: two quiet buttons side by side under the shop's name. */
 const MENU_BUTTON_CLASS =
@@ -45,10 +25,10 @@ const MENU_BUTTON_CLASS =
 
 /**
  * The bar across the top of the app, on the page itself (no panel): which
- * shop you're in, and the menu to another. The menu: the shop (big badge,
- * name, your role and plan), its Settings and People, every shop you're in to
- * switch to, and Create shop (opens the setup wizard). The rest of the bar
- * comes later.
+ * shop you're in, and the menu to another; at the other end, the bell. The
+ * menu: the shop (big badge, name, your role and plan), its Settings and
+ * People, every shop you're in to switch to, Create shop (opens the setup
+ * wizard), then your language, theme and sign out.
  */
 export function TopBar({ workspaceId, shopName }: { workspaceId: string; shopName: string }) {
   const t = useTranslations();
@@ -117,6 +97,8 @@ export function TopBar({ workspaceId, shopName }: { workspaceId: string; shopNam
           <AccountItems />
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <NotificationsButton className="ms-auto" />
     </div>
   );
 }

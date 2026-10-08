@@ -7,6 +7,7 @@ import {
   type DailyRate,
   entriesFor,
   type LedgerSource,
+  type Notification,
   quoteByGive,
   type RateBoard,
   toMinor,
@@ -38,7 +39,7 @@ export function seedDb(): MockDb {
   const kes = (value: string) => toMinor(value, 'KES');
 
   const db: MockDb = {
-    version: 1,
+    version: 2,
     users: [],
     workspaces: [],
     members: [],
@@ -54,6 +55,7 @@ export function seedDb(): MockDb {
     debtPayments: [],
     closings: [],
     activity: [],
+    notifications: [],
     sessionUserId: null,
   };
 
@@ -290,6 +292,41 @@ export function seedDb(): MockDb {
       closedAt: ago(60 * 15),
     });
   }
+
+  // ── Notifications for the owner (in English, the owner's language) ─────────
+  // Garissa's "Rates not set" isn't here: the mock writes that one itself once
+  // it's past 9:00 there (notifications.list).
+
+  const note = (
+    id: string,
+    workspaceId: string,
+    type: Notification['type'],
+    priority: Notification['priority'],
+    title: string,
+    body: string,
+    link: string,
+    createdAt: string,
+    read = false,
+  ): Notification => ({
+    id,
+    userId: owner.id,
+    workspaceId,
+    type,
+    title,
+    body,
+    link,
+    priority,
+    readAt: read ? createdAt : null,
+    clearedAt: null,
+    createdAt,
+  });
+  db.notifications.push(
+    note('n-amanat', eastleigh.id, 'amanat_withdrawal', 'normal', 'Amanat withdrawn', 'Fatuma Noor withdrew 500.00 USD of amanat.', `/w/${eastleigh.id}/clients`, ago(60)),
+    note('n-overdue', eastleigh.id, 'debt_overdue', 'high', "Ali Abdi's debt is overdue", '200.00 USD, due 3 days ago.', `/w/${eastleigh.id}/clients`, ago(180)),
+    note('n-not-closed', garissa.id, 'day_not_closed', 'high', "Yesterday wasn't closed", `Sarrif – Garissa didn't close ${yesterday}. Count the cash to close it.`, `/w/${garissa.id}/book`, ago(60 * 15)),
+    note('n-summary', eastleigh.id, 'daily_summary', 'normal', `Eastleigh closed ${yesterday}`, 'Every account counted exactly as expected.', `/w/${eastleigh.id}/reports`, ago(60 * 15), true),
+    note('n-joined', eastleigh.id, 'invitation_accepted', 'low', 'Amina Hassan joined Sarrif – Eastleigh', 'Amina Hassan is an Editor there now.', `/w/${eastleigh.id}/team`, cashier.createdAt, true),
+  );
 
   return db;
 }

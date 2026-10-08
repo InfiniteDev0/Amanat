@@ -265,5 +265,42 @@
     "label": "Theme",
     "light": "Light",
     "dark": "Dark"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "button": "Notifications",
+    "buttonUnread": "Notifications, {count} unread",
+    "unread": "{count} unread",
+    "caughtUp": "You're all caught up",
+    "emptyBody": "Reminders about rates, closings, debts and large entries show up here.",
+    "clearAll": "Clear all",
+    "markAllRead": "Mark all as read",
+    "close": "Close",
+    "today": "Today",
+    "earlier": "Earlier",
+    "unreadMark": "Unread",
+    "clearedOne": "\"{title}\" cleared",
+    "clearedMany": "{count, plural, one {# notification cleared} other {# notifications cleared}}",
+    "undo": "Undo",
+    "restored": "Back",
+    "clear": "Clear",
+    "open": "Open",
+    "loadFailed": "Couldn't load your notifications",
+    "actions": {
+      "rates_not_set": "Set rates",
+      "day_not_closed": "Close the day",
+      "closing_difference": "See the closing",
+      "daily_summary": "See the report",
+      "large_transaction": "Open the entry",
+      "past_entry_changed": "See the change",
+      "entry_deleted": "Open the book",
+      "debt_due": "Open the debt",
+      "debt_overdue": "Open the debt",
+      "amanat_withdrawal": "Open the client",
+      "low_balance": "Open the account",
+      "invitation_accepted": "Open the team",
+      "role_changed": "Open the shop",
+      "new_device": "Check it"
+    }
   }
 }

@@ -277,6 +277,8 @@ export interface Notification {
   link: string | null;
   priority: NotificationPriority;
   readAt: Timestamp | null;
+  /** Taken off the user's list (it can be put back, for Undo). */
+  clearedAt: Timestamp | null;
   createdAt: Timestamp;
 }
 

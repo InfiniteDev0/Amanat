@@ -10,6 +10,7 @@ import type {
   Exchange,
   Expense,
   Id,
+  Notification,
   Role,
   Transfer,
   User,
@@ -197,6 +198,18 @@ export interface SarrifApi {
   summary: {
     /** Everything Home shows for one day (defaults to today). */
     day(workspaceId: Id, date?: BusinessDate): Promise<DaySummary>;
+  };
+
+  notifications: {
+    /**
+     * The signed-in user's notifications from every shop they're in, newest
+     * first: the last 90 days, cleared ones left out.
+     */
+    list(): Promise<Notification[]>;
+    markRead(ids: Id[]): Promise<void>;
+    /** Off the list. `restore` puts them back (the Undo after clearing). */
+    clear(ids: Id[]): Promise<void>;
+    restore(ids: Id[]): Promise<void>;
   };
 }
 
