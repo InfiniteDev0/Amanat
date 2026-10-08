@@ -11,11 +11,10 @@ import { type Locale, routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
 /** The flag shown for each language. Arabic has no single country; Saudi Arabia is the usual pick. */
-const LOCALE_FLAG: Record<Locale, string> = { en: 'GB', so: 'SO', ar: 'SA' };
+export const LOCALE_FLAG: Record<Locale, string> = { en: 'GB', so: 'SO', ar: 'SA' };
 
-/** Flag + EN / SO / AR. Swaps the language in the URL and keeps you on the same page. */
-export function LocaleSwitcher({ className }: { className?: string }) {
-  const t = useTranslations('language');
+/** Switches the language in the URL, staying on the same page. */
+export function useSwitchLocale() {
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
@@ -29,6 +28,14 @@ export function LocaleSwitcher({ className }: { className?: string }) {
       router.replace({ pathname, params }, { locale: next as Locale });
     });
   };
+  return { switchTo, isPending };
+}
+
+/** Flag + EN / SO / AR. Swaps the language in the URL and keeps you on the same page. */
+export function LocaleSwitcher({ className }: { className?: string }) {
+  const t = useTranslations('language');
+  const locale = useLocale() as Locale;
+  const { switchTo, isPending } = useSwitchLocale();
 
   return (
     <Select value={locale} onValueChange={switchTo} disabled={isPending} className={cn('w-[88px] shrink-0', className)}>

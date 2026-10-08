@@ -26,6 +26,7 @@ import type {
   CreateExpenseInput,
   CreateTransferInput,
   CreateWorkspaceInput,
+  OnboardingInput,
   ProfileInput,
   SendCodeInput,
   SetRatesInput,
@@ -118,6 +119,20 @@ export interface BookFilter {
   search?: string;
 }
 
+/**
+ * Today's mid-market rates from a public source: a guide while a shop sets
+ * its own buy and sell, never the shop's rate. Same convention as the board:
+ * units of each currency per 1 base unit, as decimal strings.
+ */
+export interface MarketRates {
+  base: CurrencyCode;
+  rates: Partial<Record<CurrencyCode, string>>;
+  /** When the source last updated them (ISO). */
+  updatedAt: string;
+  /** Name of the source, shown as credit. */
+  source: string;
+}
+
 export interface SarrifApi {
   auth: {
     /** Texts a 6-digit code. Signs up and signs in alike. */
@@ -127,6 +142,19 @@ export interface SarrifApi {
     getSession(): Promise<User | null>;
     updateProfile(input: ProfileInput): Promise<User>;
     signOut(): Promise<void>;
+  };
+
+  onboarding: {
+    /**
+     * Saves the first-run setup at once: profile, shop (caller = Owner),
+     * accounts and today's rates. All or nothing.
+     */
+    complete(input: OnboardingInput): Promise<{ user: User; workspace: Workspace }>;
+  };
+
+  market: {
+    /** Today's reference rates against `base`. Needs no sign-in. */
+    rates(base: CurrencyCode): Promise<MarketRates>;
   };
 
   workspaces: {

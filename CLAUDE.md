@@ -19,3 +19,13 @@ Read README.md and the two docs in docs/ first. apps/web/AGENTS.md applies to th
 - RTL: logical Tailwind classes only (`ms-`, `pe-`, `start-`, `text-start`); ESLint enforces it. Wrap amounts and phone numbers in `MoneyText` or `ltr()`.
 - The workspace comes from the URL (`/w/[workspaceId]`), read through `useWorkspace()`.
 - Use `Link` / `useRouter` from `@/i18n/navigation`, not `next/link` / `next/navigation`.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

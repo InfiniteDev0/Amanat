@@ -7,7 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { FieldGroup } from '@/components/ui/field';
-import { errorKey, useMessage } from '@/lib/api/errors';
+import { useMessage } from '@/lib/api/errors';
 
 import { DEFAULT_COUNTRY } from './countries';
 import { fieldError } from './field-error';
@@ -22,7 +22,7 @@ import { useRequestCode } from './use-request-code';
 export function LogInForm() {
   const t = useTranslations('auth');
   const message = useMessage();
-  const { request, isPending, error } = useRequestCode();
+  const { request, isPending } = useRequestCode();
 
   const form = useForm<LogInFormValues>({
     resolver: zodResolver(logInFormSchema),
@@ -52,7 +52,7 @@ export function LogInForm() {
                 form.clearErrors('phone');
               }}
               onBlur={field.onBlur}
-              error={fieldError(fieldState, message) ?? (error ? message(errorKey(error)) : null)}
+              error={fieldError(fieldState, message)}
               disabled={isPending}
             />
           )}

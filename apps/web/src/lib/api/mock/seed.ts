@@ -59,8 +59,8 @@ export function seedDb(): MockDb {
 
   // ── People and shops ───────────────────────────────────────────────────────
 
-  const owner: User = { id: 'user-owner', name: 'Ahmed Mohamed', phone: DEMO_PHONE, email: null, language: 'en', createdAt: ago(60 * 24 * 60) };
-  const cashier: User = { id: 'user-cashier', name: 'Amina Hassan', phone: CASHIER_PHONE, email: null, language: 'so', createdAt: ago(60 * 24 * 30) };
+  const owner: User = { id: 'user-owner', name: 'Ahmed Mohamed', phone: DEMO_PHONE, email: null, avatar: null, language: 'en', createdAt: ago(60 * 24 * 60) };
+  const cashier: User = { id: 'user-cashier', name: 'Amina Hassan', phone: CASHIER_PHONE, email: null, avatar: null, language: 'so', createdAt: ago(60 * 24 * 30) };
   db.users.push(owner, cashier);
 
   const shop = (id: string, name: string, location: string, currencies: CurrencyCode[]): Workspace => ({

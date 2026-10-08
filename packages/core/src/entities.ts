@@ -36,6 +36,8 @@ export interface User {
   /** E.164: +254712345678 */
   phone: string;
   email: string | null;
+  /** Profile photo: a URL (the real backend's storage) or a small data URL (the mock). */
+  avatar: string | null;
   language: Language;
   createdAt: Timestamp;
 }

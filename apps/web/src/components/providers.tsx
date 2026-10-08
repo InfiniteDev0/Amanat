@@ -28,7 +28,7 @@ export function Providers({ children, dir, theme }: { children: ReactNode; dir: 
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <GooeyToaster position={dir === 'rtl' ? 'top-left' : 'top-right'} dir={dir} theme={theme} />
+      <GooeyToaster position="top-center" dir={dir} theme={theme} />
     </QueryClientProvider>
   );
 }

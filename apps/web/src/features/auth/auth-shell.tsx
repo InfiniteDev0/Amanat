@@ -111,7 +111,7 @@ function Frame({ children }: { children: ReactNode }) {
             type="button"
             onClick={back}
             aria-label={t('auth.back')}
-            className="text-muted-foreground hover:text-foreground -ms-2 flex size-9 items-center justify-center rounded-lg transition-colors lg:invisible"
+            className="flex size-9 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-105 lg:invisible"
           >
             <ChevronLeft className="size-5 rtl:rotate-180" />
           </button>

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Money } from '@sarrif/core';
+import type { BookRow, DaySummary, Money } from '@sarrif/core';
 import { useTranslations } from 'next-intl';
 
 import { MoneyText } from '@/components/money-text';
@@ -22,7 +22,15 @@ export function HomeDataCheck() {
   if (summary.isPending) return <p className="text-muted-foreground p-6 text-sm">{t('common.loading')}</p>;
   if (summary.isError) return <p className="text-destructive p-6 text-sm">{t('errors.unknown')}</p>;
 
-  const s = summary.data;
+  return <HomeView shopName={workspace.name} summary={summary.data} recent={book.data ?? []} />;
+}
+
+/**
+ * What Home draws, from data alone: no fetching, no shop context. The setup
+ * wizard uses it too, to show the shop being set up behind the overlay.
+ */
+export function HomeView({ shopName, summary: s, recent }: { shopName: string; summary: DaySummary; recent: BookRow[] }) {
+  const t = useTranslations();
   const base = (amount: number | null) =>
     amount === null ? t('placeholder.unknown') : <MoneyText money={{ amount, currency: s.baseCurrency }} />;
 
@@ -30,7 +38,7 @@ export function HomeDataCheck() {
     <section className="mx-auto grid w-full max-w-5xl gap-6 p-6">
       <header>
         <p className="text-muted-foreground text-xs tracking-wide uppercase">{t('placeholder.dataCheck')}</p>
-        <h1 className="font-heading mt-1 text-2xl font-semibold">{workspace.name}</h1>
+        <h1 className="font-heading mt-1 text-2xl font-semibold">{shopName}</h1>
         <p className="text-muted-foreground text-sm">{s.date}</p>
       </header>
 
@@ -71,9 +79,9 @@ export function HomeDataCheck() {
       </div>
 
       <Block title={t('placeholder.recent')}>
-        {book.data?.length ? (
+        {recent.length ? (
           <ul className="divide-border divide-y">
-            {book.data.slice(0, 10).map((row) => (
+            {recent.slice(0, 10).map((row) => (
               <li key={`${row.type}-${row.id}`} className="grid grid-cols-[7rem_1fr_auto] items-baseline gap-3 py-2 text-sm">
                 <span className="text-muted-foreground">{t(`recordTypes.${row.type}`)}</span>
                 <span className="truncate">

@@ -3,7 +3,9 @@
     "name": "Amanat",
     "tagline": "Keep track of your money in the exchange market.",
     "description": "Daily operations for currency exchange shops: exchanges, amanat, debts and the daily closing.",
-    "copyright": "© {year} Amanat. All rights reserved."
+    "copyright": "© {year} Amanat. All rights reserved.",
+    "shortTagline": "Exchange Os",
+    "plan": "Free Plan"
   },
   "language": {
     "label": "Language",
@@ -35,14 +37,20 @@
     "firstName": "First name",
     "terms": "I have read and agree to the <link>Terms and Risk statements</link>",
     "heroRate": "Rate today",
-    "currencies": "Currencies you trade",
-    "commonCurrencies": "Common",
-    "allCurrencies": "All currencies",
-    "removeCurrency": "Remove {code}",
     "searchCountry": "Search country",
     "noResults": "Nothing found",
-    "searchCurrency": "Search currency",
-    "email": "Email"
+    "email": "Email",
+    "welcomeNew": "Welcome, {name}",
+    "signedIn": "You’re signed in",
+    "sendingDescription": "Texting a 6-digit code to {phone}",
+    "codeSentDescription": "It’s on its way to {phone}.",
+    "checkPhone": "Check your phone",
+    "gotIt": "Got it",
+    "sendFailedDescription": "Nothing was sent. Try again in a moment.",
+    "verifyingDescription": "Making sure this number is yours",
+    "welcomeNewDescription": "Let’s set up your shop.",
+    "welcomeBackDescription": "Opening your shop.",
+    "codeFailedDescription": "You can ask for a new code after 30 seconds."
   },
   "nav": {
     "home": "Home",
@@ -66,8 +74,6 @@
   "placeholder": {
     "title": "{page} comes next",
     "body": "This page is a placeholder. We'll design it together.",
-    "onboardingTitle": "Set up your shop",
-    "onboardingBody": "Onboarding comes next: your name and language, the shop, its accounts and today's rates.",
     "dataCheck": "Data check (from the mock backend)",
     "totalInBase": "Total in {currency}",
     "profitToday": "Profit today",
@@ -80,15 +86,19 @@
     "recent": "Today in the book",
     "in": "In",
     "out": "Out",
-    "empty": "Nothing recorded today yet.",
-    "temporaryNav": "Temporary navigation — replaced by the real sidebar and bottom bar."
+    "empty": "Nothing recorded today yet."
   },
   "common": {
     "loading": "Loading…",
     "signOut": "Sign out",
     "retry": "Try again",
     "notFound": "Not found",
-    "noAccess": "You don't have access to this shop."
+    "noAccess": "You don't have access to this shop.",
+    "signingOut": "Signing out…",
+    "signedOut": "Signed out",
+    "signingOutDescription": "Closing your session on this device",
+    "signedOutDescription": "See you soon.",
+    "signOutFailedDescription": "You’re still signed in."
   },
   "validation": {
     "phone": "Enter a valid phone number.",
@@ -110,7 +120,15 @@
     "firstNameRequired": "Enter your first name",
     "phoneRequired": "Enter your phone number",
     "email": "Enter a valid email address",
-    "emailRequired": "Enter your email"
+    "emailRequired": "Enter your email",
+    "nameRequired": "Enter your name",
+    "shopNameRequired": "Enter the shop's name",
+    "baseRequired": "Pick the base currency",
+    "accounts": "Keep at least one account",
+    "accountNameRequired": "Give the account a name",
+    "rateRequired": "Enter the rate",
+    "photo": "Use a JPEG, PNG or WebP photo.",
+    "photoTooBig": "That photo is too large."
   },
   "errors": {
     "unauthenticated": "Your session ended. Sign in again.",
@@ -136,5 +154,116 @@
     "title": "Terms and Risk statements",
     "body": "The full terms and risk statements will be published here before launch.",
     "back": "Back to sign up"
+  },
+  "currency": {
+    "trade": "Currencies you trade",
+    "common": "Common",
+    "all": "All currencies",
+    "remove": "Remove {code}",
+    "search": "Search currency",
+    "noResults": "Nothing found"
+  },
+  "onboarding": {
+    "back": "Back",
+    "progress": "{step} of {total}",
+    "skip": "Skip",
+    "continue": "Continue",
+    "start": "Let's start",
+    "finish": "Open my shop",
+    "welcome": {
+      "title": "Welcome",
+      "titleNamed": "Welcome, {name}",
+      "hint": "Five short steps and your shop is ready. You can change any of it later.",
+      "addPhoto": "Add a photo",
+      "changePhoto": "Change photo",
+      "photoAlt": "Your photo",
+      "photoFailed": "That picture could not be read. Try another one.",
+      "removePhoto": "Remove photo"
+    },
+    "profile": {
+      "title": "About you",
+      "hint": "Your name is what your staff see next to your entries.",
+      "name": "Your name"
+    },
+    "shop": {
+      "title": "Your shop",
+      "hint": "The name your staff and the shop switcher will show.",
+      "name": "Shop name",
+      "location": "Location (optional)"
+    },
+    "currencies": {
+      "title": "What you trade",
+      "hint": "Every currency that passes through your counter.",
+      "base": "Base currency",
+      "baseHint": "The one you count your money in. Rates, totals and profit are worked out in it."
+    },
+    "accounts": {
+      "title": "Where the money is",
+      "hint": "Each place you keep money, and how much is in it today.",
+      "account": "Account",
+      "opening": "Opening balance",
+      "name": "Account name",
+      "openingFor": "Opening balance of {name}",
+      "keep": "Keep {name}",
+      "remove": "Remove {name}",
+      "cashName": "Cash {currency}",
+      "add": "Add an account",
+      "newName": "Account name, e.g. EVC Plus",
+      "type": "Type",
+      "currency": "Currency",
+      "cancel": "Cancel",
+      "addButton": "Add",
+      "types": {
+        "cash": "Cash",
+        "mobile_money": "Mobile money",
+        "bank": "Bank"
+      }
+    },
+    "rates": {
+      "title": "Today's rates",
+      "hint": "What you pay and charge for 1 {base} today. ",
+      "onlyBase": "Your shop only trades {currency}, so there are no rates to set.",
+      "buy": "We buy",
+      "sell": "We sell",
+      "buyFor": "Buy rate: 1 {base} in {currency}",
+      "sellFor": "Sell rate: 1 {base} in {currency}",
+      "marketFor": "Market rate today for 1 {base} in {currency}",
+      "credit": "Market rates: {source}, updated {updated}.",
+      "marketColumn": "Market"
+    },
+    "review": {
+      "title": "Here's your shop",
+      "accounts": "Accounts",
+      "rates": "Today's rates",
+      "base": "Base currency",
+      "noRates": "Not set yet. Home will remind you.",
+      "owner": "Owner",
+      "noLocation": "No location given",
+      "currencies": "Currencies"
+    },
+    "preview": {
+      "shopName": "Your shop"
+    },
+    "saving": "Setting up your shop…",
+    "savingDescription": "Saving your shop, accounts and rates",
+    "saved": "{shop} is ready",
+    "savedDescription": "Here’s your dashboard.",
+    "saveFailedDescription": "Nothing was saved. Try again.",
+    "close": "Close"
+  },
+  "shell": {
+    "shops": "Shops",
+    "switchShop": "Switch shop",
+    "switchShops": "Switch shops",
+    "people": "People",
+    "createShop": "Create shop",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "collapse": "Collapse"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark"
   }
 }

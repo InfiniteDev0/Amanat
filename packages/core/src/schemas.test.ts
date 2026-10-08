@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { signUpSchema, verifyCodeSchema } from './schemas';
+import { profileSchema, ratePairSchema, signUpSchema, verifyCodeSchema } from './schemas';
 
 const signUp = {
   firstName: 'Amina',
@@ -46,5 +46,35 @@ describe('verifyCodeSchema', () => {
       profile: { name: 'Amina', language: 'so', email: 'amina@example.com' },
     });
     expect(withProfile.profile).toEqual({ name: 'Amina', language: 'so', email: 'amina@example.com' });
+  });
+});
+
+describe('profile photo', () => {
+  const profile = { name: 'Amina', language: 'en' } as const;
+  it('takes an https URL or a small image data URL, and null to remove it', () => {
+    expect(profileSchema.safeParse({ ...profile, avatar: 'https://cdn.example.com/a.jpg' }).success).toBe(true);
+    expect(profileSchema.safeParse({ ...profile, avatar: 'data:image/jpeg;base64,AAAA' }).success).toBe(true);
+    expect(profileSchema.parse({ ...profile, avatar: null }).avatar).toBeNull();
+  });
+  it('refuses anything else', () => {
+    expect(profileSchema.safeParse({ ...profile, avatar: 'javascript:alert(1)' }).error?.issues[0]?.message).toBe('validation.photo');
+    expect(profileSchema.safeParse({ ...profile, avatar: 'http://insecure.example.com/a.jpg' }).success).toBe(false);
+  });
+});
+
+describe('rates typed by hand', () => {
+  // Zod 4 keeps checking after a failed check; a typo must come back as a
+  // validation message, never a crash.
+  it.each(['129..', '1.2.3', 'abc', '.', '12,5', '-1', ''])('rejects %j without throwing', (typo) => {
+    expect(() => ratePairSchema.safeParse({ currency: 'KES', buy: typo, sell: '130' })).not.toThrow();
+    const result = ratePairSchema.safeParse({ currency: 'KES', buy: typo, sell: '130' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('validation.rate');
+  });
+
+  it('still checks buy against sell when both are numbers', () => {
+    expect(ratePairSchema.safeParse({ currency: 'KES', buy: '130', sell: '129' }).error?.issues[0]?.message).toBe(
+      'validation.buyAboveSell',
+    );
   });
 });

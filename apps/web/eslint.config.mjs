@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   {
     files: ['src/**/*.tsx'],
+    // Registry primitives keep their left/right classes: those are tied to a
+    // physical `side` prop, which Sidebar now picks from the page direction.
+    ignores: ['src/components/ui/**'],
     rules: {
       'no-restricted-syntax': [
         'error',
@@ -21,10 +24,10 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // Components copied from beui.dev's registry. They manage measurements and
+    // Components copied from registries (beui.dev, shadcn). They manage measurements and
     // focus with refs and effects on purpose; React Compiler's advisory rules
     // don't fit them. Our own code keeps the rules.
-    files: ['src/components/motion/**'],
+    files: ['src/components/motion/**', 'src/components/ui/**'],
     rules: {
       'react-hooks/refs': 'off',
       'react-hooks/set-state-in-effect': 'off',

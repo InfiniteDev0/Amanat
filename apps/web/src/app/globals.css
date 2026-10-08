@@ -1,15 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-/* HeroUI: only the InputOTP and Tabs styles. Its full theme would overwrite
+/* HeroUI: only the InputOTP, Tabs and Avatar styles. Its full theme would overwrite
    shadcn's tokens (--muted, --accent, the radius scale), so the field tokens
    they need are mapped onto ours below instead. */
 @import "@heroui/styles/utilities";
 @import "@heroui/styles/components/input-otp.css" layer(components);
 @import "@heroui/styles/components/tabs.css" layer(components);
+@import "@heroui/styles/components/avatar.css" layer(components);
 
 @custom-variant dark (&:is(.dark *));
 
+
+/* Manasik brand palette → utilities like bg-vivid-cyan, text-ocean-green.
+   Vivid Cyan is the teal of the palette swatch and the "Create New Tour"
+   button; the swatch's label reads #054431, which is a much darker green. */
 @theme {
   --color-vivid-cyan: #108a8b;
   --color-ocean-green: #00b894;
@@ -17,6 +22,7 @@
   /* The pale mint page background behind the white dashboard cards. */
   --color-canvas: #f4f4f5;
 
+  /* The blinking caret in the HeroUI code boxes (verify page). */
   --animate-caret-blink: caret-blink 1.2s ease-out infinite;
   @keyframes caret-blink {
     0%,
@@ -30,6 +36,99 @@
     }
   }
 }
+
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* next/font (app/[locale]/layout.tsx) sets --font-manrope / --font-arabic.
+     The Arabic font comes last: Latin fonts have no Arabic letters. */
+  --font-sans: var(--font-manrope), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-manrope), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+
+  /* App tokens: filled fields (bg-field), the green that means "up", the
+     stronger border on hover. Values per theme are in :root / .dark below. */
+  --color-success: var(--success);
+  --color-border-strong: var(--border-strong);
+
+  /* HeroUI tokens (InputOTP, Tabs, Avatar), mapped onto this palette. */
+  --color-field: var(--field-background);
+  --color-field-hover: var(--field-background);
+  --color-field-focus: var(--field-focus);
+  --color-field-foreground: var(--foreground);
+  --color-field-placeholder: var(--muted-foreground);
+  --color-focus: transparent; /* focus shows as a lighter fill, not a ring */
+  --color-danger: var(--destructive);
+  --color-separator: var(--input);
+  --color-default: var(--secondary);
+  --color-default-soft: var(--field-focus);
+  --color-default-soft-foreground: var(--foreground);
+  --color-segment: var(--primary);
+  --color-segment-foreground: var(--primary-foreground);
+  --color-accent-soft: color-mix(in oklab, var(--primary) 20%, transparent);
+  --color-accent-soft-foreground: var(--foreground);
+  --color-success-soft: color-mix(in oklab, var(--success) 15%, transparent);
+  --color-success-soft-foreground: var(--success);
+  --color-danger-soft: color-mix(in oklab, var(--destructive) 15%, transparent);
+  --color-danger-soft-foreground: var(--destructive);
+  --color-warning-soft: color-mix(in oklab, #f5a524 15%, transparent);
+  --color-warning-soft-foreground: #f5a524;
+  --shadow-field: 0 0 #0000;
+  --shadow-surface: 0 0 #0000;
+  --radius-field: calc(var(--radius) * 1.4);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
+  --color-color-5: var(--color-5);
+  --color-color-4: var(--color-4);
+  --color-color-3: var(--color-3);
+  --color-color-2: var(--color-2);
+  --color-color-1: var(--color-1);
+  @keyframes rainbow {
+    0% {
+      background-position: 0%;
+    }
+    100% {
+      background-position: 200%;
+    }
+  }
+}
+
 
 
 /*
@@ -96,112 +195,53 @@ p {
   font-family: var(--font-roman), var(--font-arabic), serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-heading: var(--font-manrope), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-success: var(--success);
-  --color-border-strong: var(--border-strong);
 
-  /* HeroUI tokens (InputOTP, Tabs), mapped onto the palette. */
-  --color-default: var(--secondary);
-  --color-segment: var(--primary);
-  --color-segment-foreground: var(--primary-foreground);
-  --shadow-surface: 0 0 #0000;
-  --color-field: var(--field-background);
-  --color-field-hover: var(--field-background);
-  --color-field-focus: var(--field-focus);
-  --color-field-foreground: var(--foreground);
-  --color-field-placeholder: var(--muted-foreground);
-  --color-focus: transparent; /* focus shows as a lighter fill, not a ring */
-  --color-danger: var(--destructive);
-  --color-separator: var(--input);
-  --shadow-field: 0 0 #0000;
-  --radius-field: calc(var(--radius) * 1.4);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
-
-/*
- * Palette: near-black with a violet cast, brand blue (#00457C) for actions,
- * filled fields without borders, pink for errors. Dark is the default
- * theme; light keeps the same brand colours on light surfaces.
- * Rounding is small everywhere (--radius 6px) and nothing has a shadow.
- */
-:root {
-  --radius: 0.375rem;
-  --background: #ffffff;
-  --foreground: #05030b;
-  --card: #ffffff;
-  --card-foreground: #05030b;
-  --popover: #ffffff;
-  --popover-foreground: #05030b;
-  --primary: #00457c;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f0f4;
-  --secondary-foreground: #05030b;
-  --muted: #f1f0f4;
-  --muted-foreground: #6b6975;
-  --accent: #e9e3ee;
-  --accent-foreground: #05030b;
-  --destructive: #e0115c;
-  --success: #0fbf7b;
-  --border: rgb(5 3 11 / 10%);
-  --border-strong: rgb(5 3 11 / 30%);
-  --input: rgb(5 3 11 / 28%);
-  --ring: rgb(5 3 11 / 70%);
-  --field-background: #f1f0f4;
-  --field-focus: #e7e6ec;
+/* .light too: a panel can take the light theme on a dark page. */
+:root,
+.light {
+  --background: oklch(96.158% 0.00563 84.446);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: #fafafa;
-  --sidebar-foreground: #05030b;
-  --sidebar-primary: #00457c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f0f4;
-  --sidebar-accent-foreground: #05030b;
-  --sidebar-border: rgb(5 3 11 / 10%);
-  --sidebar-ring: rgb(5 3 11 / 70%);
-  /* Read directly by the HeroUI field styles. Fields are filled, without a border. */
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --color-1: oklch(66.2% 0.225 25.9);
+  --color-2: oklch(60.4% 0.26 302);
+  --color-3: oklch(69.6% 0.165 251);
+  --color-4: oklch(80.2% 0.134 225);
+  --color-5: oklch(90.7% 0.231 133);
+  /* App tokens (see @theme inline). */
+  --success: oklch(0.6 0.15 155);
+  --border-strong: oklch(0.145 0 0 / 30%);
+  --field-background: oklch(0.97 0 0);
+  --field-focus: oklch(0.94 0 0);
+  /* Read directly by HeroUI's field CSS. Fields are filled, without a border. */
   --field-border: transparent;
   --field-border-hover: transparent;
   --field-border-focus: transparent;
@@ -215,41 +255,47 @@ p {
 }
 
 .dark {
-  --background: #05030b;
-  --foreground: #ffffff;
-  --card: #0e0b16;
-  --card-foreground: #ffffff;
-  --popover: #0e0b16;
-  --popover-foreground: #ffffff;
-  --primary: #00457c;
-  --primary-foreground: #ffffff;
-  --secondary: #18181c;
-  --secondary-foreground: #ffffff;
-  --muted: #18181c;
-  --muted-foreground: #8e8c98;
-  --accent: #533e5e;
-  --accent-foreground: #ffffff;
-  --destructive: #f41468;
-  --success: #10de8f;
-  --border: rgb(255 255 255 / 12%);
-  --border-strong: rgb(255 255 255 / 55%);
-  --input: rgb(255 255 255 / 40%);
-  --ring: rgb(255 255 255 / 80%);
-  --field-background: #141318;
-  --field-focus: #1d1c23;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: #0e0b16;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #00457c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #18181c;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgb(255 255 255 / 12%);
-  --sidebar-ring: rgb(255 255 255 / 80%);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --color-1: oklch(66.2% 0.225 25.9);
+  --color-2: oklch(60.4% 0.26 302);
+  --color-3: oklch(69.6% 0.165 251);
+  --color-4: oklch(80.2% 0.134 225);
+  --color-5: oklch(90.7% 0.231 133);
+  /* App tokens (see @theme inline). */
+  --success: oklch(0.75 0.17 155);
+  --border-strong: oklch(1 0 0 / 30%);
+  --field-background: oklch(0.205 0 0);
+  --field-focus: oklch(0.25 0 0);
 }
 
 @layer base {

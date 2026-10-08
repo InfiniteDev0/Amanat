@@ -7,7 +7,8 @@ import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Flag } from '@/components/flag';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/motion/select';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { FieldAlert } from '@/components/ui/field-alert';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { directionOf } from '@/i18n/routing';
 
@@ -41,7 +42,7 @@ export function PhoneField({
   const pick = (country: CountryCode) => onChange({ ...value, country });
 
   return (
-    <Field data-invalid={Boolean(error)} className="gap-1.5">
+    <Field data-invalid={Boolean(error)} className="relative">
       <FieldLabel htmlFor={id} className="sr-only">
         {t('phone')}
       </FieldLabel>
@@ -84,9 +85,7 @@ export function PhoneField({
           className="tabular-nums"
         />
       </InputGroup>
-      <FieldError id={`${id}-error`} className="text-xs">
-        {error}
-      </FieldError>
+      <FieldAlert id={`${id}-error`}>{error}</FieldAlert>
     </Field>
   );
 }

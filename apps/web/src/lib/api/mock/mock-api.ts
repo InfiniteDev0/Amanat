@@ -14,12 +14,15 @@ import {
   createExpenseSchema,
   createTransferSchema,
   createWorkspaceSchema,
+  type CurrencyCode,
   daySummary,
   type Debt,
   debtState,
   entriesFor,
   type Id,
+  isCurrencyCode,
   LedgerError,
+  onboardingSchema,
   type LedgerSource,
   profileSchema,
   ratedCurrencies,
@@ -266,7 +269,7 @@ export const mockApi: SarrifApi = {
       let user = db.users.find((u) => u.phone === phone);
       const isNewUser = !user?.name;
       if (!user) {
-        user = { id: newId(), name: '', phone, email: null, language: 'en', createdAt: nowIso() };
+        user = { id: newId(), name: '', phone, email: null, avatar: null, language: 'en', createdAt: nowIso() };
         db.users.push(user);
       }
       // Sign-up details only fill an empty profile; they never rename an existing account.
@@ -296,6 +299,66 @@ export const mockApi: SarrifApi = {
       const db = getDb();
       db.sessionUserId = null;
       saveDb();
+    },
+  },
+
+  market: {
+    // Real numbers even in the mock: ExchangeRate-API's open feed (no key,
+    // updated daily, asks for a credit line). The real backend will fetch and
+    // cache this server-side instead of every browser calling it.
+    async rates(base) {
+      let body: { result?: string; time_last_update_unix?: number; rates?: Record<string, number> };
+      try {
+        const response = await fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(base)}`);
+        body = await response.json();
+      } catch {
+        throw new ApiError('unavailable');
+      }
+      if (body.result !== 'success' || !body.rates) throw new ApiError('unavailable');
+      const rates: Partial<Record<CurrencyCode, string>> = {};
+      for (const [code, value] of Object.entries(body.rates)) {
+        if (isCurrencyCode(code) && Number.isFinite(value) && value > 0) rates[code] = String(value);
+      }
+      return {
+        base,
+        rates,
+        updatedAt: new Date((body.time_last_update_unix ?? Date.now() / 1000) * 1000).toISOString(),
+        source: 'ExchangeRate-API',
+      };
+    },
+  },
+
+  onboarding: {
+    async complete(input) {
+      await latency();
+      const db = getDb();
+      const user = signedIn(db);
+      const { profile, shop, accounts, rates } = parse(onboardingSchema, input);
+      const now = nowIso();
+
+      // Everything is built first and saved once at the end: all or nothing,
+      // like the database transaction the real backend will use.
+      Object.assign(user, profile);
+      const workspace: Workspace = {
+        id: newId(),
+        ...shop,
+        closingTime: '21:00',
+        largeTransactionLimit: toMinor('5000', shop.baseCurrency),
+        ownerId: user.id,
+        status: 'active',
+        createdAt: now,
+      };
+      db.workspaces.push(workspace);
+      db.members.push({ id: newId(), workspaceId: workspace.id, userId: user.id, role: 'owner', joinedAt: now });
+      for (const account of accounts) {
+        db.accounts.push({ id: newId(), workspaceId: workspace.id, ...account, archived: false, createdAt: now });
+      }
+      const today = businessDate(workspace.timeZone);
+      for (const pair of rates) {
+        db.rates.push({ id: newId(), workspaceId: workspace.id, date: today, ...pair, setBy: user.id, setAt: now });
+      }
+      saveDb();
+      return { user, workspace };
     },
   },
 

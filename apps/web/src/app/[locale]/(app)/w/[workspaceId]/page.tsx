@@ -1,5 +1,4 @@
-import { HomeDataCheck } from '@/features/home/home-data-check';
-
+/** Home: blank until its design is decided. */
 export default function HomePage() {
-  return <HomeDataCheck />;
+  return null;
 }

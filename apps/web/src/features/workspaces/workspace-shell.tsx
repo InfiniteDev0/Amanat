@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useEffect } from 'react';
 
-import { TemporaryNav } from '@/components/layout/temporary-nav';
-import { Splash } from '@/features/auth/session-gate';
+import { WorkspaceFrame } from '@/components/layout/workspace-frame';
+import { LoadingScreen, Splash } from '@/features/auth/session-gate';
 
 import { setLastWorkspaceId } from './last-workspace';
 import { useMyWorkspaces } from './queries';
@@ -24,13 +24,14 @@ export function WorkspaceShell({ workspaceId, children }: { workspaceId: string;
     if (membership) setLastWorkspaceId(workspaceId);
   }, [membership, workspaceId]);
 
-  if (memberships.isPending) return <Splash>{t('loading')}</Splash>;
+  if (memberships.isPending) return <LoadingScreen />;
   if (!membership) return <Splash>{t('noAccess')}</Splash>;
 
   return (
     <WorkspaceProvider workspace={membership.workspace} role={membership.role}>
-      <TemporaryNav memberships={memberships.data ?? []} />
-      <main className="flex-1">{children}</main>
+      <WorkspaceFrame workspaceId={workspaceId} shopName={membership.workspace.name}>
+        {children}
+      </WorkspaceFrame>
     </WorkspaceProvider>
   );
 }

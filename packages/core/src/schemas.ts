@@ -23,12 +23,24 @@ const note = z
   .nullish()
   .transform((value) => value || null);
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'validation.date');
+/**
+ * Typed text as a Decimal, or null when it isn't a number ("129..").
+ * Zod 4 runs every check even after one fails, so a check must never assume
+ * an earlier one passed: `new Decimal` throws on bad input.
+ */
+function toDecimal(value: string): Decimal | null {
+  try {
+    return new Decimal(value);
+  } catch {
+    return null;
+  }
+}
 const positiveDecimal = (pattern: RegExp) =>
   z
     .string()
     .trim()
-    .regex(pattern, 'validation.rate')
-    .refine((value) => new Decimal(value).gt(0), 'validation.rate');
+    .regex(pattern, { message: 'validation.rate', abort: true })
+    .refine((value) => toDecimal(value)?.gt(0) ?? false, 'validation.rate');
 /** A board rate: numeric(18,6). */
 const rate = positiveDecimal(/^\d+(\.\d{1,6})?$/);
 /** An exchange's effective rate, out per in: numeric(24,10). */
@@ -49,6 +61,12 @@ export const profileSchema = z.object({
   language: z.enum(LANGUAGES),
   /** Left out = keep the current one. */
   email: emailSchema.optional(),
+  /** A photo URL or a small image data URL (~256px JPEG); null removes it, left out keeps it. */
+  avatar: z
+    .string()
+    .max(300_000, 'validation.photoTooBig')
+    .refine((value) => /^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/.test(value), 'validation.photo')
+    .nullish(),
 });
 export const verifyCodeSchema = z.object({
   phone: phoneSchema,
@@ -97,12 +115,47 @@ export const createAccountSchema = z.object({
 
 export const ratePairSchema = z
   .object({ currency, buy: rate, sell: rate })
-  .refine((pair) => new Decimal(pair.buy).lte(pair.sell), { path: ['sell'], message: 'validation.buyAboveSell' });
+  .refine(
+    (pair) => {
+      // A rate that isn't a number is already reported on its own field.
+      const buy = toDecimal(pair.buy);
+      const sell = toDecimal(pair.sell);
+      return !buy || !sell || buy.lte(sell);
+    },
+    { path: ['sell'], message: 'validation.buyAboveSell' },
+  );
 
 export const setRatesSchema = z.object({
   date,
   rates: z.array(ratePairSchema).min(1, 'validation.rates'),
 });
+
+/**
+ * The whole first-run setup, saved in one go (one transaction on the real
+ * backend), so a failure never leaves half a shop behind: the profile, the
+ * shop (the caller becomes its Owner), its accounts and, unless skipped,
+ * today's rates. Today's date comes from the shop's time zone on the server.
+ */
+export const onboardingSchema = z
+  .object({
+    profile: profileSchema,
+    shop: createWorkspaceSchema,
+    accounts: z.array(createAccountSchema).min(1, 'validation.accounts'),
+    rates: z.array(ratePairSchema).default([]),
+  })
+  .superRefine(({ shop, accounts, rates }, ctx) => {
+    accounts.forEach((account, index) => {
+      if (!shop.currencies.includes(account.currency)) {
+        ctx.addIssue({ code: 'custom', path: ['accounts', index, 'currency'], message: 'validation.currencies' });
+      }
+    });
+    const rated = shop.currencies.filter((code) => code !== shop.baseCurrency);
+    rates.forEach((pair, index) => {
+      if (!rated.includes(pair.currency)) {
+        ctx.addIssue({ code: 'custom', path: ['rates', index, 'currency'], message: 'validation.currencies' });
+      }
+    });
+  });
 
 export const createClientSchema = z.object({
   name,
@@ -185,6 +238,7 @@ export type CreateWorkspaceInput = z.input<typeof createWorkspaceSchema>;
 export type CreateAccountInput = z.input<typeof createAccountSchema>;
 export type SetRatesInput = z.input<typeof setRatesSchema>;
 export type CreateClientInput = z.input<typeof createClientSchema>;
+export type OnboardingInput = z.input<typeof onboardingSchema>;
 export type CreateExchangeInput = z.input<typeof createExchangeSchema>;
 export type CreateExpenseInput = z.input<typeof createExpenseSchema>;
 export type CreateAmanatInput = z.input<typeof createAmanatSchema>;

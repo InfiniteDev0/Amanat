@@ -3,7 +3,8 @@
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { FieldAlert } from '@/components/ui/field-alert';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +22,7 @@ export function TermsField({
 }) {
   const t = useTranslations('auth');
   return (
-    <Field data-invalid={Boolean(error)} className="gap-1.5">
+    <Field data-invalid={Boolean(error)} className="relative">
       <FieldLabel htmlFor={id} className="text-foreground cursor-pointer gap-3 font-normal">
         <input
           id={id}
@@ -51,9 +52,7 @@ export function TermsField({
           })}
         </span>
       </FieldLabel>
-      <FieldError id={`${id}-error`} className="text-xs">
-        {error}
-      </FieldError>
+      <FieldAlert id={`${id}-error`}>{error}</FieldAlert>
     </Field>
   );
 }

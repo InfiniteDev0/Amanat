@@ -3,7 +3,9 @@
     "name": "أمانات",
     "tagline": "تابع أموالك في سوق الصرافة.",
     "description": "العمليات اليومية لمحلات الصرافة: التحويلات والأمانات والديون وإغلاق اليوم.",
-    "copyright": "© {year} أمانات. جميع الحقوق محفوظة."
+    "copyright": "© {year} أمانات. جميع الحقوق محفوظة.",
+    "shortTagline": "دفاتر محلات الصرافة",
+    "plan": "الخطة المجانية"
   },
   "language": {
     "label": "اللغة",
@@ -35,14 +37,20 @@
     "firstName": "الاسم الأول",
     "terms": "قرأت وأوافق على <link>الشروط وبيان المخاطر</link>",
     "heroRate": "سعر اليوم",
-    "currencies": "العملات التي تتداولها",
-    "commonCurrencies": "الأكثر استخدامًا",
-    "allCurrencies": "كل العملات",
-    "removeCurrency": "إزالة {code}",
     "searchCountry": "ابحث عن دولة",
     "noResults": "لا توجد نتائج",
-    "searchCurrency": "ابحث عن عملة",
-    "email": "البريد الإلكتروني"
+    "email": "البريد الإلكتروني",
+    "welcomeNew": "أهلًا بك، {name}",
+    "signedIn": "تم تسجيل الدخول",
+    "sendingDescription": "جارٍ إرسال رمز من 6 أرقام إلى {phone}",
+    "codeSentDescription": "إنه في الطريق إلى {phone}.",
+    "checkPhone": "تحقّق من هاتفك",
+    "gotIt": "حسنًا",
+    "sendFailedDescription": "لم يُرسل شيء. حاول بعد قليل.",
+    "verifyingDescription": "نتأكد من أن هذا الرقم لك",
+    "welcomeNewDescription": "لنُجهّز متجرك.",
+    "welcomeBackDescription": "جارٍ فتح متجرك.",
+    "codeFailedDescription": "يمكنك طلب رمز جديد بعد 30 ثانية."
   },
   "nav": {
     "home": "الرئيسية",
@@ -66,8 +74,6 @@
   "placeholder": {
     "title": "{page} قادمة",
     "body": "هذه الصفحة مؤقتة. سنصممها معًا.",
-    "onboardingTitle": "جهّز محلك",
-    "onboardingBody": "الإعداد قادم: اسمك ولغتك، المحل، حساباته وأسعار اليوم.",
     "dataCheck": "فحص البيانات (من الخادم التجريبي)",
     "totalInBase": "الإجمالي بـ {currency}",
     "profitToday": "ربح اليوم",
@@ -80,15 +86,19 @@
     "recent": "دفتر اليوم",
     "in": "داخل",
     "out": "خارج",
-    "empty": "لم يُسجَّل شيء اليوم بعد.",
-    "temporaryNav": "تنقل مؤقت — سيُستبدل بالشريط الجانبي والسفلي."
+    "empty": "لم يُسجَّل شيء اليوم بعد."
   },
   "common": {
     "loading": "جارٍ التحميل…",
     "signOut": "تسجيل الخروج",
     "retry": "حاول مرة أخرى",
     "notFound": "غير موجود",
-    "noAccess": "ليس لديك صلاحية على هذا المحل."
+    "noAccess": "ليس لديك صلاحية على هذا المحل.",
+    "signingOut": "جارٍ تسجيل الخروج…",
+    "signedOut": "تم تسجيل الخروج",
+    "signingOutDescription": "جارٍ إغلاق جلستك على هذا الجهاز",
+    "signedOutDescription": "نراك قريبًا.",
+    "signOutFailedDescription": "ما زلت مسجّلًا للدخول."
   },
   "validation": {
     "phone": "أدخل رقم هاتف صحيحًا.",
@@ -110,7 +120,15 @@
     "firstNameRequired": "أدخل اسمك الأول",
     "phoneRequired": "أدخل رقم هاتفك",
     "email": "أدخل بريدًا إلكترونيًا صحيحًا",
-    "emailRequired": "أدخل بريدك الإلكتروني"
+    "emailRequired": "أدخل بريدك الإلكتروني",
+    "nameRequired": "أدخل اسمك",
+    "shopNameRequired": "أدخل اسم المتجر",
+    "baseRequired": "اختر العملة الأساسية",
+    "accounts": "أبقِ حسابًا واحدًا على الأقل",
+    "accountNameRequired": "أعطِ الحساب اسمًا",
+    "rateRequired": "أدخل السعر",
+    "photo": "استخدم صورة JPEG أو PNG أو WebP.",
+    "photoTooBig": "هذه الصورة كبيرة جدًا."
   },
   "errors": {
     "unauthenticated": "انتهت جلستك. سجّل الدخول مرة أخرى.",
@@ -136,5 +154,116 @@
     "title": "الشروط وبيان المخاطر",
     "body": "ستُنشر الشروط الكاملة وبيان المخاطر هنا قبل الإطلاق.",
     "back": "العودة إلى إنشاء الحساب"
+  },
+  "currency": {
+    "trade": "العملات التي تتداولها",
+    "common": "الأكثر استخدامًا",
+    "all": "كل العملات",
+    "remove": "إزالة {code}",
+    "search": "ابحث عن عملة",
+    "noResults": "لا توجد نتائج"
+  },
+  "onboarding": {
+    "back": "رجوع",
+    "progress": "{step} من {total}",
+    "skip": "تخطَّ",
+    "continue": "متابعة",
+    "start": "لنبدأ",
+    "finish": "افتح متجري",
+    "welcome": {
+      "title": "أهلًا بك",
+      "titleNamed": "أهلًا بك، {name}",
+      "hint": "خمس خطوات قصيرة ويصبح متجرك جاهزًا. يمكنك تغيير أي شيء لاحقًا.",
+      "addPhoto": "أضف صورة",
+      "changePhoto": "غيّر الصورة",
+      "photoAlt": "صورتك",
+      "photoFailed": "تعذّرت قراءة هذه الصورة. جرّب صورة أخرى.",
+      "removePhoto": "إزالة الصورة"
+    },
+    "profile": {
+      "title": "عنك",
+      "hint": "اسمك هو ما يراه موظفوك بجانب قيودك.",
+      "name": "اسمك"
+    },
+    "shop": {
+      "title": "متجرك",
+      "hint": "الاسم الذي يظهر لموظفيك وفي مبدّل المتاجر.",
+      "name": "اسم المتجر",
+      "location": "الموقع (اختياري)"
+    },
+    "currencies": {
+      "title": "ما تتداوله",
+      "hint": "كل عملة تمر على صندوقك.",
+      "base": "العملة الأساسية",
+      "baseHint": "العملة التي تحسب بها أموالك. تُحسب بها الأسعار والإجماليات والأرباح."
+    },
+    "accounts": {
+      "title": "أين المال",
+      "hint": "كل مكان تحفظ فيه المال، وكم فيه اليوم.",
+      "account": "الحساب",
+      "opening": "الرصيد الافتتاحي",
+      "name": "اسم الحساب",
+      "openingFor": "الرصيد الافتتاحي لـ {name}",
+      "keep": "الإبقاء على {name}",
+      "remove": "إزالة {name}",
+      "cashName": "نقد {currency}",
+      "add": "إضافة حساب",
+      "newName": "اسم الحساب، مثل EVC Plus",
+      "type": "النوع",
+      "currency": "العملة",
+      "cancel": "إلغاء",
+      "addButton": "إضافة",
+      "types": {
+        "cash": "نقد",
+        "mobile_money": "محفظة جوال",
+        "bank": "بنك"
+      }
+    },
+    "rates": {
+      "title": "أسعار اليوم",
+      "hint": "ما تدفعه وما تتقاضاه مقابل 1 {base} اليوم. يمكنك تخطي ذلك وضبطها من الرئيسية.",
+      "onlyBase": "متجرك يتداول {currency} فقط، فلا توجد أسعار لضبطها.",
+      "buy": "نشتري",
+      "sell": "نبيع",
+      "buyFor": "سعر الشراء: 1 {base} بـ {currency}",
+      "sellFor": "سعر البيع: 1 {base} بـ {currency}",
+      "marketFor": "سعر السوق اليوم لـ 1 {base} بـ {currency}",
+      "credit": "أسعار السوق: {source}، آخر تحديث {updated}. للاسترشاد فقط.",
+      "marketColumn": "السوق"
+    },
+    "review": {
+      "title": "هذا متجرك",
+      "accounts": "الحسابات",
+      "rates": "أسعار اليوم",
+      "base": "العملة الأساسية",
+      "noRates": "لم تُضبط بعد. ستذكّرك الرئيسية.",
+      "owner": "المالك",
+      "noLocation": "لم يُحدَّد موقع",
+      "currencies": "العملات"
+    },
+    "preview": {
+      "shopName": "متجرك"
+    },
+    "saving": "جارٍ تجهيز متجرك…",
+    "savingDescription": "حفظ المتجر والحسابات والأسعار",
+    "saved": "{shop} جاهز",
+    "savedDescription": "هذه لوحتك.",
+    "saveFailedDescription": "لم يُحفظ شيء. حاول مرة أخرى.",
+    "close": "إغلاق"
+  },
+  "shell": {
+    "shops": "المتاجر",
+    "switchShop": "تبديل المتجر",
+    "switchShops": "تبديل المتاجر",
+    "people": "الأشخاص",
+    "createShop": "إنشاء متجر",
+    "collapseSidebar": "طي الشريط الجانبي",
+    "expandSidebar": "توسيع الشريط الجانبي",
+    "collapse": "طي"
+  },
+  "theme": {
+    "label": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن"
   }
 }

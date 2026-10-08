@@ -23,3 +23,12 @@ export function readSignupCurrencies(): CurrencyCode[] {
     return [];
   }
 }
+
+/** Once the shop exists the suggestion has done its job. */
+export function clearSignupCurrencies() {
+  try {
+    window.sessionStorage.removeItem(KEY);
+  } catch {
+    // nothing to clear
+  }
+}

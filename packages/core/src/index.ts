@@ -4,6 +4,7 @@ export * from './dates';
 export * from './entities';
 export * from './ledger';
 export * from './money';
+export * from './onboarding';
 export * from './permissions';
 export * from './rates';
 export * from './schemas';

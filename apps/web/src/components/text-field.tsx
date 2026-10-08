@@ -1,12 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { FieldAlert } from '@/components/ui/field-alert';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
 /**
  * A filled field with an icon and the label as placeholder (the label stays
- * for screen readers). An error shows as a short line underneath.
+ * for screen readers). An error shows as a small bubble underneath (FieldAlert).
  */
 export function TextField({
   id,
@@ -22,7 +23,7 @@ export function TextField({
   error?: string | null;
 } & Omit<ComponentProps<typeof InputGroupInput>, 'id' | 'placeholder'>) {
   return (
-    <Field data-invalid={Boolean(error)} className="gap-1.5">
+    <Field data-invalid={Boolean(error)} className="relative">
       <FieldLabel htmlFor={id} className="sr-only">
         {label}
       </FieldLabel>
@@ -38,9 +39,7 @@ export function TextField({
           aria-describedby={error ? `${id}-error` : undefined}
         />
       </InputGroup>
-      <FieldError id={`${id}-error`} className="text-xs">
-        {error}
-      </FieldError>
+      <FieldAlert id={`${id}-error`}>{error}</FieldAlert>
     </Field>
   );
 }

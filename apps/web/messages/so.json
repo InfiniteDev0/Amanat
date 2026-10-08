@@ -3,7 +3,9 @@
     "name": "Amanat",
     "tagline": "La soco lacagtaada suuqa sarrifka.",
     "description": "Hawlaha maalinlaha ah ee dukaamada sarrifka: sarrif, amaano, deyn iyo xisaab-xiridda maalinta.",
-    "copyright": "© {year} Amanat. Xuquuqda oo dhan way xifdisan tahay."
+    "copyright": "© {year} Amanat. Xuquuqda oo dhan way xifdisan tahay.",
+    "shortTagline": "Buugaagta dukaanka sarrifka",
+    "plan": "Qorshe bilaash ah"
   },
   "language": {
     "label": "Luqadda",
@@ -35,14 +37,20 @@
     "firstName": "Magaca koowaad",
     "terms": "Waan akhriyey oo waan aqbalay <link>Shuruudaha iyo khatarta</link>",
     "heroRate": "Sicirka maanta",
-    "currencies": "Lacagaha aad ka ganacsato",
-    "commonCurrencies": "Kuwa caadiga ah",
-    "allCurrencies": "Dhammaan lacagaha",
-    "removeCurrency": "Ka saar {code}",
     "searchCountry": "Raadi dal",
     "noResults": "Waxba lama helin",
-    "searchCurrency": "Raadi lacag",
-    "email": "Iimayl"
+    "email": "Iimayl",
+    "welcomeNew": "Soo dhawoow, {name}",
+    "signedIn": "Waad gashay",
+    "sendingDescription": "Koodh 6 god ah ayaa loo dirayaa {phone}",
+    "codeSentDescription": "Wuxuu ku socdaa {phone}.",
+    "checkPhone": "Eeg taleefankaaga",
+    "gotIt": "Waan helay",
+    "sendFailedDescription": "Waxba lama dirin. Isku day mar kale.",
+    "verifyingDescription": "Hubinta in lambarkani adiga kuu yahay",
+    "welcomeNewDescription": "Aan dejinno dukaankaaga.",
+    "welcomeBackDescription": "Dukaankaaga ayaa la furayaa.",
+    "codeFailedDescription": "Koodh cusub waad codsan kartaa 30 ilbiriqsi kadib."
   },
   "nav": {
     "home": "Hoyga",
@@ -66,8 +74,6 @@
   "placeholder": {
     "title": "{page} ayaa xiga",
     "body": "Boggani waa meel-hayn. Wada naqshadeyn doonnaa.",
-    "onboardingTitle": "Dhis dukaankaaga",
-    "onboardingBody": "Diiwaangelinta ayaa xigta: magacaaga iyo luqaddaada, dukaanka, akoonnadiisa iyo sicirka maanta.",
     "dataCheck": "Hubinta xogta (backend-ka tijaabada)",
     "totalInBase": "Wadarta {currency}",
     "profitToday": "Faa'iidada maanta",
@@ -80,15 +86,19 @@
     "recent": "Maanta buugga",
     "in": "Soo galay",
     "out": "Baxay",
-    "empty": "Wax maanta lama diiwaangelin weli.",
-    "temporaryNav": "Hagid ku-meel-gaar ah — waxaa beddeli doona sidebar-ka iyo bar-ka hoose."
+    "empty": "Wax maanta lama diiwaangelin weli."
   },
   "common": {
     "loading": "Waa la soo rarayaa…",
     "signOut": "Ka bax",
     "retry": "Isku day mar kale",
     "notFound": "Lama helin",
-    "noAccess": "Dukaankan ma haysatid fasax."
+    "noAccess": "Dukaankan ma haysatid fasax.",
+    "signingOut": "Waa la baxayaa…",
+    "signedOut": "Waad ka baxday",
+    "signingOutDescription": "Fadhigaaga qalabkan waa la xirayaa",
+    "signedOutDescription": "Dhawaan ayaan isku aragnaa.",
+    "signOutFailedDescription": "Weli waad gashan tahay."
   },
   "validation": {
     "phone": "Geli lambar taleefan oo sax ah.",
@@ -110,7 +120,15 @@
     "firstNameRequired": "Geli magacaaga koowaad",
     "phoneRequired": "Geli lambarkaaga taleefanka",
     "email": "Geli iimayl sax ah",
-    "emailRequired": "Geli iimaylkaaga"
+    "emailRequired": "Geli iimaylkaaga",
+    "nameRequired": "Geli magacaaga",
+    "shopNameRequired": "Geli magaca dukaanka",
+    "baseRequired": "Dooro lacagta aasaasiga ah",
+    "accounts": "Hay ugu yaraan hal akoon",
+    "accountNameRequired": "Akoonka magac sii",
+    "rateRequired": "Geli sicirka",
+    "photo": "Isticmaal sawir JPEG, PNG ama WebP.",
+    "photoTooBig": "Sawirkaasi aad buu u weyn yahay."
   },
   "errors": {
     "unauthenticated": "Fadhigaagu wuu dhammaaday. Mar kale gal.",
@@ -136,5 +154,116 @@
     "title": "Shuruudaha iyo khatarta",
     "body": "Shuruudaha oo dhammaystiran iyo bayaanka khatarta halkan ayaa lagu daabici doonaa ka hor bilowga.",
     "back": "Ku noqo is diiwaangelinta"
+  },
+  "currency": {
+    "trade": "Lacagaha aad ka ganacsato",
+    "common": "Kuwa caadiga ah",
+    "all": "Dhammaan lacagaha",
+    "remove": "Ka saar {code}",
+    "search": "Raadi lacag",
+    "noResults": "Waxba lama helin"
+  },
+  "onboarding": {
+    "back": "Dib",
+    "progress": "{step} ka mid ah {total}",
+    "skip": "Ka bood",
+    "continue": "Sii wad",
+    "start": "Aan bilowno",
+    "finish": "Fur dukaankayga",
+    "welcome": {
+      "title": "Soo dhawoow",
+      "titleNamed": "Soo dhawoow, {name}",
+      "hint": "Shan tallaabo oo gaaban, dukaankaaguna wuu diyaar noqonayaa. Wax kasta mar dambe waad beddeli kartaa.",
+      "addPhoto": "Ku dar sawir",
+      "changePhoto": "Beddel sawirka",
+      "photoAlt": "Sawirkaaga",
+      "photoFailed": "Sawirkaas lama akhrin karo. Isku day mid kale.",
+      "removePhoto": "Ka saar sawirka"
+    },
+    "profile": {
+      "title": "Adiga",
+      "hint": "Magacaagu waa kan shaqaalahaagu ku arkaan diiwaannadaada agtooda.",
+      "name": "Magacaaga"
+    },
+    "shop": {
+      "title": "Dukaankaaga",
+      "hint": "Magaca ay shaqaalahaagu iyo beddelaha dukaanku muujinayaan.",
+      "name": "Magaca dukaanka",
+      "location": "Goobta (ikhtiyaari)"
+    },
+    "currencies": {
+      "title": "Waxaad ka ganacsato",
+      "hint": "Lacag kasta oo miiskaaga soo marta.",
+      "base": "Lacagta aasaasiga ah",
+      "baseHint": "Tan aad lacagtaada ku tiriso. Sicirrada, wadarta iyo faa'iidada ayaa lagu xisaabiyaa."
+    },
+    "accounts": {
+      "title": "Meesha lacagtu ku jirto",
+      "hint": "Meel kasta oo aad lacag ku hayso, iyo inta maanta ku jirta.",
+      "account": "Akoon",
+      "opening": "Haraaga bilowga",
+      "name": "Magaca akoonka",
+      "openingFor": "Haraaga bilowga ee {name}",
+      "keep": "Hay {name}",
+      "remove": "Ka saar {name}",
+      "cashName": "Lacag caddaan {currency}",
+      "add": "Ku dar akoon",
+      "newName": "Magaca akoonka, tusaale EVC Plus",
+      "type": "Nooca",
+      "currency": "Lacagta",
+      "cancel": "Jooji",
+      "addButton": "Ku dar",
+      "types": {
+        "cash": "Lacag caddaan",
+        "mobile_money": "Lacag mobil",
+        "bank": "Bangi"
+      }
+    },
+    "rates": {
+      "title": "Sicirka maanta",
+      "hint": "Waxaad bixiso iyo waxaad ku iibiso 1 {base} maanta. Waad ka boodi kartaa oo Home ka dhigi kartaa.",
+      "onlyBase": "Dukaankaagu wuxuu ka ganacsadaa {currency} oo keliya, sidaa darteed sicir loo baahan yahay ma jiro.",
+      "buy": "Waan iibsanaa",
+      "sell": "Waan iibinaa",
+      "buyFor": "Sicirka iibsiga: 1 {base} oo {currency} ah",
+      "sellFor": "Sicirka iibinta: 1 {base} oo {currency} ah",
+      "marketFor": "Sicirka suuqa maanta ee 1 {base} oo {currency} ah",
+      "credit": "Sicirka suuqa: {source}, la cusboonaysiiyay {updated}. Tilmaan keliya.",
+      "marketColumn": "Suuqa"
+    },
+    "review": {
+      "title": "Waa kan dukaankaaga",
+      "accounts": "Akoonnada",
+      "rates": "Sicirka maanta",
+      "base": "Lacagta aasaasiga",
+      "noRates": "Weli lama dejin. Home ayaa ku xasuusin doona.",
+      "owner": "Milkiilaha",
+      "noLocation": "Goob lama sheegin",
+      "currencies": "Lacagaha"
+    },
+    "preview": {
+      "shopName": "Dukaankaaga"
+    },
+    "saving": "Dukaankaaga ayaa la diyaarinayaa…",
+    "savingDescription": "Kaydinta dukaanka, akoonnada iyo sicirrada",
+    "saved": "{shop} waa diyaar",
+    "savedDescription": "Waa kan dashboard-kaagu.",
+    "saveFailedDescription": "Waxba lama kaydin. Isku day mar kale.",
+    "close": "Xir"
+  },
+  "shell": {
+    "shops": "Dukaamada",
+    "switchShop": "Beddel dukaanka",
+    "switchShops": "Beddel dukaanka",
+    "people": "Dadka",
+    "createShop": "Samee dukaan",
+    "collapseSidebar": "Yaree dhinaca",
+    "expandSidebar": "Ballaari dhinaca",
+    "collapse": "Yaree"
+  },
+  "theme": {
+    "label": "Muuqaalka",
+    "light": "Iftiin",
+    "dark": "Mugdi"
   }
 }

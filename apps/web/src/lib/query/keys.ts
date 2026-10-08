@@ -6,6 +6,8 @@ import type { BookFilter, Id } from '@sarrif/core';
 export const queryKeys = {
   session: ['session'] as const,
   workspaces: ['workspaces'] as const,
+  /** Public reference rates: not a shop's data, so outside ['w', …]. */
+  market: (base: string) => ['market', base] as const,
   workspace: (workspaceId: Id) => ['w', workspaceId] as const,
   accounts: (workspaceId: Id) => ['w', workspaceId, 'accounts'] as const,
   rates: (workspaceId: Id, date: string) => ['w', workspaceId, 'rates', date] as const,

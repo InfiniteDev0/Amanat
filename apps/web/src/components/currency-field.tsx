@@ -18,7 +18,8 @@ import {
   MultiSelectValue,
 } from '@/components/motion/multi-select';
 import { Flag } from '@/components/flag';
-import { Field, FieldError } from '@/components/ui/field';
+import { Field } from '@/components/ui/field';
+import { FieldAlert } from '@/components/ui/field-alert';
 import { currencyFlag } from '@/lib/currency-flag';
 
 const COMMON = new Set<CurrencyCode>(COMMON_CURRENCIES);
@@ -33,7 +34,7 @@ const byCodeOrName = (value: string, query: string, keywords: string[]) => {
 /**
  * The currencies the shop trades: any ISO currency, several at once, with a
  * search box at the top of the list (code or name). The usual ones come first. The first one picked
- * suggests the shop's base currency in onboarding.
+ * suggests the shop's base currency (sign-up, onboarding).
  */
 export function CurrencyField({
   value,
@@ -45,7 +46,7 @@ export function CurrencyField({
   /** Already translated. */
   error?: string | null;
 }) {
-  const t = useTranslations('auth');
+  const t = useTranslations('currency');
   const locale = useLocale();
   const others = useMemo(() => {
     const names = new Intl.DisplayNames([locale], { type: 'currency' });
@@ -54,28 +55,28 @@ export function CurrencyField({
   }, [locale]);
 
   return (
-    <Field data-invalid={Boolean(error)} className="gap-1.5">
+    <Field data-invalid={Boolean(error)} className="relative">
       <MultiSelect value={value} onValueChange={(next) => onChange(next as CurrencyCode[])} filter={byCodeOrName}>
         <MultiSelectTrigger searchInPanel>
           <Coins aria-hidden className="text-muted-foreground size-4 shrink-0" />
-          <MultiSelectValue placeholder={t('currencies')} removeLabel={(code) => t('removeCurrency', { code })} />
+          <MultiSelectValue placeholder={t('trade')} removeLabel={(code) => t('remove', { code })} />
         </MultiSelectTrigger>
         <MultiSelectContent>
           <div className="p-1.5 pb-0">
             <div className="bg-field flex h-10 items-center gap-2 rounded-lg px-3">
               <Search aria-hidden className="text-muted-foreground size-4 shrink-0" />
-              <MultiSelectInput aria-label={t('searchCurrency')} placeholder={t('searchCurrency')} persistentPlaceholder className="h-full" />
+              <MultiSelectInput aria-label={t('search')} placeholder={t('search')} persistentPlaceholder className="h-full" />
             </div>
           </div>
-          <MultiSelectList ariaLabel={t('currencies')}>
+          <MultiSelectList ariaLabel={t('trade')}>
             <MultiSelectGroup>
-              <MultiSelectLabel>{t('commonCurrencies')}</MultiSelectLabel>
+              <MultiSelectLabel>{t('common')}</MultiSelectLabel>
               {COMMON_CURRENCIES.map((code) => (
                 <CurrencyItem key={code} code={code} />
               ))}
             </MultiSelectGroup>
             <MultiSelectGroup>
-              <MultiSelectLabel>{t('allCurrencies')}</MultiSelectLabel>
+              <MultiSelectLabel>{t('all')}</MultiSelectLabel>
               {others.map((code) => (
                 <CurrencyItem key={code} code={code} />
               ))}
@@ -84,7 +85,7 @@ export function CurrencyField({
           </MultiSelectList>
         </MultiSelectContent>
       </MultiSelect>
-      <FieldError className="text-xs">{error}</FieldError>
+      <FieldAlert>{error}</FieldAlert>
     </Field>
   );
 }
