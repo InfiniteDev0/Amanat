@@ -1,11 +1,13 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { type CSSProperties, type ReactNode, useState } from 'react';
+import { type CSSProperties, type ReactNode, Suspense, useState } from 'react';
 
-import { AppSidebar } from '@/components/app-sidebar';
+// Sidebar off for now (see below).
+// import { AppSidebar } from '@/components/app-sidebar';
 import { TopBar } from '@/components/layout/top-bar';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { PageTabs } from '@/features/workspaces/page-tabs';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import { directionOf } from '@/i18n/routing';
 
 /** What the sidebar's own toggle saves (components/ui/sidebar.tsx). */
@@ -22,8 +24,10 @@ function sidebarWasOpen(): boolean {
  *
  * 1. Top bar: across the whole width, on the page itself (the shop switch).
  * 2. Sidebar: a rounded card under it, folded to icons until opened (remembered).
- * 3. Main: a rounded, bordered panel beside it; only its contents scroll. The
- *    page's name is in the top bar, so the panel has no header.
+ *    Off for now; see below.
+ * 3. Main: the pages as browser-style tabs on a rounded panel (page-tabs.tsx);
+ *    the open page is the panel's body, and only it scrolls. The tabs name the
+ *    page, so the panel has no header.
  *
  * Sidebar and main start at the same height and end the same gap above the
  * bottom. The setup wizard draws the same frame behind itself.
@@ -47,12 +51,16 @@ export function WorkspaceFrame({ workspaceId, shopName, children }: { workspaceI
           } as CSSProperties
         }
       >
-        {/* Below the top bar (h-12), not over it. The card's own padding (p-2,
-            "inset") is the gap to the screen's edges and to the main panel. */}
-        <AppSidebar variant="inset" dir={dir} workspaceId={workspaceId} className="top-12 bottom-0 h-auto pt-0" />
-        <SidebarInset className="border-border mt-0! min-h-0 overflow-hidden rounded-lg! border">
-          <div className="scrollbar-pill flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">{children}</div>
-        </SidebarInset>
+        {/* Sidebar off for now: the main panel takes the full width. To bring it
+            back, uncomment this and the import, and drop mx-2 mb-2 below (the
+            sidebar's own p-2 makes that gap).
+            Below the top bar (h-12), not over it. The card's own padding (p-2,
+            "inset") is the gap to the screen's edges and to the main panel.
+        <AppSidebar variant="inset" dir={dir} workspaceId={workspaceId} className="top-12 bottom-0 h-auto pt-0" /> */}
+        {/* The pages as tabs along the top of the main panel; the open page is its body. */}
+        <Suspense fallback={null}>
+          <PageTabs workspaceId={workspaceId}>{children}</PageTabs>
+        </Suspense>
       </SidebarProvider>
     </div>
   );

@@ -13,7 +13,9 @@ import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
 import { WorkspaceFrame } from '@/components/layout/workspace-frame';
-import { HomeView } from '@/features/home/home-data-check';
+import { HomeScreen } from '@/features/home/home-screen';
+import { PreviewSummaryContext } from '@/features/home/queries';
+import { WorkspaceProvider } from '@/features/workspaces/workspace-context';
 import { deviceTimeZone } from '@/lib/device-time-zone';
 
 import { type OnboardingDraft, ratedOf } from './draft';
@@ -24,16 +26,16 @@ const PREVIEW_ID = 'preview';
 /**
  * The dashboard behind the setup wizard, built from the answers so far: the
  * shop's name in the bar, its accounts with their opening balances, and
- * "Rates not set" for any currency still without one. The numbers come from
- * core's daySummary (the same function the real Home uses), on a stand-in
- * shop with no records yet. When setup finishes, the real one takes over.
+ * the rates banner while any currency is without one. It is the real Home
+ * screen, fed core's daySummary (the same function the backend uses) for a
+ * stand-in shop with no records yet, instead of the backend's. When setup finishes, the real one takes over.
  */
 export function DashboardPreview({ draft }: { draft: OnboardingDraft }) {
   const t = useTranslations('onboarding');
   const nameOf = useAccountName();
   const shopName = draft.shopName.trim() || t('preview.shopName');
 
-  const summary = useMemo(() => {
+  const { workspace, summary } = useMemo(() => {
     const timeZone = deviceTimeZone();
     const date = businessDate(timeZone);
     const base = draft.baseCurrency ?? draft.currencies[0] ?? 'USD';
@@ -70,14 +72,22 @@ export function DashboardPreview({ draft }: { draft: OnboardingDraft }) {
       if (!pair || !ratePairSchema.safeParse({ currency, buy: pair.buy, sell: pair.sell }).success) return [];
       return [{ id: currency, workspaceId: PREVIEW_ID, currency, date, buy: pair.buy.trim(), sell: pair.sell.trim(), setBy: '', setAt: '' }];
     });
-    return daySummary({ workspace, date, accounts, entries: [], rates, exchanges: [], expenses: [], amanats: [], debts: [], debtPayments: [] });
+    return {
+      workspace,
+      summary: daySummary({ workspace, date, accounts, entries: [], rates, exchanges: [], expenses: [], amanats: [], debts: [], debtPayments: [] }),
+    };
   }, [draft, nameOf, shopName]);
 
   return (
     <div aria-hidden className="contents">
-      <WorkspaceFrame workspaceId={PREVIEW_ID} shopName={shopName}>
-        <HomeView shopName={shopName} summary={summary} recent={[]} />
-      </WorkspaceFrame>
+      {/* The real Home, fed this summary instead of the backend's. */}
+      <WorkspaceProvider workspace={workspace} role="owner">
+        <PreviewSummaryContext value={summary}>
+          <WorkspaceFrame workspaceId={PREVIEW_ID} shopName={shopName}>
+            <HomeScreen />
+          </WorkspaceFrame>
+        </PreviewSummaryContext>
+      </WorkspaceProvider>
     </div>
   );
 }

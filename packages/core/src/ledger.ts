@@ -93,8 +93,9 @@ export function entriesFor(source: LedgerSource, accounts: AccountLookup): Entry
   switch (source.type) {
     case 'exchange': {
       const r = source.record;
-      if (r.currencyIn === r.currencyOut) {
-        throw new LedgerError('same_currency', 'An exchange needs two different currencies');
+      // Same currency is fine between two balances (a swap: Cash USD to Salaam Bank).
+      if (r.currencyIn === r.currencyOut && r.accountIn === r.accountOut) {
+        throw new LedgerError('same_account', 'An exchange needs two different accounts');
       }
       return [leg(r.accountIn, r.amountIn, r.currencyIn, 'in'), leg(r.accountOut, r.amountOut, r.currencyOut, 'out')];
     }
@@ -171,12 +172,26 @@ export function amanatHeld(amanats: readonly Amanat[]): Map<Id, Map<CurrencyCode
   const held = new Map<Id, Map<CurrencyCode, number>>();
   for (const amanat of amanats) {
     if (!isLive(amanat)) continue;
-    const perCurrency = held.get(amanat.clientId) ?? new Map<CurrencyCode, number>();
+    const client = amanat.clientId ?? amanat.clientName ?? '';
+    const perCurrency = held.get(client) ?? new Map<CurrencyCode, number>();
     addTo(perCurrency, {
       amount: amanat.type === 'deposit' ? amanat.amount : -amanat.amount,
       currency: amanat.currency,
     });
-    held.set(amanat.clientId, perCurrency);
+    held.set(client, perCurrency);
+  }
+  return held;
+}
+
+/**
+ * Amanat held in each account (deposits − withdrawals): what the drawer count
+ * takes off, since that money isn't the shop's (own money = account − held).
+ */
+export function amanatHeldByAccount(amanats: readonly Amanat[]): Map<Id, number> {
+  const held = new Map<Id, number>();
+  for (const amanat of amanats) {
+    if (!isLive(amanat)) continue;
+    held.set(amanat.accountId, (held.get(amanat.accountId) ?? 0) + (amanat.type === 'deposit' ? amanat.amount : -amanat.amount));
   }
   return held;
 }

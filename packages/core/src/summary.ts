@@ -1,8 +1,9 @@
 import type { CurrencyCode } from './currencies';
 import type { Account, Amanat, DailyRate, Debt, DebtPayment, Entry, Exchange, Expense, Workspace } from './entities';
+import { chargesOf, chargesSplit, netOf } from './deals';
 import { accountBalances, accountMovements, amanatHeld, debtState } from './ledger';
 import { addTo, type Money, totalsToList } from './money';
-import { type RateBoard, valueInBase } from './rates';
+import { type RateBoard, rateChange, valueInBase } from './rates';
 
 // The figures Home shows. None of these are stored: they are worked out from
 // entries and records every time, so they can never drift from the ledger.
@@ -57,6 +58,15 @@ export interface DaySummary {
   expenses: Money[];
   /** Base minor units. Null when a missing rate makes it unknowable. */
   profit: number | null;
+  /** The day's charges: what the deals earned, per currency (deals.ts). */
+  charges: Money[];
+  /** The same, split: swap (cash ↔ mobile %) and exchange (USD ↔ KSh) charges. */
+  swapCharges: Money[];
+  exchangeCharges: Money[];
+  /** Charges − expenses, per currency. */
+  net: Money[];
+  /** Dollars held at the start of the day revalued from the day before's rate to this day's, in KSh. Null without both. */
+  rateChange: Money | null;
   accounts: AccountPosition[];
   /** All live accounts in the base currency; null when a rate is missing. */
   totalInBase: number | null;
@@ -76,6 +86,8 @@ export interface DaySummaryInput {
   amanats: readonly Amanat[];
   debts: readonly Debt[];
   debtPayments: readonly DebtPayment[];
+  /** The rates of the last day before this one that had any (for Rate change). */
+  previousRates?: readonly DailyRate[];
 }
 
 export function daySummary(input: DaySummaryInput): DaySummary {
@@ -129,15 +141,28 @@ export function daySummary(input: DaySummaryInput): DaySummary {
     addTo(debt.direction === 'they_owe_us' ? owedToUs : weOwe, { amount: remaining, currency: debt.currency });
   }
 
+  // Dollars in the shop when the day began: everything recorded before it.
+  const atStart = accountBalances(activeAccounts, live(input.entries).filter((entry) => entry.date < date));
+  const usdAtStart = activeAccounts.filter((account) => account.currency === 'USD').reduce((sum, account) => sum + (atStart.get(account.id) ?? 0), 0);
+
+  const charges = chargesOf(todaysExchanges, board);
+  const split = chargesSplit(todaysExchanges, board);
+  const expenseList = totalsToList(expenses);
+
   return {
     date,
     baseCurrency: workspace.baseCurrency,
     board,
     missingRates: missingRates(workspace, board),
     exchangeCount: todaysExchanges.length,
+    charges,
+    swapCharges: split.swap,
+    exchangeCharges: split.exchange,
+    net: netOf(charges, expenseList),
+    rateChange: input.previousRates ? rateChange(usdAtStart, rateBoard(workspace, input.previousRates), board) : null,
     exchangedIn: totalsToList(exchangedIn),
     exchangedOut: totalsToList(exchangedOut),
-    expenses: totalsToList(expenses),
+    expenses: expenseList,
     profit,
     accounts,
     totalInBase,

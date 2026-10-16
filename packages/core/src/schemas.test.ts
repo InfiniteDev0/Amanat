@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { profileSchema, ratePairSchema, signUpSchema, updateAccountSchema, verifyCodeSchema } from './schemas';
+import { createDealSchema, profileSchema, ratePairSchema, signUpSchema, updateAccountSchema, verifyCodeSchema } from './schemas';
 
 const signUp = {
   firstName: 'Amina',
@@ -88,5 +88,18 @@ describe('updateAccountSchema', () => {
   it('refuses a negative or fractional amount', () => {
     expect(updateAccountSchema.safeParse({ openingBalance: -1 }).error?.issues[0]?.message).toBe('validation.amountPositive');
     expect(updateAccountSchema.safeParse({ openingBalance: 1.5 }).error?.issues[0]?.message).toBe('validation.amount');
+  });
+});
+
+describe('createDealSchema', () => {
+  it('takes a Sallam row: sold or bought, dollars, a %', () => {
+    expect(createDealSchema.safeParse({ type: 'sallam', side: 'sold', amount: 2_000_000, percent: '0.8' }).success).toBe(true);
+    expect(createDealSchema.safeParse({ type: 'sallam', side: 'bought', amount: 2_000_000, percent: '120' }).error?.issues[0]?.message).toBe('validation.percent');
+  });
+
+  it('takes an exchange row: bought or sold dollars at a rate, and its two accounts', () => {
+    const row = { type: 'exchange', side: 'bought', amount: 10_000, rate: '127', usdAccountId: 'cash-usd', kesAccountId: 'cash-kes' };
+    expect(createDealSchema.safeParse(row).success).toBe(true);
+    expect(createDealSchema.safeParse({ ...row, rate: undefined }).success).toBe(false);
   });
 });

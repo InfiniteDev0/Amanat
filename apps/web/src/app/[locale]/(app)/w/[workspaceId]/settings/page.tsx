@@ -1,5 +1,6 @@
-import { PagePlaceholder } from '@/components/page-placeholder';
+import { SettingsPage } from '@/features/settings/settings-page';
 
-export default function SettingsPage() {
-  return <PagePlaceholder page='settings' />;
+/** Settings: the shop, opening amounts, rates history. */
+export default function Page() {
+  return <SettingsPage />;
 }

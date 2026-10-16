@@ -27,6 +27,16 @@ const HEADER_BUTTON =
   'text-foreground hover:bg-foreground/10 flex size-9 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-5';
 
 /**
+ * Where a notification's button goes. A task opens what finishes it: "Rates
+ * not set" opens that shop's Home with the rates dialog up (?do=set-rates).
+ * When the task is done its notification clears; left undone, it stays.
+ */
+function actionHref(n: Notification): string | null {
+  if (n.type === 'rates_not_set') return `/w/${n.workspaceId}?do=set-rates`;
+  return n.link;
+}
+
+/**
  * The bell at the end of the top bar, with the unread count, and the panel it
  * opens: toast-like cards from every shop you're in, grouped Today / Earlier
  * with the unread ones first in each. On a phone, swipe a card toward the end
@@ -91,7 +101,8 @@ export function NotificationsButton({ className }: { className?: string }) {
     if (!n.readAt) markRead.mutate([n.id]);
     setOpen(false);
     setRevealed(null);
-    if (n.link) router.push(n.link);
+    const to = actionHref(n);
+    if (to) router.push(to);
   };
 
   return (

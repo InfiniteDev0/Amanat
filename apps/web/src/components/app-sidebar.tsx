@@ -6,7 +6,7 @@ import { NavMain } from '@/components/nav-main';
 import { SidebarBrand } from '@/components/sidebar-brand';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
-import { NAV_BOTTOM, NAV_MAIN } from '@/features/workspaces/navigation';
+import { NAV_MAIN } from '@/features/workspaces/navigation';
 import { cn } from '@/lib/utils';
 
 // A black sidebar, open or folded to icons. The sidebar's own colour tokens are
@@ -24,9 +24,9 @@ const BLACK_SIDEBAR_CLASS = [
 
 /**
  * The sidebar-07 block: folds to an icon rail (`collapsible="icon"`), the
- * name small under each icon. The open/fold button at the top, then the
- * pages, Settings pinned at the bottom above the brand. No account menu: the
- * shop menu in the top bar has it. Pages live in features/workspaces/navigation.ts.
+ * name small under each icon. The open/fold button at the top, then the four
+ * pages; the brand at the foot. People and Settings are in the shop menu,
+ * Close day under the top bar's calendar, today's charges on Home. Pages live in features/workspaces/navigation.ts.
  */
 export function AppSidebar({ workspaceId, className, ...props }: ComponentProps<typeof Sidebar> & { workspaceId: string }) {
   return (
@@ -38,7 +38,6 @@ export function AppSidebar({ workspaceId, className, ...props }: ComponentProps<
         <NavMain items={NAV_MAIN} workspaceId={workspaceId} />
       </SidebarContent>
       <SidebarFooter>
-        <NavMain items={NAV_BOTTOM} workspaceId={workspaceId} />
         <SidebarBrand />
       </SidebarFooter>
     </Sidebar>

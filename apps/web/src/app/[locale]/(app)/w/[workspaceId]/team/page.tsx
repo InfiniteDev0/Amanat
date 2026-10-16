@@ -1,5 +1,6 @@
-import { PagePlaceholder } from '@/components/page-placeholder';
+import { TeamPage } from '@/features/team/team-page';
 
-export default function TeamPage() {
-  return <PagePlaceholder page='team' />;
+/** People: who's in the shop, their rights, invitations. */
+export default function Page() {
+  return <TeamPage />;
 }

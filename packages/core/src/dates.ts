@@ -21,3 +21,8 @@ export function addDays(date: BusinessDate, days: number): BusinessDate {
   const [year, month, day] = date.split('-').map(Number) as [number, number, number];
   return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10);
 }
+
+/** The first day of a date's month: 2026-10-10 → 2026-10-01. */
+export function monthStart(date: BusinessDate): BusinessDate {
+  return `${date.slice(0, 8)}01`;
+}

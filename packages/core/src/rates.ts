@@ -127,6 +127,50 @@ export function valueInBase(board: RateBoard, money: Money): number | null {
 }
 
 /**
+ * Rate change (Build Plan v4, 3.5): what the dollars held are worth more, or
+ * less, in KSh because today's rate differs from the day before's. `usdHeld`
+ * is USD minor units at the start of the day. Shown on its own line, never
+ * part of Charges or Net. Null without both days' KSh rates.
+ */
+export function rateChange(usdHeld: number, before: RateBoard, today: RateBoard): Money | null {
+  const was = before.rates.KES;
+  const now = today.rates.KES;
+  if (!was || !now) return null;
+  return { amount: toMinor(fromMinor(usdHeld, 'USD').times(midRate(now).minus(midRate(was))), 'KES'), currency: 'KES' };
+}
+
+/**
+ * The board with each missing rate filled from reference rates (market
+ * rates, units per 1 base; buy = sell). For estimates on screen only, never
+ * for recording or profit. References quoted against another base are ignored.
+ */
+export function withReferenceRates(
+  board: RateBoard,
+  reference: { base: CurrencyCode; rates: Partial<Record<CurrencyCode, string>> } | null | undefined,
+): RateBoard {
+  if (!reference || reference.base !== board.base) return board;
+  const rates = { ...board.rates };
+  for (const [code, rate] of Object.entries(reference.rates) as [CurrencyCode, string][]) {
+    if (!rates[code] && new Decimal(rate).gt(0)) rates[code] = { buy: rate, sell: rate };
+  }
+  return { base: board.base, rates };
+}
+
+/**
+ * Each amount's part of them all (0 to 1), valued in the base at the mid
+ * rate. Below zero counts as nothing. All null when one can't be valued or
+ * there is nothing at all.
+ */
+export function sharesInBase(board: RateBoard, amounts: readonly Money[]): (number | null)[] {
+  const values = amounts.map((money) => valueInBase(board, money));
+  if (values.some((value) => value === null)) return amounts.map(() => null);
+  const kept = values.map((value) => Math.max(value ?? 0, 0));
+  const total = kept.reduce((sum, value) => sum + value, 0);
+  if (total === 0) return amounts.map(() => null);
+  return kept.map((value) => new Decimal(value).div(total).toNumber());
+}
+
+/**
  * A base-currency amount (base minor units) in another currency at today's
  * mid rate (that currency's minor units), or null when it has no rate today.
  * The other way round from valueInBase.

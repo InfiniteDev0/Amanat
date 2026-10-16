@@ -2,7 +2,8 @@ import Decimal from 'decimal.js';
 import { z } from 'zod';
 
 import { CURRENCY_CODES } from './currencies';
-import { ACCOUNT_TYPES, EXPENSE_CATEGORIES, LANGUAGES } from './entities';
+import { EXCHANGE_SIDES, SALLAM_SIDES } from './deals';
+import { ACCOUNT_TYPES, EXPENSE_CATEGORIES, LANGUAGES, ROLES } from './entities';
 
 // What the API accepts, checked the same way in the browser (instant form
 // feedback) and on the server (the real gate). Amounts arrive as minor units:
@@ -187,6 +188,37 @@ export const createExchangeSchema = z
     message: 'validation.sameCurrency',
   });
 
+/** A Sallam percentage: more than 0, at most 100, up to 4 decimals. */
+const percent = z
+  .string()
+  .trim()
+  .regex(/^\d+(\.\d{1,4})?$/, { message: 'validation.percent', abort: true })
+  .refine((value) => {
+    const share = toDecimal(value);
+    return Boolean(share && share.gt(0) && share.lte(100));
+  }, 'validation.percent');
+
+const customer = z.string().trim().max(80, 'validation.nameLong').nullish().transform((value) => value || null);
+
+/**
+ * A profit row (deals.ts): Sallam (sold / bought, dollars and a %) or an
+ * exchange (bought / sold dollars at a rate, and which dollar and shilling
+ * accounts). The backend works out the rest.
+ */
+export const createDealSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('sallam'), side: z.enum(SALLAM_SIDES), amount, percent, customer, note }),
+  z.object({
+    type: z.literal('exchange'),
+    side: z.enum(EXCHANGE_SIDES),
+    amount,
+    rate,
+    usdAccountId: id,
+    kesAccountId: id,
+    customer,
+    note,
+  }),
+]);
+
 export const createExpenseSchema = z.object({
   category: z.enum(EXPENSE_CATEGORIES),
   amount,
@@ -202,6 +234,48 @@ export const createAmanatSchema = z.object({
   currency,
   accountId: id,
   note,
+});
+
+/** Holding money for a client: who, which account it sits in, how much (in that account's currency). */
+export const holdAmanatSchema = z.object({
+  clientName: z.string().trim().min(2, 'validation.nameShort').max(80, 'validation.nameLong'),
+  accountId: id,
+  amount,
+  note,
+});
+
+/** Close day: each account's count; a note wherever the count is off (checked against what's expected). */
+export const closeDaySchema = z.object({
+  date,
+  counts: z
+    .array(
+      z.object({
+        accountId: id,
+        counted: z.int('validation.amount').min(0, 'validation.amount'),
+        note,
+      }),
+    )
+    .min(1, 'validation.accounts'),
+});
+
+/** An Owner opens a closed day again, saying why (it's logged). */
+export const reopenDaySchema = z.object({
+  date,
+  reason: z.string().trim().min(3, 'validation.reason').max(500, 'validation.noteLong'),
+});
+
+/** Invite someone to the shop: their phone and what they may do. */
+export const inviteSchema = z.object({
+  phone: phoneSchema,
+  role: z.enum(ROLES),
+});
+
+/** What an Owner changes in Settings. */
+export const updateWorkspaceSchema = z.object({
+  name,
+  location: z.string().trim().max(120).default(''),
+  closingTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'validation.time'),
+  largeTransactionLimit: z.int('validation.amount').min(0, 'validation.amount'),
 });
 
 export const createDebtSchema = z.object({
@@ -246,8 +320,14 @@ export type SetRatesInput = z.input<typeof setRatesSchema>;
 export type CreateClientInput = z.input<typeof createClientSchema>;
 export type OnboardingInput = z.input<typeof onboardingSchema>;
 export type CreateExchangeInput = z.input<typeof createExchangeSchema>;
+export type CreateDealInput = z.input<typeof createDealSchema>;
 export type CreateExpenseInput = z.input<typeof createExpenseSchema>;
 export type CreateAmanatInput = z.input<typeof createAmanatSchema>;
+export type HoldAmanatInput = z.input<typeof holdAmanatSchema>;
+export type CloseDayInput = z.input<typeof closeDaySchema>;
+export type ReopenDayInput = z.input<typeof reopenDaySchema>;
+export type InviteInput = z.input<typeof inviteSchema>;
+export type UpdateWorkspaceInput = z.input<typeof updateWorkspaceSchema>;
 export type CreateDebtInput = z.input<typeof createDebtSchema>;
 export type CreateDebtPaymentInput = z.input<typeof createDebtPaymentSchema>;
 export type CreateTransferInput = z.input<typeof createTransferSchema>;

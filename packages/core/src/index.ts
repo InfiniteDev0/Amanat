@@ -1,6 +1,8 @@
 export * from './api';
+export * from './closing';
 export * from './currencies';
 export * from './dates';
+export * from './deals';
 export * from './entities';
 export * from './ledger';
 export * from './money';
@@ -8,5 +10,6 @@ export * from './notifications';
 export * from './onboarding';
 export * from './permissions';
 export * from './rates';
+export * from './reports';
 export * from './schemas';
 export * from './summary';

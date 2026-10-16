@@ -5,7 +5,6 @@ import {
   AlarmClockIcon,
   ArrowRightLeftIcon,
   BanknoteIcon,
-  CalendarClockIcon,
   ClipboardCheckIcon,
   HandCoinsIcon,
   HistoryIcon,
@@ -16,10 +15,11 @@ import {
   Trash2Icon,
   UserPlusIcon,
   WalletIcon,
-  type LucideIcon,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import type { ComponentType } from 'react';
 
+import { CalendarIcon } from '@/components/icons/calendar';
 import { ShopBadge } from '@/components/shop-badge';
 import { ltr } from '@/lib/ltr';
 import { cn } from '@/lib/utils';
@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
  * `cta` is its button, tinted like a goey toast's action button. Written out
  * in full so Tailwind sees every class name.
  */
-export const KINDS: Record<NotificationType, { icon: LucideIcon; tone: string; cta: string }> = {
+export const KINDS: Record<NotificationType, { icon: ComponentType<{ className?: string }>; tone: string; cta: string }> = {
   rates_not_set: {
     icon: ArrowRightLeftIcon,
     tone: 'text-amber-600 dark:text-amber-400',
@@ -66,7 +66,7 @@ export const KINDS: Record<NotificationType, { icon: LucideIcon; tone: string; c
     cta: 'bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:hover:bg-rose-500/25',
   },
   debt_due: {
-    icon: CalendarClockIcon,
+    icon: CalendarIcon,
     tone: 'text-sky-600 dark:text-sky-400',
     cta: 'bg-sky-100 text-sky-700 hover:bg-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:hover:bg-sky-500/25',
   },

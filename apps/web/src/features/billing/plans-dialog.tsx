@@ -18,16 +18,30 @@ const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD',
 /**
  * "Choose a plan": the plans side by side, a Monthly / Yearly switch at the
  * top, and Go back. `trigger` is the element that opens it (rendered as the
- * dialog's trigger).
+ * dialog's trigger). Or, with no trigger, open it from outside with `open` and
+ * `onOpenChange` (from a menu, which is gone by the time the dialog shows).
  */
-export function PlansDialog({ trigger }: { trigger: ReactElement }) {
+export function PlansDialog({
+  trigger,
+  open: openProp,
+  onOpenChange,
+}: {
+  trigger?: ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   const t = useTranslations('plans');
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (next: boolean) => {
+    setOpenState(next);
+    onOpenChange?.(next);
+  };
   const [period, setPeriod] = useState<BillingPeriod>('monthly');
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={trigger} />
+      {trigger ? <DialogTrigger render={trigger} /> : null}
       <DialogContent className="max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DialogTitle>{t('title')}</DialogTitle>

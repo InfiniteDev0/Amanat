@@ -106,6 +106,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* The main panel under the page tabs (page-tabs.tsx): set apart from the page around it. */
+  --color-panel: var(--panel);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -201,6 +203,7 @@ p {
 .light {
   --background: oklch(96.158% 0.00563 84.446);
   --foreground: oklch(0.145 0 0);
+  --panel: oklch(0.985 0.002 84);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -257,8 +260,9 @@ p {
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  --background: oklch(21.779% 0.00002 271.152);
   --foreground: oklch(0.985 0 0);
+  --panel: oklch(0.1 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);

@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
@@ -11,7 +12,7 @@ import { maskStyle } from '@/lib/mask';
    state instead of the file's own baked-in gradient: grey at rest, yellow→pink
    on hover, yellow→green when active. `group/menu-button` is the class
    SidebarMenuButton already puts on every button; active wins over hover. */
-function NavIcon({ src }: { src: string }) {
+export function NavIcon({ src }: { src: string }) {
   return (
     // Folded, the icon sits in its own tile, the size and rounding of the
     // avatar above, and the tile (not the whole button) takes the hover and
@@ -44,6 +45,9 @@ export const NAV_ITEM_CLASS = [
 export function NavMain({ items, workspaceId, className }: { items: NavItem[]; workspaceId: string; className?: string }) {
   const t = useTranslations('nav');
   const pathname = usePathname();
+  // The shop day (?day=…) goes along, so every page shows the same day.
+  const day = useSearchParams().get('day');
+  const withDay = (href: string) => (day ? `${href}?day=${day}` : href);
 
   return (
     <SidebarGroup className={className}>
@@ -53,7 +57,7 @@ export function NavMain({ items, workspaceId, className }: { items: NavItem[]; w
             <SidebarMenuButton
               isActive={isLinkActive(pathname, workspaceId, item)}
               className={NAV_ITEM_CLASS}
-              render={<Link href={hrefFor(workspaceId, item)} />}
+              render={<Link href={withDay(hrefFor(workspaceId, item))} />}
             >
               <NavIcon src={item.icon} />
               <span>{t(item.key)}</span>

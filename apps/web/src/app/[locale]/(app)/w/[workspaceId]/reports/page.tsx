@@ -1,5 +1,6 @@
-import { PagePlaceholder } from '@/components/page-placeholder';
+import { ReportsPage } from '@/features/reports/reports-page';
 
-export default function ReportsPage() {
-  return <PagePlaceholder page='reports' />;
+/** Reports: a day, a week or a month, added up, day by day. */
+export default function Page() {
+  return <ReportsPage />;
 }

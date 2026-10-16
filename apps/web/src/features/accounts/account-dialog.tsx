@@ -31,6 +31,8 @@ export interface AccountDialogProps {
   positions: AccountPosition[];
   /** Today's rates, to convert a move into another currency. */
   board: RateBoard;
+  /** The tab it opens on (Move from Home's quick actions); the first allowed one otherwise. */
+  initialTab?: Tab;
   onClose: () => void;
 }
 
@@ -59,7 +61,7 @@ export function AccountDialog({ position, ...props }: AccountDialogProps) {
   );
 }
 
-function AccountForms({ position: given, positions: all, board, onClose }: Omit<AccountDialogProps, 'position'> & { position: AccountPosition }) {
+function AccountForms({ position: given, positions: all, board, initialTab, onClose }: Omit<AccountDialogProps, 'position'> & { position: AccountPosition }) {
   const t = useTranslations('accountDialog');
   // Names as shown (suggested cash names in today's language), for every form below.
   const label = useAccountLabel();
@@ -68,7 +70,7 @@ function AccountForms({ position: given, positions: all, board, onClose }: Omit<
   const positions = all.map(named);
   const { can } = useWorkspace();
   const tabs = (['balance', 'move'] as const).filter((tab) => (tab === 'balance' ? can('manage_accounts') : can('record')));
-  const [tab, setTab] = useState<Tab>(tabs[0] ?? 'balance');
+  const [tab, setTab] = useState<Tab>(initialTab && tabs.includes(initialTab) ? initialTab : (tabs[0] ?? 'balance'));
   const { account, balance } = position;
 
   return (
@@ -115,7 +117,7 @@ const INPUT_CLASS =
   'bg-field focus-visible:bg-field-focus placeholder:text-muted-foreground h-11 w-full rounded-xl px-3 text-end text-sm tabular-nums outline-none';
 
 /** An amount in one currency: its flag and code at the start, digits left to right. */
-function AmountInput({ label, currency, value, onChange, problem }: { label: string; currency: string; value: string; onChange: (value: string) => void; problem: string | null }) {
+export function AmountInput({ label, currency, value, onChange, problem }: { label: string; currency: string; value: string; onChange: (value: string) => void; problem: string | null }) {
   return (
     <label className="relative block">
       <span className="text-muted-foreground mb-1.5 block text-xs">{label}</span>
@@ -132,7 +134,7 @@ function AmountInput({ label, currency, value, onChange, problem }: { label: str
 }
 
 /** Another account in the shop, picked with the beui select. */
-function AccountPicker({ label, accounts, value, onChange, problem }: { label: string; accounts: Account[]; value: string; onChange: (id: string) => void; problem: string | null }) {
+export function AccountPicker({ label, accounts, value, onChange, problem }: { label: string; accounts: Account[]; value: string; onChange: (id: string) => void; problem: string | null }) {
   const chosen = accounts.find((a) => a.id === value);
   return (
     <div className="relative">
@@ -168,7 +170,7 @@ function Note({ children }: { children: ReactNode }) {
   return <p className="text-muted-foreground bg-field/50 rounded-xl px-3 py-2.5 text-sm">{children}</p>;
 }
 
-function Submit({ children, pending }: { children: ReactNode; pending: boolean }) {
+export function Submit({ children, pending }: { children: ReactNode; pending: boolean }) {
   return (
     <Button type="submit" disabled={pending} className="mt-5 h-11 w-full rounded-xl font-semibold">
       {children}
@@ -177,7 +179,8 @@ function Submit({ children, pending }: { children: ReactNode; pending: boolean }
 }
 
 /** The amount typed, in minor units, or a problem to show. */
-function useAmount(currency: string) {
+/** What's typed in an amount field and its minor units (null while empty or not a number). */
+export function useAmount(currency: string) {
   const [text, setText] = useState('');
   const amount = text.trim() ? parseAmount(text, currency as Account['currency']) : null;
   return { text, setText, amount };

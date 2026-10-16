@@ -19,3 +19,9 @@ export function useMessage() {
   const t = useTranslations();
   return (key: string): string => (t.has(key as never) ? t(key as never) : t('errors.unknown'));
 }
+
+/** Like errorKey, but what's wrong with the form ("The last Owner can't leave", "Add a note") wins over the generic message. */
+export function formErrorKey(error: unknown): string {
+  if (error instanceof ApiError) return error.fields.form ?? Object.values(error.fields)[0] ?? error.messageKey;
+  return errorKey(error);
+}

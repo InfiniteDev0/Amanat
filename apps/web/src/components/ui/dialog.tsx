@@ -27,8 +27,15 @@ function DialogContent({
   className,
   children,
   closeLabel,
+  showCloseButton,
   ...props
-}: DialogPrimitive.Popup.Props & { /** The close button's accessible name; no button without it. */ closeLabel?: string }) {
+}: DialogPrimitive.Popup.Props & {
+  /** The close button's accessible name; no button without it. */
+  closeLabel?: string;
+  /** shadcn's switch for the close button (used by registry components): on, it shows with closeLabel or "Close". */
+  showCloseButton?: boolean;
+}) {
+  const close = closeLabel ?? (showCloseButton ? 'Close' : null);
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0" />
@@ -43,9 +50,9 @@ function DialogContent({
         {...props}
       >
         {children}
-        {closeLabel ? (
+        {close ? (
           <DialogPrimitive.Close
-            aria-label={closeLabel}
+            aria-label={close}
             className="text-muted-foreground hover:bg-foreground/10 hover:text-foreground absolute end-4 top-4 flex size-9 items-center justify-center rounded-full transition-colors"
           >
             <XIcon className="size-5" />
@@ -56,6 +63,16 @@ function DialogContent({
   );
 }
 
+/** The title and description, stacked (shadcn's layout, for registry components). */
+function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div data-slot="dialog-header" className={cn('flex flex-col gap-1 text-start', className)} {...props} />;
+}
+
+/** The buttons at the end, side by side from the end (shadcn's layout). */
+function DialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div data-slot="dialog-footer" className={cn('mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)} {...props} />;
+}
+
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return <DialogPrimitive.Title data-slot="dialog-title" className={cn('text-lg font-medium', className)} {...props} />;
 }
@@ -64,4 +81,4 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
   return <DialogPrimitive.Description data-slot="dialog-description" className={cn('text-muted-foreground mt-1 text-sm', className)} {...props} />;
 }
 
-export { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger };
+export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger };

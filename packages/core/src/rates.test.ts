@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import { displayRate, isValidRatePair, quoteByGet, quoteByGive, type RateBoard, valueFromBase, valueInBase } from './rates';
+import {
+  displayRate,
+  isValidRatePair,
+  quoteByGet,
+  quoteByGive,
+  rateChange,
+  type RateBoard,
+  sharesInBase,
+  valueFromBase,
+  valueInBase,
+  withReferenceRates,
+} from './rates';
 
 const board: RateBoard = {
   base: 'USD',
@@ -71,5 +82,55 @@ describe('valueFromBase', () => {
   it('leaves the base as it is and is null without a rate', () => {
     expect(valueFromBase(board, 10000, 'USD')).toBe(10000);
     expect(valueFromBase(board, 10000, 'EUR')).toBeNull();
+  });
+});
+
+describe('withReferenceRates', () => {
+  it('fills only the missing rates, at the reference rate both ways', () => {
+    const filled = withReferenceRates(board, { base: 'USD', rates: { KES: '128', EUR: '0.9' } });
+    expect(filled.rates.KES).toEqual({ buy: '129.00', sell: '130.50' });
+    expect(filled.rates.EUR).toEqual({ buy: '0.9', sell: '0.9' });
+    expect(board.rates.EUR).toBeUndefined();
+  });
+
+  it('ignores references against another base', () => {
+    expect(withReferenceRates(board, { base: 'KES', rates: { EUR: '0.007' } })).toBe(board);
+    expect(withReferenceRates(board, null)).toBe(board);
+  });
+});
+
+describe('sharesInBase', () => {
+  it('splits by value in the base', () => {
+    // 100 USD and 129.75 x 100 KES (100 USD at mid): half each.
+    const shares = sharesInBase(board, [
+      { amount: 10000, currency: 'USD' },
+      { amount: 1297500, currency: 'KES' },
+    ]);
+    expect(shares).toEqual([0.5, 0.5]);
+  });
+
+  it('counts below zero as nothing', () => {
+    expect(sharesInBase(board, [{ amount: 10000, currency: 'USD' }, { amount: -500, currency: 'USD' }])).toEqual([1, 0]);
+  });
+
+  it('is all null without a rate or with nothing at all', () => {
+    expect(sharesInBase(board, [{ amount: 100, currency: 'USD' }, { amount: 100, currency: 'EUR' }])).toEqual([null, null]);
+    expect(sharesInBase(board, [{ amount: 0, currency: 'USD' }])).toEqual([null]);
+  });
+});
+
+describe('rateChange', () => {
+  const at = (rate: string): RateBoard => ({ base: 'USD', rates: { KES: { buy: rate, sell: rate } } });
+
+  it('revalues the dollars held from yesterday to today in KSh', () => {
+    // 45,000 USD, 129.00 → 129.61: worth 27,450 KSh more.
+    expect(rateChange(4_500_000, at('129.00'), at('129.61'))).toEqual({ amount: 2_745_000, currency: 'KES' });
+    // And less when the rate falls.
+    expect(rateChange(4_500_000, at('129.61'), at('129.00'))).toEqual({ amount: -2_745_000, currency: 'KES' });
+  });
+
+  it('is unknown without either day\'s rate', () => {
+    expect(rateChange(4_500_000, { base: 'USD', rates: {} }, at('129.61'))).toBeNull();
+    expect(rateChange(4_500_000, at('129.00'), { base: 'USD', rates: {} })).toBeNull();
   });
 });

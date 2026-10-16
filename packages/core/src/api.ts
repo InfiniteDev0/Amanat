@@ -2,16 +2,21 @@ import type { CurrencyCode } from './currencies';
 import type { BusinessDate } from './dates';
 import type {
   Account,
+  ActivityLog,
   Amanat,
   Client,
+  DailyClosing,
   DailyRate,
   Debt,
   DebtPayment,
   Exchange,
   Expense,
   Id,
+  Invitation,
+  Member,
   Notification,
   Role,
+  Timestamp,
   Transfer,
   User,
   Workspace,
@@ -21,6 +26,7 @@ import type {
   CreateAccountInput,
   CreateAmanatInput,
   CreateClientInput,
+  CreateDealInput,
   CreateDebtInput,
   CreateDebtPaymentInput,
   CreateExchangeInput,
@@ -33,7 +39,15 @@ import type {
   SetRatesInput,
   UpdateAccountInput,
   VerifyCodeInput,
+  HoldAmanatInput,
+  CloseDayInput,
+  ReopenDayInput,
+  InviteInput,
+  UpdateWorkspaceInput,
 } from './schemas';
+import type { ClosingLine } from './closing';
+import type { RateBoard } from './rates';
+import type { Report } from './reports';
 import type { DaySummary } from './summary';
 
 // The contract between the UI and the backend.
@@ -113,6 +127,73 @@ export interface BookRow {
   locked: boolean;
 }
 
+/** One deal on the Profit page: the deal, its profit and who's who. */
+export interface DealRow {
+  deal: Exchange;
+  /** What it made (negative: a cost); null when it needs a rate nobody set. */
+  profit: Money | null;
+  from: { id: Id; name: string };
+  to: { id: Id; name: string };
+  recordedBy: { id: Id; name: string };
+  /** Its day is closed. */
+  locked: boolean;
+}
+
+/** One expense on the Profit page, with its account and who recorded it. */
+export interface ExpenseRow {
+  expense: Expense;
+  account: { id: Id; name: string };
+  recordedBy: { id: Id; name: string };
+  /** Its day is closed. */
+  locked: boolean;
+}
+
+/** One amanat on the Amanat page: the money held, whose, where, and whether it's been given back. */
+export interface AmanatRow {
+  /** The deposit. */
+  amanat: Amanat;
+  clientName: string;
+  account: { id: Id; name: string };
+  recordedBy: { id: Id; name: string };
+  returned: boolean;
+}
+
+/** Close day for one day: what each account should hold, and the closing if it's done. */
+export interface ClosingView {
+  date: BusinessDate;
+  lines: ClosingLine[];
+  /** The day's rate board, for the KSh total. */
+  board: RateBoard;
+  /** Null while the day is open. */
+  closed: { by: { id: Id; name: string }; at: Timestamp; counts: DailyClosing[] } | null;
+}
+
+/** One line of the Activity log: who did what, when, and to how much. */
+export interface ActivityRow {
+  activity: ActivityLog;
+  user: { id: Id; name: string };
+  /** The amount involved, when there is one. */
+  money: Money | null;
+  /** A name to go with it: the client, the person invited, the account… */
+  detail: string | null;
+}
+
+/** Someone in the shop, on the People page. */
+export interface MemberRow {
+  member: Member;
+  user: { id: Id; name: string; phone: string };
+  /** When they last did something in this shop. */
+  lastActive: Timestamp | null;
+  /** Who invited them; null for whoever made the shop. */
+  invitedBy: { id: Id; name: string } | null;
+}
+
+export interface TeamView {
+  members: MemberRow[];
+  /** Invitations not yet accepted. */
+  invitations: Invitation[];
+}
+
 export interface BookFilter {
   /** One day; defaults to today. */
   date?: BusinessDate;
@@ -160,6 +241,8 @@ export interface SarrifApi {
   };
 
   workspaces: {
+    /** Owners: the shop's name, place, closing time and large-row limit. */
+    update(workspaceId: Id, input: UpdateWorkspaceInput): Promise<Workspace>;
     /** Every shop the user is a member of, with their role there. */
     listMine(): Promise<WorkspaceMembership[]>;
     /** Creates the shop and makes the caller its Owner. */
@@ -196,6 +279,71 @@ export interface SarrifApi {
   book: {
     /** Newest first. */
     list(workspaceId: Id, filter?: BookFilter): Promise<BookRow[]>;
+  };
+
+  /** The exchange sheet (deals.ts): swaps (cash ↔ mobile for a %) and USD ↔ KSh exchanges. */
+  amanat: {
+    /** Every amanat of the shop: the ones still held first (newest first), then those given back. */
+    list(workspaceId: Id): Promise<AmanatRow[]>;
+    /** Holds money for a client today: it comes into the account. */
+    hold(workspaceId: Id, input: HoldAmanatInput): Promise<Amanat>;
+    /** Gives it back today: marked returned, and the money leaves the account again. */
+    markReturned(workspaceId: Id, amanatId: Id): Promise<Amanat>;
+    /** Undoes "Given back" (today only): the withdrawal goes and the amanat is held again. */
+    undoReturn(workspaceId: Id, amanatId: Id): Promise<Amanat>;
+  };
+
+  closings: {
+    /** Close day for one day: expected, amanat held, and the counts if it's closed. */
+    day(workspaceId: Id, date: BusinessDate): Promise<ClosingView>;
+    /** Counts every account and closes the day: nothing on it can change after (but by an Owner, reopening). */
+    close(workspaceId: Id, input: CloseDayInput): Promise<DailyClosing[]>;
+    /** Owners: opens a closed day again, with a reason. */
+    reopen(workspaceId: Id, input: ReopenDayInput): Promise<void>;
+  };
+
+  reports: {
+    /** Every day from `from` to `to`, and the run added up. */
+    range(workspaceId: Id, from: BusinessDate, to: BusinessDate): Promise<Report>;
+  };
+
+  activity: {
+    /** Who did what on a day, newest first. Owners see everyone; Editors themselves; Viewers nothing. */
+    list(workspaceId: Id, date: BusinessDate): Promise<ActivityRow[]>;
+  };
+
+  team: {
+    /** Owners: everyone in the shop and the invitations still open. */
+    list(workspaceId: Id): Promise<TeamView>;
+    /** Owners: invites a phone number; they join when they sign in with it. */
+    invite(workspaceId: Id, input: InviteInput): Promise<Invitation>;
+    cancelInvite(workspaceId: Id, invitationId: Id): Promise<void>;
+    /** Owners: changes what someone may do. The last Owner stays an Owner. */
+    setRole(workspaceId: Id, memberId: Id, role: Role): Promise<Member>;
+    /** Owners: takes someone out of the shop. The last Owner can't be removed. */
+    remove(workspaceId: Id, memberId: Id): Promise<void>;
+  };
+
+  expenses: {
+    /** One day's expenses (today by default), oldest first. Recording one is records.createExpense. */
+    list(workspaceId: Id, date?: BusinessDate): Promise<ExpenseRow[]>;
+  };
+
+  deals: {
+    /** One day's rows (today by default), oldest first, as the sheet reads. */
+    list(workspaceId: Id, date?: BusinessDate): Promise<DealRow[]>;
+    /** Records a deal today: what the customer gave, what you gave. */
+    create(workspaceId: Id, input: CreateDealInput): Promise<Exchange>;
+    /** Changes a deal of a day that's still open: both accounts and its profit are worked out again (logged before / after). */
+    update(workspaceId: Id, dealId: Id, input: CreateDealInput): Promise<Exchange>;
+    /** Colours rows in the sheet for everyone (null clears it). */
+    highlight(workspaceId: Id, ids: Id[], colour: string | null): Promise<void>;
+    /**
+     * Deletes rows from a day that's still open (soft: the record and its
+     * money movements are kept, marked deleted). `restore` undoes it.
+     */
+    remove(workspaceId: Id, ids: Id[]): Promise<void>;
+    restore(workspaceId: Id, ids: Id[]): Promise<void>;
   };
 
   summary: {

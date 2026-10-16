@@ -1,6 +1,6 @@
 'use client';
 
-import type { CreateWorkspaceInput } from '@sarrif/core';
+import type { CreateWorkspaceInput, UpdateWorkspaceInput } from '@sarrif/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
@@ -15,6 +15,15 @@ export function useCreateWorkspace() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateWorkspaceInput) => api.workspaces.create(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspaces }),
+  });
+}
+
+/** Owners: the shop's name, place, closing time and large-row limit. The shop list carries them, so it refreshes. */
+export function useUpdateWorkspace(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateWorkspaceInput) => api.workspaces.update(workspaceId, input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspaces }),
   });
 }

@@ -1,62 +1,93 @@
 'use client';
 
-import { businessDate, type CurrencyCode } from '@sarrif/core';
+import { businessDate, type CurrencyCode, ratedCurrencies } from '@sarrif/core';
 import { useState } from 'react';
 
 import { AccountDialog } from '@/features/accounts/account-dialog';
+import { HoldSheet } from '@/features/amanat/amanat-sheets';
+import { DealSheet, MoveSheet } from '@/features/profit/forms';
+import { useDeals } from '@/features/deals/queries';
+import { ExpenseDialog } from '@/features/expenses/expense-dialog';
 import { RatesDialog } from '@/features/rates/rates-dialog';
+import { useShopDay } from '@/features/workspaces/shop-day';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 
 import { AccountCards } from './account-cards';
-import { HomeToolbar } from './home-toolbar';
+import { HomeHeader } from './home-header';
+import { useOpenFromAddress } from './open-from-address';
 import { useDaySummary } from './queries';
+import { QuickActions } from './quick-actions';
 import { RateCards, RatesBanner } from './rates-section';
 
 /**
  * Home, top to bottom: a one-line banner across the panel while today's
- * rates aren't set; the day and the currency to show the total in; the
- * day's rates; then the accounts. Day and currency start at today and the
- * shop's base. The rest of Home comes later.
+ * rates aren't set; the greeting and the totals; the day's rates; the
+ * accounts; then quick actions. The day
+ * starts at today. The rest of Home comes later.
  */
 export function HomeScreen() {
   const { workspace } = useWorkspace();
-  const today = businessDate(workspace.timeZone);
-  const [picked, setPicked] = useState<string | null>(null);
-  const [currency, setCurrency] = useState<CurrencyCode>(workspace.baseCurrency);
+  const { day, today, isToday } = useShopDay();
+  const picked = isToday ? null : day;
   // The rates dialog: which currencies it's open for.
   const [editing, setEditing] = useState<CurrencyCode[] | null>(null);
+  useOpenFromAddress('set-rates', () => setEditing(ratedCurrencies(workspace)));
   // An account's dialog: which account it's open for.
   const [accountId, setAccountId] = useState<string | null>(null);
+  // Opened from Move money: the dialog starts on its Move tab.
+  const [moving, setMoving] = useState(false);
   // Today's figures: the dialogs act on today, whatever day is shown.
   const todays = useDaySummary(workspace.id).data;
   const board = todays?.board;
-  const day = picked ?? today;
-  const isToday = picked === null;
-  // The base first, then the others as the shop lists them.
-  const currencies = [workspace.baseCurrency, ...workspace.currencies.filter((code) => code !== workspace.baseCurrency)];
-  // Back to the base if the shop stops trading the chosen one.
-  const shownIn = currencies.includes(currency) ? currency : workspace.baseCurrency;
+  // Sallam, Exchange, Move and Expense open as sheets over Home.
+  const [dealSheet, setDealSheet] = useState<'sallam' | 'exchange' | null>(null);
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [holdOpen, setHoldOpen] = useState(false);
+  const [expenseOpen, setExpenseOpen] = useState(false);
+  const deals = useDeals(workspace.id).data ?? [];
 
   return (
     <>
       <RatesBanner isToday={isToday} onSet={setEditing} />
       <div className="flex flex-col gap-4 p-4 lg:p-6">
-        <HomeToolbar
-          day={day}
-          today={today}
-          onDayChange={(next) => setPicked(next === today ? null : next)}
-          currency={shownIn}
-          currencies={currencies}
-          onCurrencyChange={setCurrency}
+        <HomeHeader date={picked ?? undefined} />
+        {/* <RateCards date={picked ?? undefined} isToday={isToday} onEdit={setEditing} /> */}
+        <AccountCards
+          date={picked ?? undefined}
+          onOpen={(id) => {
+            setMoving(false);
+            setAccountId(id);
+          }}
         />
-        <RateCards date={picked ?? undefined} isToday={isToday} onEdit={setEditing} />
-        <AccountCards date={picked ?? undefined} currency={shownIn} onOpen={setAccountId} />
+        <QuickActions
+          onSallam={() => setDealSheet('sallam')}
+          onExchange={() => setDealSheet('exchange')}
+          onExpense={() => setExpenseOpen(true)}
+          onMove={() => setMoveOpen(true)}
+          onAmanat={() => setHoldOpen(true)}
+        />
       </div>
+      {todays ? (
+        <>
+          <DealSheet
+            type={dealSheet ?? 'sallam'}
+            open={dealSheet !== null}
+            onOpenChange={(open) => (open ? undefined : setDealSheet(null))}
+            accounts={todays.accounts.map((p) => p.account)}
+            board={todays.board}
+            rows={deals}
+          />
+          <MoveSheet open={moveOpen} onOpenChange={setMoveOpen} accounts={todays.accounts.map((p) => p.account)} board={todays.board} />
+          <HoldSheet open={holdOpen} onOpenChange={setHoldOpen} accounts={todays.accounts.map((p) => p.account)} />
+        </>
+      ) : null}
+      <ExpenseDialog open={expenseOpen} onOpenChange={setExpenseOpen} accounts={todays?.accounts.map((p) => p.account) ?? []} />
       {todays ? (
         <AccountDialog
           position={todays.accounts.find((p) => p.account.id === accountId) ?? null}
           positions={todays.accounts}
           board={todays.board}
+          initialTab={moving ? 'move' : undefined}
           onClose={() => setAccountId(null)}
         />
       ) : null}

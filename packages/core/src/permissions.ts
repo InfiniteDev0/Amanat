@@ -58,3 +58,12 @@ export function canEditEntry(
   }
   return can(role, 'edit_entry_today');
 }
+
+/**
+ * A shop always keeps an Owner (Build Plan v4, 5): the last one can't be
+ * removed, leave, or become something else.
+ */
+export function isLastOwner(members: readonly { id: string; role: Role }[], memberId: string): boolean {
+  const owners = members.filter((member) => member.role === 'owner');
+  return owners.length === 1 && owners[0]?.id === memberId;
+}

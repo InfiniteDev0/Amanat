@@ -2,7 +2,7 @@
 
 # Sarrif
 
-Read README.md and the two docs in docs/ first. apps/web/AGENTS.md applies to the Next.js app (Next 16: read node_modules/next/dist/docs before using Next APIs).
+Read README.md and the docs in docs/ first. **`docs/Sarrif App – Build Plan v4.md` is the current plan**: where it disagrees with v2 or the older spec, v4 wins (its section 13 lists what changed). **`docs/Sarrif App – Profit forms.md` overrides v4 3.2–3.4, 7.3 and the swaps/exchanges tables**: profit comes only from Sallam and Exchange; Move never makes profit. The latest status check is in `docs/Status report – 2026-10-11.md` (written against v3; v4 changes the layout and splits Sallam into Swap). apps/web/AGENTS.md applies to the Next.js app (Next 16: read node_modules/next/dist/docs before using Next APIs).
 
 ## How the app is built
 

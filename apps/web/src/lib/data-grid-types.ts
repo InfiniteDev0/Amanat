@@ -1,0 +1,264 @@
+import type { Cell, RowData } from "@tanstack/react-table";
+
+import type { DataGridFeatures } from "@/lib/data-grid-features";
+
+export type Direction = "ltr" | "rtl";
+
+export type RowHeightValue = "short" | "medium" | "tall" | "extra-tall";
+
+export interface CellSelectOption {
+  label: string;
+  value: string;
+  icon?: React.ComponentType<React.ComponentProps<"svg">>;
+  count?: number;
+}
+
+export type CellOpts =
+  | {
+      variant: "short-text";
+    }
+  | {
+      variant: "long-text";
+    }
+  | {
+      variant: "number";
+      min?: number;
+      max?: number;
+      step?: number;
+    }
+  | {
+      variant: "select";
+      /** Every option: what a value is called when shown. */
+      options: CellSelectOption[];
+      /** The options one row may pick from (its row's data), when not all of them. */
+      optionsFor?: (row: unknown) => CellSelectOption[];
+    }
+  | {
+      variant: "multi-select";
+      options: CellSelectOption[];
+    }
+  | {
+      variant: "checkbox";
+    }
+  | {
+      variant: "date";
+    }
+  | {
+      variant: "url";
+    }
+  | {
+      variant: "file";
+      maxFileSize?: number;
+      maxFiles?: number;
+      accept?: string;
+      multiple?: boolean;
+    };
+
+export interface CellUpdate {
+  rowId: string;
+  columnId: string;
+  value: unknown;
+}
+
+export interface DataGridColumnMeta {
+  label?: string;
+  cell?: CellOpts;
+}
+
+export interface DataGridTableMeta {
+  dataGridRef?: React.RefObject<HTMLElement | null>;
+  cellMapRef?: React.RefObject<Map<string, HTMLDivElement>>;
+  focusedCell?: CellPosition | null;
+  editingCell?: CellPosition | null;
+  selectionState?: SelectionState;
+  searchOpen?: boolean;
+  getIsCellSelected?: (rowId: string, columnId: string) => boolean;
+  getIsSearchMatch?: (rowId: string, columnId: string) => boolean;
+  getIsActiveSearchMatch?: (rowId: string, columnId: string) => boolean;
+  scrollToCell?: (
+    rowId: string,
+    columnId: string,
+    align?: "auto" | "start" | "center" | "end",
+  ) => void;
+  onRowSelect?: (rowId: string, checked: boolean, shiftKey: boolean) => void;
+  onDataUpdate?: (params: CellUpdate | Array<CellUpdate>) => void;
+  onRowsDelete?: (rowIds: string[]) => void | Promise<void>;
+  onColumnClick?: (columnId: string) => void;
+  onCellClick?: (
+    rowId: string,
+    columnId: string,
+    event?: React.MouseEvent,
+  ) => void;
+  onCellDoubleClick?: (rowId: string, columnId: string) => void;
+  onCellMouseDown?: (
+    rowId: string,
+    columnId: string,
+    event: React.MouseEvent,
+  ) => void;
+  onCellMouseEnter?: (rowId: string, columnId: string) => void;
+  onCellMouseUp?: () => void;
+  onCellContextMenu?: (
+    rowId: string,
+    columnId: string,
+    event: React.MouseEvent,
+  ) => void;
+  onCellEditingStart?: (rowId: string, columnId: string) => void;
+  onCellEditingStop?: (opts?: {
+    direction?: NavigationDirection;
+    moveToNextRow?: boolean;
+  }) => void;
+  onCellsCopy?: () => void;
+  onCellsCut?: () => void;
+  onCellsPaste?: (expand?: boolean) => void;
+  onSelectionClear?: () => void;
+  onFilesUpload?: (params: {
+    files: File[];
+    rowId: string;
+    columnId: string;
+  }) => Promise<FileCellData[]>;
+  onFilesDelete?: (params: {
+    fileIds: string[];
+    rowId: string;
+    columnId: string;
+  }) => void | Promise<void>;
+  contextMenu?: ContextMenuState;
+  onContextMenuOpenChange?: (open: boolean) => void;
+  pasteDialog?: PasteDialogState;
+  onPasteDialogOpenChange?: (open: boolean) => void;
+  readOnly?: boolean;
+}
+
+export interface CellPosition {
+  rowId: string;
+  columnId: string;
+}
+
+export interface CellRange {
+  start: CellPosition;
+  end: CellPosition;
+}
+
+export interface SelectionState {
+  selectedCells: Set<string>;
+  selectionRange: CellRange | null;
+  isSelecting: boolean;
+}
+
+export interface ContextMenuState {
+  open: boolean;
+  x: number;
+  y: number;
+}
+
+export interface PasteDialogState {
+  open: boolean;
+  rowsNeeded: number;
+  clipboardText: string;
+}
+
+export type NavigationDirection =
+  | "up"
+  | "down"
+  | "left"
+  | "right"
+  | "home"
+  | "end"
+  | "ctrl+up"
+  | "ctrl+down"
+  | "ctrl+home"
+  | "ctrl+end"
+  | "pageup"
+  | "pagedown"
+  | "pageleft"
+  | "pageright"
+  | "tab"
+  | "shift+tab";
+
+export interface SearchState {
+  searchMatches: CellPosition[];
+  matchIndex: number;
+  searchOpen: boolean;
+  onSearchOpenChange: (open: boolean) => void;
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => void;
+  onSearch: (query: string) => void;
+  onNavigateToNextMatch: () => void;
+  onNavigateToPrevMatch: () => void;
+}
+
+export interface DataGridCellProps<TData extends RowData> {
+  cell: Cell<DataGridFeatures, TData>;
+  tableMeta: DataGridTableMeta;
+  rowId: string;
+  columnId: string;
+  rowHeight: RowHeightValue;
+  isEditing: boolean;
+  isFocused: boolean;
+  isSelected: boolean;
+  isSearchMatch: boolean;
+  isActiveSearchMatch: boolean;
+  readOnly: boolean;
+}
+
+export interface FileCellData {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url?: string;
+}
+
+export type TextFilterOperator =
+  | "contains"
+  | "notContains"
+  | "equals"
+  | "notEquals"
+  | "startsWith"
+  | "endsWith"
+  | "isEmpty"
+  | "isNotEmpty";
+
+export type NumberFilterOperator =
+  | "equals"
+  | "notEquals"
+  | "lessThan"
+  | "lessThanOrEqual"
+  | "greaterThan"
+  | "greaterThanOrEqual"
+  | "isBetween"
+  | "isEmpty"
+  | "isNotEmpty";
+
+export type DateFilterOperator =
+  | "equals"
+  | "notEquals"
+  | "before"
+  | "after"
+  | "onOrBefore"
+  | "onOrAfter"
+  | "isBetween"
+  | "isEmpty"
+  | "isNotEmpty";
+
+export type SelectFilterOperator =
+  | "is"
+  | "isNot"
+  | "isAnyOf"
+  | "isNoneOf"
+  | "isEmpty"
+  | "isNotEmpty";
+
+export type BooleanFilterOperator = "isTrue" | "isFalse";
+
+export type FilterOperator =
+  | TextFilterOperator
+  | NumberFilterOperator
+  | DateFilterOperator
+  | SelectFilterOperator
+  | BooleanFilterOperator;
+
+export interface FilterValue {
+  operator: FilterOperator;
+  value?: string | number | string[];
+  endValue?: string | number;
+}

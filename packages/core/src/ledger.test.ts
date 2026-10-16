@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Account, Debt, DebtPayment, Entry, Exchange, Transfer, Workspace } from './entities';
-import { accountBalances, debtState, entriesFor, type EntryDraft, LedgerError } from './ledger';
+import { accountBalances, amanatHeldByAccount, debtState, entriesFor, type EntryDraft, LedgerError } from './ledger';
 import { can, canEditEntry } from './permissions';
 import { daySummary } from './summary';
 
@@ -39,6 +39,11 @@ const exchange: Exchange = {
   rate: '129',
   clientId: null,
   note: null,
+  kind: null,
+  customerRate: null,
+  percent: null,
+  customer: null,
+  highlight: null,
 };
 
 function toEntries(drafts: EntryDraft[]): Entry[] {
@@ -154,5 +159,28 @@ describe('permissions', () => {
     expect(canEditEntry('editor', { createdBy: 'u2', dayClosed: false }, 'u1')).toBe(false);
     expect(canEditEntry('editor', { createdBy: 'u1', dayClosed: true }, 'u1')).toBe(false);
     expect(canEditEntry('owner', { createdBy: 'u2', dayClosed: true }, 'u1')).toBe(true);
+  });
+});
+
+describe('amanatHeldByAccount', () => {
+  const held = (id: string, type: 'deposit' | 'withdrawal', amount: number, accountId: string) => ({
+    id,
+    workspaceId: 'w1',
+    createdBy: 'u1',
+    createdAt: now,
+    deletedAt: null,
+    date: day,
+    clientId: null,
+    clientName: 'Abdi',
+    type,
+    amount,
+    currency: 'USD' as const,
+    accountId,
+    note: null,
+  });
+
+  it('is what each account holds for clients: held − given back', () => {
+    const byAccount = amanatHeldByAccount([held('a1', 'deposit', 50_000, 'cash-usd'), held('a2', 'deposit', 20_000, 'cash-usd'), held('a3', 'withdrawal', 20_000, 'cash-usd')]);
+    expect(byAccount.get('cash-usd')).toBe(50_000);
   });
 });

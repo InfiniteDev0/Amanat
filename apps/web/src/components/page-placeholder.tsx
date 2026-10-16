@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 
-type Page = 'book' | 'clients' | 'accounts' | 'close' | 'reports' | 'team' | 'settings' | 'notifications' | 'allShops';
+type Page = 'exchange' | 'clients' | 'amanat' | 'reports' | 'team' | 'settings' | 'notifications' | 'allShops';
 
 /** Stands in for a page until we design it. */
 export function PagePlaceholder({ page }: { page: Page }) {

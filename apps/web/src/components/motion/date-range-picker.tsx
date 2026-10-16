@@ -3,7 +3,6 @@
 
 import {
   ArrowRight,
-  CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -24,6 +23,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { CalendarIcon } from "@/components/icons/calendar";
 import { EASE_OUT, SPRING_LAYOUT, SPRING_PRESS } from "@/lib/ease";
 import { cn } from "@/lib/utils";
 import {
@@ -784,7 +784,7 @@ export function DateRangePickerTrigger({
               className="shrink-0 text-muted-foreground"
               aria-hidden="true"
             >
-              <CalendarDays size={15} />
+              <CalendarIcon width={15} height={15} />
             </motion.span>
             <motion.span
               layout={ctx.reduce ? false : "position"}

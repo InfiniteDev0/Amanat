@@ -81,7 +81,7 @@ export interface Invitation {
   createdAt: Timestamp;
 }
 
-export type ActivityAction = 'create' | 'edit' | 'delete' | 'close' | 'reopen';
+export type ActivityAction = 'create' | 'edit' | 'delete' | 'restore' | 'close' | 'reopen' | 'return' | 'set_rates' | 'invite' | 'change_role' | 'remove_member' | 'update_shop';
 
 /** Append-only. */
 export interface ActivityLog {
@@ -156,14 +156,26 @@ export interface Client {
   createdAt: Timestamp;
 }
 
+/**
+ * Money held for a client (Build Plan v4, 3.7). Holding it is a deposit (it
+ * comes into an account); when it's given back, the deposit is marked
+ * returned and a withdrawal (returnOf) takes it out again.
+ */
 export interface Amanat extends Recorded {
-  clientId: Id;
+  /** A client from the old Clients list; null when the name was typed. */
+  clientId: Id | null;
+  /** The client's name as typed on the form. */
+  clientName?: string | null;
   date: BusinessDate;
   type: 'deposit' | 'withdrawal';
   amount: number;
   currency: CurrencyCode;
   accountId: Id;
   note: string | null;
+  /** A deposit: when it was given back (null while held). */
+  returnedAt?: Timestamp | null;
+  /** A withdrawal: the deposit it gave back. */
+  returnOf?: Id | null;
 }
 
 export type DebtDirection = 'they_owe_us' | 'we_owe_them';
@@ -202,6 +214,18 @@ export interface Exchange extends Recorded {
   /** Null for a walk-in. */
   clientId: Id | null;
   note: string | null;
+  /** What rows saved before the deal form called themselves (sallam_sell, buy_usd…); null on a deal. Not used for anything. */
+  kind: string | null;
+  /** USD ↔ KSh: today's rate when it was saved, so its profit never changes with a later rate. */
+  todayRate?: string | null;
+  /** The customer's rate, KSh per 1 USD (buy_usd / sell_usd). */
+  customerRate: string | null;
+  /** The swap %, e.g. "0.8" (swap_earn / swap_pay). */
+  percent: string | null;
+  /** The customer's name as typed on the row; null for a walk-in. */
+  customer: string | null;
+  /** The row's highlight in the exchange sheet (a palette name, e.g. "amber"); null for none. */
+  highlight: string | null;
 }
 
 export const EXPENSE_CATEGORIES = ['rent', 'salary', 'transport', 'food', 'other'] as const;
