@@ -11,6 +11,10 @@ import { supabaseAuth } from './supabase/auth';
 //
 // - auth: Supabase when this build has a project (Phase 1b), else the demo.
 // - everything else: the in-browser mock, for now.
+
+// With real sign-in, the mock only knows who is signed in from Supabase's checked session.
+if (SUPABASE_CONFIGURED) mockSession.fromAuthOnly();
+
 export const api: SarrifApi = {
   ...mockApi,
   auth: SUPABASE_CONFIGURED ? supabaseAuth(mockSession) : mockApi.auth,

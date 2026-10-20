@@ -146,7 +146,7 @@ test('signed out in one tab: the other tab signs out too', async ({ context }) =
 
   // Sign out through the app's own menu in the first tab.
   await first.getByRole('button', { name: 'Switch shop' }).click();
-  await first.getByRole('menuitem', { name: 'Sign out' }).click();
+  await first.getByRole('menuitem', { name: 'Sign out', exact: true }).click();
   await expect(first).toHaveURL(/\/en$/);
   await expect(second).toHaveURL(/\/en(\?|$)/);
 });

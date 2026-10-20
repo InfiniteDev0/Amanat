@@ -28,13 +28,18 @@ export function uniqueEmail(name: string): string {
   return `${name}.${Date.now()}.${Math.floor(Math.random() * 1e6)}@example.com`;
 }
 
-/** A confirmed account with a complete profile (phone and terms), as after sign-up and setup. */
-export async function makeUser(email = uniqueEmail('e2e')): Promise<{ id: string; email: string }> {
+/**
+ * A confirmed account. Complete (phone and terms), as after sign-up and setup;
+ * or, with `complete: false`, like a first Google sign-in: no phone, no terms.
+ */
+export async function makeUser(email = uniqueEmail('e2e'), { complete = true } = {}): Promise<{ id: string; email: string }> {
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password: PASSWORD,
     email_confirm: true,
-    user_metadata: { first_name: 'Amina', phone: '+254712345678', language: 'en', terms_version: '2026-10-20' },
+    user_metadata: complete
+      ? { first_name: 'Amina', phone: '+254712345678', language: 'en', terms_version: '2026-10-20' }
+      : { given_name: 'Bashir', language: 'en' },
   });
   if (error || !data.user) throw error ?? new Error('no user');
   made.push(data.user.id);
@@ -89,6 +94,14 @@ export const logInButton = (page: Page) => page.getByRole('button', { name: 'Log
 /** Signed in, past the auth page (the app, or the setup wizard over it). */
 export async function expectInApp(page: Page) {
   await expect(page).toHaveURL(/\/en\/(w\/|all-shops)/);
+}
+
+/** The session cookie local Supabase sets (sb-<host>-auth-token, maybe split into .0, .1…). */
+export const AUTH_COOKIE = /^sb-127-auth-token(\.\d+)?$/;
+
+/** The demo data's shop ids, in order (the first is the one joinDemoShop joins). */
+export async function demoShopIds(page: Page): Promise<string[]> {
+  return page.evaluate(() => JSON.parse(localStorage.getItem('sarrif-mock-db') ?? 'null').workspaces.map((w: { id: string }) => w.id));
 }
 
 /**

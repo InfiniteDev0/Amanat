@@ -90,6 +90,16 @@ Google sends people back through `/api/auth/callback`, and email links go to `/a
 
 **Emails.** Supabase's own email sender allows only a few emails an hour. For staging and production, create a [Resend](https://resend.com) account, verify your domain, and paste Resend's SMTP host, port, user and password (an API key) into the SMTP settings.
 
+### Sessions (Phase 1c)
+
+The session is a cookie signed by Supabase, checked on the server at every request:
+
+1. **The door, `apps/web/src/proxy.ts`:** checks the cookie with Supabase and renews it. Signed out on any page but the auth pages → the auth page with `?next=`; signed in on an auth page → into the app; a shop page without a phone and the terms → Complete your profile.
+2. **The hallway, the server layouts:** `requireUser()` / `requireCompleteProfile()` in `apps/web/src/lib/auth/server.ts` check again. `requireMember()` is there for 1d: until shops move to the database it refuses everyone.
+3. **The browser:** `SessionGate`, a third check.
+
+The last shop used is a cookie (`amanat_last_workspace`), only a hint: the app opens it only if you're a member. Sign out ends this browser's session; "Sign out of all devices" (shop menu) ends every session. With the demo sign-in (no Supabase settings) only the browser checks.
+
 ### Errors (Sentry)
 
 Errors from the browser and the server go to Sentry (project `amanat-web`, org `closet-kp`) when `NEXT_PUBLIC_SENTRY_DSN` is set: in `.env.local` here, in Vercel for staging and production. Code reports a caught error with `reportError(error, context)` (`apps/web/src/lib/report-error.ts`); the screen shows a plain message, Sentry gets the real one. Errors only: no tracing, no session replay, no personal data. Source maps (readable stack traces in production) need a `SENTRY_AUTH_TOKEN` in Vercel and Sentry's build plugin, not set up yet.

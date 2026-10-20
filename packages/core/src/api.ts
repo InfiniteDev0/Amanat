@@ -243,7 +243,8 @@ export interface SarrifApi {
     /** The signed-in user, or null. */
     getSession(): Promise<User | null>;
     updateProfile(input: ProfileInput): Promise<User>;
-    signOut(): Promise<void>;
+    /** This browser only, or (`everywhere`) every device the user is signed in on: for a lost or stolen phone. */
+    signOut(options?: { everywhere?: boolean }): Promise<void>;
     /**
      * Calls back when this browser is signed out from anywhere: another tab,
      * or a session that ended. Returns the unsubscribe.

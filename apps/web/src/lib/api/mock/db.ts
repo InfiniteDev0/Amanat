@@ -80,8 +80,22 @@ function load(): MockDb | null {
   }
 }
 
+/**
+ * Sign-in is Supabase's (lib/api/index.ts): who is signed in comes only from
+ * the session it checked (mockSession.adopt), never from this browser's
+ * storage, where anyone can edit it. Set once, before the first getDb().
+ */
+let externalSession = false;
+export function takeSessionFromAuth(): void {
+  externalSession = true;
+}
+
 export function getDb(): MockDb {
-  db ??= load() ?? seedDb();
+  if (!db) {
+    db = load() ?? seedDb();
+    // A saved sessionUserId is ignored: mockSession.adopt sets it in this tab.
+    if (externalSession) db.sessionUserId = null;
+  }
   if (process.env.NODE_ENV === 'development') {
     fillSampleBalances(db);
     fillSampleExchanges(db);

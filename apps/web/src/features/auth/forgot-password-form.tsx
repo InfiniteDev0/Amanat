@@ -48,7 +48,16 @@ export function ForgotPasswordForm() {
   if (reset.isSuccess) {
     return (
       <AuthStep title={t('checkEmailTitle')} subtitle={t('forgotSentBody', { email: ltr(reset.variables.email) })}>
-        {backToLogIn}
+        <div className="flex flex-col items-center gap-4">
+          {/* Typed the wrong address: the form again, to enter another one. */}
+          <p className="text-muted-foreground text-sm">
+            {t('wrongEmail')}{' '}
+            <button type="button" onClick={() => reset.reset()} className="text-foreground underline underline-offset-4 hover:opacity-70">
+              {t('useDifferentEmail')}
+            </button>
+          </p>
+          {backToLogIn}
+        </div>
       </AuthStep>
     );
   }

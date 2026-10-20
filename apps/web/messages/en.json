@@ -80,7 +80,16 @@
       "googleCancelled": "Google sign-in was cancelled.",
       "googleFailed": "We couldn’t finish signing you in with Google. Try again.",
       "sessionEnded": "Your session ended. Log in again to pick up where you were."
-    }
+    },
+    "everywhere": {
+      "menu": "Sign out of all devices",
+      "title": "Sign out of all devices?",
+      "body": "Every device signed in to your account, this one too, will be signed out. Use this if your phone was lost or stolen. You can log in again with your password.",
+      "cancel": "Cancel",
+      "confirm": "Sign out everywhere"
+    },
+    "wrongEmail": "Wrong email?",
+    "useDifferentEmail": "Use a different email"
   },
   "nav": {
     "home": "Home",

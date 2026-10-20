@@ -7,6 +7,7 @@ import {
   UsersIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { AccountItems } from "@/components/layout/account-items";
 import { ShopBadge } from "@/components/shop-badge";
@@ -19,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SignOutEverywhereDialog } from "@/features/auth/sign-out-everywhere-dialog";
 import { useStartNewShop } from "@/features/onboarding/setup-wizard";
 import { useMyWorkspaces } from "@/features/workspaces/queries";
 import { Link } from "@/i18n/navigation";
@@ -48,8 +50,11 @@ export function ShopMenu({
   const role = shops.find(
     ({ workspace }) => workspace.id === workspaceId,
   )?.role;
+  // Outside the menu, which goes away when it closes: the dialog must stay.
+  const [everywhereOpen, setEverywhereOpen] = useState(false);
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label={t("shell.switchShop")}
@@ -126,8 +131,10 @@ export function ShopMenu({
 
         <DropdownMenuSeparator className="my-1" />
 
-        <AccountItems />
+        <AccountItems onSignOutEverywhere={() => setEverywhereOpen(true)} />
       </DropdownMenuContent>
     </DropdownMenu>
+    <SignOutEverywhereDialog open={everywhereOpen} onOpenChange={setEverywhereOpen} />
+    </>
   );
 }

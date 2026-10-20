@@ -18,7 +18,8 @@ export const isLeaving = () => leaving;
 
 /**
  * Sign out with one toast that follows it ("Signing out…", then "Signed
- * out" or what went wrong), then back to the auth page.
+ * out" or what went wrong), then back to the auth page. `everywhere` signs
+ * out every device too (a lost or stolen phone).
  */
 export function useSignOutAndLeave() {
   const t = useTranslations('common');
@@ -26,9 +27,9 @@ export function useSignOutAndLeave() {
   const router = useRouter();
   const signOut = useSignOut();
 
-  return () => {
+  return (options: { everywhere?: boolean } = {}) => {
     leaving = true;
-    promiseToast(signOut.mutateAsync(), {
+    promiseToast(signOut.mutateAsync(options), {
       loading: t('signingOut'),
       success: t('signedOut'),
       error: (error) => message(errorKey(error)),

@@ -273,10 +273,12 @@ export function supabaseAuth(mock: MockSession): SarrifApi['auth'] {
       return user;
     },
 
-    async signOut() {
-      // Signs out on the server too (the session can't be used again), and
-      // Supabase tells this browser's other tabs.
-      const { error } = await withTimeout(supabase().auth.signOut());
+    async signOut(options) {
+      // Ends the session on the server too (it can't be used again), and
+      // Supabase tells this browser's other tabs. 'global' ends every session
+      // of this user: other devices are signed out on their next request.
+      const scope = options?.everywhere ? 'global' : 'local';
+      const { error } = await withTimeout(supabase().auth.signOut({ scope }));
       if (error && error.code !== 'session_not_found') throw authError(error, 'signOut');
       mock.adopt(null);
     },

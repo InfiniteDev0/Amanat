@@ -1,5 +1,6 @@
 'use client';
 
+import { gooeyToast } from 'goey-toast';
 import { MailCheck } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -39,7 +40,18 @@ export function CheckEmail({ email, fromLogIn = false }: { email: string; fromLo
   }, [cooldown]);
 
   const sendAgain = () =>
-    run((done) => resend.mutate({ email, language: locale }, { onSettled: done, onSuccess: () => setCooldown(RESEND_COOLDOWN_S) }));
+    run((done) =>
+      resend.mutate(
+        { email, language: locale },
+        {
+          onSettled: done,
+          onSuccess: () => {
+            setCooldown(RESEND_COOLDOWN_S);
+            gooeyToast.success(t('emailSent'));
+          },
+        },
+      ),
+    );
 
   return (
     <AuthStep title={t('checkEmailTitle')} subtitle={t('checkEmailBody', { email: ltr(email) })}>
@@ -61,7 +73,13 @@ export function CheckEmail({ email, fromLogIn = false }: { email: string; fromLo
             {t('backToLogIn')}
           </Link>
         </div>
-        {resend.isSuccess && cooldown > 0 ? <p className="text-muted-foreground w-full text-sm">{t('emailSent')}</p> : null}
+        {/* Typed the wrong address: back to Sign up to enter another one. */}
+        <p className="text-muted-foreground text-sm">
+          {t('wrongEmail')}{' '}
+          <Link href="/" onClick={() => setMode('signup')} className="text-foreground underline underline-offset-4 hover:opacity-70">
+            {t('useDifferentEmail')}
+          </Link>
+        </p>
         <FormError className="w-full">{resend.error ? message(formErrorKey(resend.error)) : null}</FormError>
       </div>
     </AuthStep>

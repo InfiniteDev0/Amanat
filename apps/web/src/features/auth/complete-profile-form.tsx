@@ -126,7 +126,7 @@ export function CompleteProfileForm() {
           <FormError>{complete.error ? message(formErrorKey(complete.error)) : null}</FormError>
           <p className="text-muted-foreground text-center text-sm">
             {t('notYou', { email: ltr(user.email ?? '') })}{' '}
-            <button type="button" onClick={signOut} className="text-foreground underline underline-offset-4 hover:opacity-70">
+            <button type="button" onClick={() => signOut()} className="text-foreground underline underline-offset-4 hover:opacity-70">
               {t('signOut')}
             </button>
           </p>

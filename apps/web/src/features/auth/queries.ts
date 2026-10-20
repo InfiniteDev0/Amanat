@@ -79,7 +79,7 @@ export function useUpdateProfile() {
 export function useSignOut() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => api.auth.signOut(),
+    mutationFn: (options: { everywhere?: boolean } = {}) => api.auth.signOut(options),
     onSuccess: () => {
       queryClient.clear();
       queryClient.setQueryData(queryKeys.session, null);

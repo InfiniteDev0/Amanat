@@ -1,7 +1,7 @@
 'use client';
 
 import { LANGUAGES } from '@sarrif/core';
-import { GlobeIcon, LogOutIcon, MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
+import { GlobeIcon, LogOutIcon, MonitorSmartphoneIcon, MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { Flag } from '@/components/flag';
@@ -24,9 +24,11 @@ const SUB_MENU_CLASS = 'border-border bg-popover w-fit min-w-48 border shadow-no
 
 /**
  * Your own settings, at the bottom of the shop menu (there's no separate
- * account menu): language, theme, sign out. Goes inside a DropdownMenuContent.
+ * account menu): language, theme, sign out, and sign out of all devices (its
+ * "Are you sure?" dialog lives outside the menu: onSignOutEverywhere opens it).
+ * Goes inside a DropdownMenuContent.
  */
-export function AccountItems() {
+export function AccountItems({ onSignOutEverywhere }: { onSignOutEverywhere: () => void }) {
   const t = useTranslations();
   const locale = useLocale();
   const { theme, setTheme } = useTheme();
@@ -77,9 +79,13 @@ export function AccountItems() {
         </DropdownMenuSub>
       </DropdownMenuGroup>
       <DropdownMenuSeparator className="my-1" />
-      <DropdownMenuItem className="h-9 gap-2.5" onClick={signOut}>
+      <DropdownMenuItem className="h-9 gap-2.5" onClick={() => signOut()}>
         <LogOutIcon />
         {t('common.signOut')}
+      </DropdownMenuItem>
+      <DropdownMenuItem className="text-destructive h-9 gap-2.5 [&_svg]:text-destructive" onClick={onSignOutEverywhere}>
+        <MonitorSmartphoneIcon />
+        {t('auth.everywhere.menu')}
       </DropdownMenuItem>
     </>
   );

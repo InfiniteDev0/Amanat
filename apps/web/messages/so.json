@@ -80,7 +80,16 @@
       "googleCancelled": "Ku gelitaanka Google waa la joojiyay.",
       "googleFailed": "Kuma dhammaystiri karin gelitaanka Google. Isku day mar kale.",
       "sessionEnded": "Fadhigaagu wuu dhammaaday. Mar kale gal si aad uga sii wadato meeshii aad joogtay."
-    }
+    },
+    "everywhere": {
+      "menu": "Ka bax dhammaan qalabka",
+      "title": "Ma ka baxaysaa dhammaan qalabka?",
+      "body": "Qalab kasta oo akoonkaaga ku jira, kan sidoo kale, waa laga saari doonaa. Isticmaal tan haddii telefoonkaaga lumay ama la xaday. Mar kale waxaad ku geli kartaa furahaaga.",
+      "cancel": "Jooji",
+      "confirm": "Ka bax meel kasta"
+    },
+    "wrongEmail": "Iimayl khaldan?",
+    "useDifferentEmail": "Isticmaal iimayl kale"
   },
   "nav": {
     "home": "Hoyga",

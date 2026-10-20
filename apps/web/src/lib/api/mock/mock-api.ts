@@ -67,7 +67,7 @@ import {
 } from '@sarrif/core';
 import type { output, ZodType } from 'zod';
 
-import { clearRecords, getDb, type MockDb, reloadDb, resetDb, sampleBalances, saveDb } from './db';
+import { clearRecords, getDb, type MockDb, reloadDb, resetDb, sampleBalances, saveDb, takeSessionFromAuth } from './db';
 import { DEMO_PASSWORD } from './seed';
 
 // The backend, faked in the browser. It keeps the rules the real one will:
@@ -500,6 +500,11 @@ function passwordOf(db: MockDb, user: User): string | undefined {
  * already holds stays) and becomes the demo's session. Null signs it out.
  */
 export const mockSession = {
+  /** From now on the session comes only from adopt(), never from storage. Call before any data call. */
+  fromAuthOnly() {
+    takeSessionFromAuth();
+  },
+
   adopt(user: User | null) {
     const db = getDb();
     if (!user) {
@@ -607,6 +612,7 @@ export const mockApi: SarrifApi = {
       return user;
     },
 
+    // The demo lives in one browser, so signing out everywhere is the same as here.
     async signOut() {
       await latency();
       const db = getDb();
