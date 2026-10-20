@@ -90,7 +90,8 @@
     },
     "wrongEmail": "Wrong email?",
     "useDifferentEmail": "Use a different email",
-    "haveAccount": "Already have an account?"
+    "alreadyRegistered": "You already have an account",
+    "alreadyRegisteredDescription": "Log in with your password."
   },
   "nav": {
     "home": "Home",

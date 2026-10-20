@@ -99,11 +99,12 @@ export interface WorkspaceMembership {
 }
 
 /**
- * After Sign up: in straight away (no email check, as in the demo), or "check
- * your email". An address that already has an account gets the same answer as
- * a new one, so the form never reveals who has an account.
+ * After Sign up: in straight away (no email check, as in the demo), "check
+ * your email", or the address already has a confirmed account (`exists`: the
+ * app says so and opens Log in with it). Saying so does tell Sign up who has
+ * an account: a product decision (2026-10-20), over not revealing it.
  */
-export type SignUpResult = { status: 'signed_in'; user: User } | { status: 'confirm_email' };
+export type SignUpResult = { status: 'signed_in'; user: User } | { status: 'confirm_email' } | { status: 'exists' };
 
 export type BookRowType = 'exchange' | 'expense' | 'amanat' | 'debt' | 'debt_payment' | 'transfer';
 /** The Book's filter chips: "Debt" covers new debts and repayments. */

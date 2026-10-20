@@ -531,8 +531,8 @@ export const mockApi: SarrifApi = {
       await latency();
       const db = getDb();
       const { firstName, email, password, language } = parse(signUpSchema, input);
-      // As Supabase does: an address that has an account gets "check your email", nothing more.
-      if (db.users.some((u) => u.email === email)) return { status: 'confirm_email' };
+      // Already has an account: the app opens Log in with it.
+      if (db.users.some((u) => u.email === email)) return { status: 'exists' };
       const now = nowIso();
       // No phone yet: the setup wizard asks for it.
       const user: User = { id: newId(), name: firstName, phone: '', email, avatar: null, language, createdAt: now, termsAcceptedAt: now };

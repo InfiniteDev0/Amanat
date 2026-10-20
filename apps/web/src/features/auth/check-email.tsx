@@ -82,13 +82,6 @@ export function CheckEmail({ email, fromLogIn = false }: { email: string; fromLo
             {t('backToLogIn')}
           </Link>
         </div>
-        {/* Shown to everyone, so it says nothing about whether the address has an account. */}
-        <p className="text-muted-foreground text-sm">
-          {t('haveAccount')}{' '}
-          <Link href="/" onClick={() => logInAs(email)} className="text-foreground underline underline-offset-4 hover:opacity-70">
-            {t('logIn')}
-          </Link>
-        </p>
         {/* Typed the wrong address: back to Sign up to enter another one. */}
         <p className="text-muted-foreground text-sm">
           {t('wrongEmail')}{' '}

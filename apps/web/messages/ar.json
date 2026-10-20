@@ -90,7 +90,8 @@
     },
     "wrongEmail": "بريد خاطئ؟",
     "useDifferentEmail": "استخدم بريدًا آخر",
-    "haveAccount": "لديك حساب بالفعل؟"
+    "alreadyRegistered": "لديك حساب بالفعل",
+    "alreadyRegisteredDescription": "سجّل الدخول بكلمة مرورك."
   },
   "nav": {
     "home": "الرئيسية",

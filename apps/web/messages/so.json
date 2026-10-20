@@ -90,7 +90,8 @@
     },
     "wrongEmail": "Iimayl khaldan?",
     "useDifferentEmail": "Isticmaal iimayl kale",
-    "haveAccount": "Horey ma leedahay akoon?"
+    "alreadyRegistered": "Horey ayaad akoon u leedahay",
+    "alreadyRegisteredDescription": "Ku gal furahaaga."
   },
   "nav": {
     "home": "Hoyga",

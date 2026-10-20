@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
+import { gooeyToast } from 'goey-toast';
 import { Loader, Mail, UserRound } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Controller, useForm } from 'react-hook-form';
@@ -13,6 +14,7 @@ import { useRouter } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { formErrorKey, useMessage } from '@/lib/api/errors';
 
+import { useAuthFlow } from './auth-flow';
 import { FormError } from './form-error';
 import { GoogleButton } from './google-button';
 import { homePathFor } from './home-path';
@@ -64,7 +66,9 @@ export function SignUpForm() {
     return key ? message(key) : null;
   };
   const { online, run } = useSubmitGuard();
-  const busy = signUp.isPending || signUp.isSuccess;
+  const { logInAs } = useAuthFlow();
+  // Busy until it leaves this page; an existing account stays here (on Log in).
+  const busy = signUp.isPending || (signUp.isSuccess && signUp.data.status !== 'exists');
 
   const onSubmit = ({ firstName, email, password }: SignUpFormValues) =>
     run((done) =>
@@ -75,6 +79,13 @@ export function SignUpForm() {
           // Everything typed stays, except the password.
           onError: () => form.setValue('password', ''),
           onSuccess: async (result) => {
+            // Already has a confirmed account: say so, and Log in with the email in place.
+            if (result.status === 'exists') {
+              gooeyToast.info(t('alreadyRegistered'), { description: t('alreadyRegisteredDescription') });
+              form.setValue('password', '');
+              logInAs(email);
+              return;
+            }
             if (result.status === 'confirm_email') {
               router.push(`/check-email?email=${encodeURIComponent(email)}`);
               return;

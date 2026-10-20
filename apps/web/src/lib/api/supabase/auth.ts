@@ -187,10 +187,12 @@ export function supabaseAuth(mock: MockSession): SarrifApi['auth'] {
         }),
       );
       if (error) {
-        // Never say the address is taken: answer as for a new one.
-        if (error.code === 'user_already_exists' || error.code === 'email_exists') return { status: 'confirm_email' };
+        // A confirmed account already has this address: the app opens Log in with it.
+        if (error.code === 'user_already_exists' || error.code === 'email_exists') return { status: 'exists' };
         throw authError(error, 'signUp');
       }
+      // Hosted Supabase answers a confirmed address with a stand-in user that has no identities.
+      if (data.user && !data.session && data.user.identities?.length === 0) return { status: 'exists' };
       // A session means email confirmation is off for this project.
       if (data.session && data.user) {
         const user = await withProfile(data.user);

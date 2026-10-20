@@ -201,12 +201,30 @@ test('confirmed in another tab: Check your email carries on into the app by itse
   await expectInApp(page);
 });
 
-test('Check your email → Log in: the email is already filled in', async ({ page }) => {
+test('Check your email → Back to log in: the email is already filled in', async ({ page }) => {
   await page.goto('/en/check-email?email=amina%40example.com');
   await expect(async () => {
-    await page.getByRole('link', { name: 'Log in', exact: true }).click();
+    await page.getByRole('link', { name: 'Back to log in' }).click();
     await expect(page.locator('#login-email')).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 30_000 });
   await expect(page.locator('#login-email')).toHaveValue('amina@example.com');
+  await expect(page.locator('#login-password')).toHaveValue('');
+});
+
+test('signing up with an email that already has an account: a toast, then Log in with it filled in', async ({ page }) => {
+  const user = await makeUser();
+  await page.goto('/en');
+  await openTab(page, 'Log in');
+  await openTab(page, 'Sign up');
+  await page.locator('#signup-first-name').fill('Amina');
+  await page.locator('#signup-email').fill(user.email);
+  await page.locator('#signup-password').fill(PASSWORD);
+  await page.getByText('I have read and agree to the').click();
+  await page.getByRole('button', { name: 'Sign up', exact: true }).click();
+
+  await expect(page.getByText('You already have an account').first()).toBeVisible();
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(page.getByRole('tab', { name: 'Log in' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#login-email')).toHaveValue(user.email);
   await expect(page.locator('#login-password')).toHaveValue('');
 });
