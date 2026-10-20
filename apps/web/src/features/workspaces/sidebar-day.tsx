@@ -15,9 +15,8 @@ import { cn } from '@/lib/utils';
 /**
  * The centre of the top bar: a calendar icon that opens the calendar; beside
  * it ‹ "Sat: 10/17/2026" › (the weekday in a pink to
- * blue gradient), stepping through the shop's days, none after today, then a
- * Today badge that's always there: filled on today, and from an older day one
- * click brings you back.
+ * blue gradient), stepping through the shop's days, none after today. On an
+ * older day a Today badge appears after it: one click brings you back.
  */
 export function SidebarDay() {
   const t = useTranslations('profit');
@@ -64,10 +63,10 @@ export function SidebarDay() {
         >
           <ChevronLeftIcon className="size-3.5 rtl:rotate-180" />
         </button>
-        <h1 className="truncate text-lg font-semibold">
+        <h1 className="truncate text-sm font-semibold">
           <span className="bg-linear-to-r from-[#4ff6d5]  to-[#12c2e9] bg-clip-text text-transparent">{format({ weekday: 'short' })}</span>
           {': '}
-          <bdi dir="ltr" className="tabular-nums text-sm">
+          <bdi dir="ltr" className="tabular-nums">
             {format({ year: 'numeric', month: 'numeric', day: 'numeric' })}
           </bdi>
         </h1>
@@ -80,17 +79,16 @@ export function SidebarDay() {
         >
           <ChevronRightIcon className="size-3.5 rtl:rotate-180" />
         </button>
-        {/* Always shown after ›, so the way back to today is one click. */}
-        <Badge
-          variant="outline"
-          render={<button type="button" onClick={() => setDay(today)} disabled={isToday} aria-current={isToday ? 'date' : undefined} />}
-          className={cn(
-            'rounded-sm transition-colors',
-            isToday ? 'border-transparent bg-black text-white dark:bg-white dark:text-black' : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground',
-          )}
-        >
-          {t('today')}
-        </Badge>
+        {/* Only on another day: the way back to today, in one click. */}
+        {isToday ? null : (
+          <Badge
+            variant="outline"
+            render={<button type="button" onClick={() => setDay(today)} />}
+            className="text-muted-foreground hover:bg-foreground/5 hover:text-foreground rounded-sm transition-colors"
+          >
+            {t('today')}
+          </Badge>
+        )}
       </div>
     </div>
   );
