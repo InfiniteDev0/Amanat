@@ -65,7 +65,7 @@ export const emailSchema = z.string().trim().toLowerCase().pipe(z.email('validat
 export const TERMS_VERSION = '2026-10-20';
 
 /** The password rule, the same as Supabase Auth's settings (supabase/config.toml), so the form can't be bypassed. */
-export const PASSWORD_MIN_LENGTH = 10;
+export const PASSWORD_MIN_LENGTH = 8;
 /** bcrypt, under Supabase Auth, reads only the first 72 bytes. */
 export const PASSWORD_MAX_LENGTH = 72;
 

@@ -37,7 +37,7 @@
     "newPassword": "Furaha sirta ah ee cusub",
     "showPassword": "Muuji furaha",
     "hidePassword": "Qari furaha",
-    "passwordRule": "Ugu yaraan 10 xaraf, xarfo iyo tirooyin leh",
+    "passwordRule": "Ugu yaraan 8 xaraf, xarfo iyo tirooyin leh",
     "strength": {
       "tooWeak": "Aad u daciif",
       "weak": "Daciif",
@@ -159,7 +159,7 @@
     "reason": "Sheeg sababta (dhowr eray).",
     "time": "Dooro waqti.",
     "passwordRequired": "Geli furaha sirta ah",
-    "passwordShort": "Isticmaal ugu yaraan 10 xaraf",
+    "passwordShort": "Isticmaal ugu yaraan 8 xaraf",
     "passwordLong": "Isticmaal 72 xaraf ama ka yar",
     "passwordWeak": "Isticmaal xarfo iyo tirooyin labadaba",
     "passwordSame": "Kani waa furahaaga hadda. Dooro mid cusub."

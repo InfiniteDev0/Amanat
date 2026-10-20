@@ -50,13 +50,13 @@ describe('signUpSchema', () => {
   });
 });
 
-describe('passwordSchema (the same rule as Supabase Auth: 10+, letters and digits)', () => {
+describe('passwordSchema (the same rule as Supabase Auth: 8+, letters and digits)', () => {
   it.each(['sahan2026kes', 'Hoyo-iyo-aabo-7', 'كلمة سر 2026 قوية', 'abcdefghi1'])('accepts %j', (password) => {
     expect(passwordSchema.safeParse(password).success).toBe(true);
   });
 
-  it('needs at least 10 characters', () => {
-    expect(firstIssue(passwordSchema.safeParse('abc123def'))).toBe('validation.passwordShort');
+  it('needs at least 8 characters', () => {
+    expect(firstIssue(passwordSchema.safeParse('abc123d'))).toBe('validation.passwordShort');
   });
 
   it('needs letters and digits', () => {

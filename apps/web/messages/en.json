@@ -37,7 +37,7 @@
     "newPassword": "New password",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "passwordRule": "At least 10 characters, with letters and numbers",
+    "passwordRule": "At least 8 characters, with letters and numbers",
     "strength": {
       "tooWeak": "Too weak",
       "weak": "Weak",
@@ -159,7 +159,7 @@
     "reason": "Say why (a few words).",
     "time": "Pick a time.",
     "passwordRequired": "Enter a password",
-    "passwordShort": "Use at least 10 characters",
+    "passwordShort": "Use at least 8 characters",
     "passwordLong": "Use 72 characters or fewer",
     "passwordWeak": "Use both letters and numbers",
     "passwordSame": "That’s your current password. Choose a new one."

@@ -63,7 +63,7 @@ Local Supabase reads these from `supabase/config.toml`. Staging and production n
 | Setting | Where in the dashboard | Value |
 |---|---|---|
 | Confirm email | Authentication → Sign In / Providers → Email | On |
-| Minimum password length | same page | 10 |
+| Minimum password length | same page | 8 |
 | Password requirements | same page | Letters and digits |
 | Leaked password protection | same page (paid plans only) | On, when available |
 | Site URL | Authentication → URL Configuration | `https://<your-domain>` |

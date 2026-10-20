@@ -108,7 +108,7 @@ function Frame({ children }: { children: ReactNode }) {
       {/* Form: slides in over the photo on a phone, the end half on desktop */}
       <div
         className={cn(
-          'bg-background absolute inset-0 flex min-h-0 flex-col transition-transform duration-300 ease-out lg:relative',
+          'bg-background absolute inset-0 scrollbar-pill flex min-h-0 flex-col transition-transform  duration-300 ease-out lg:relative',
           !showForm && 'max-lg:ltr:translate-x-full max-lg:rtl:-translate-x-full',
         )}
       >
@@ -124,7 +124,8 @@ function Frame({ children }: { children: ReactNode }) {
           <LocaleSwitcher />
         </div>
 
-        <div className="relative z-10 flex min-h-0 flex-1 overflow-y-auto px-6 md:px-10">{children}</div>
+        {/* items-start: the form keeps its own height, so its bottom padding is real space after the last button, not hidden behind it. */}
+        <div className="scrollbar-pill relative z-10 flex min-h-0 flex-1 items-start overflow-y-auto px-6 md:px-10">{children}</div>
         <p className="text-muted-foreground relative z-10 shrink-0 py-4 text-center text-xs lg:hidden">{t('brand.copyright', { year })}</p>
       </div>
     </div>
