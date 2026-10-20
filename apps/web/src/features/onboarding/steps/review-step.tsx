@@ -2,12 +2,13 @@
 
 import { Avatar } from '@heroui/react';
 import { parseAmount } from '@sarrif/core';
-import { Coins, Globe, type LucideIcon, UserRound, Wallet } from 'lucide-react';
+import { Coins, Globe, type LucideIcon, Phone, UserRound, Wallet } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
 import { Flag } from '@/components/flag';
 import { MoneyText } from '@/components/money-text';
+import { toE164 } from '@/features/auth/schemas';
 import { currencyFlag } from '@/lib/currency-flag';
 import { DEFAULT_AVATAR_URL } from '@/lib/default-avatar';
 
@@ -54,6 +55,11 @@ export default function ReviewStep({ draft }: StepProps) {
       <dl className="flex flex-col gap-4 px-2 text-sm">
         <Row icon={UserRound} label={t('onboarding.review.owner')}>
           {draft.name}
+        </Row>
+        <Row icon={Phone} label={t('onboarding.review.phone')}>
+          <bdi dir="ltr" className="tabular-nums">
+            {toE164(draft.phone) ?? draft.phone.number}
+          </bdi>
         </Row>
         <Row icon={Globe} label={t('language.label')}>
           {t(`language.${draft.language}`)}

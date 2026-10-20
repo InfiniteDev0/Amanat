@@ -33,7 +33,7 @@ export interface User {
   id: Id;
   /** Empty until they finish the profile step after their first sign-in. */
   name: string;
-  /** E.164: +254712345678. Contact data, not a way in. Empty for a Google sign-up until "Complete your profile". */
+  /** E.164: +254712345678. Contact data, not a way in. Empty until the setup wizard (or Complete your profile) asks for it. */
   phone: string;
   email: string | null;
   /** Profile photo: a URL (the real backend's storage) or a small data URL (the mock). */
@@ -45,9 +45,10 @@ export interface User {
 }
 
 /**
- * Signed up with Google, so no phone or terms yet: the app asks for both
- * ("Complete your profile") before anything else. Users saved by an older demo
- * have no termsAcceptedAt at all, and count as done.
+ * No phone yet (every new sign-up), or no terms (Google sign-ups). Someone
+ * with no shop gives both in the setup wizard's first step; someone invited
+ * to a shop, who skips the wizard, on Complete your profile. Users saved by
+ * an older demo have no termsAcceptedAt at all, and count as agreed.
  */
 export function needsProfile(user: Pick<User, 'phone' | 'termsAcceptedAt'>): boolean {
   return !user.phone || user.termsAcceptedAt === null;

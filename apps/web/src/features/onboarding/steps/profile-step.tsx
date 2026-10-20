@@ -7,12 +7,18 @@ import { useTranslations } from 'next-intl';
 import { Flag } from '@/components/flag';
 import { LOCALE_FLAG, useSwitchLocale } from '@/components/locale-switcher';
 import { TextField } from '@/components/text-field';
+import { PhoneField } from '@/features/auth/phone-field';
+import { TermsField } from '@/features/auth/terms-field';
 import { cn } from '@/lib/utils';
 
 import type { StepProps } from '.';
 import { StepHeader } from './step-header';
 
-/** Name and language. Picking a language switches the app to it right away. */
+/**
+ * Name, phone (contact data: asked here, not on Sign up), the terms for
+ * Google sign-ups, and language. Picking a language switches the app to it
+ * right away.
+ */
 export default function ProfileStep({ draft, update, problem }: StepProps) {
   const t = useTranslations();
   const { switchTo } = useSwitchLocale();
@@ -35,6 +41,21 @@ export default function ProfileStep({ draft, update, problem }: StepProps) {
           onChange={(event) => update((d) => ({ ...d, name: event.target.value }))}
           error={problem?.field === 'name' ? problem.text : null}
         />
+        <PhoneField
+          id="onboarding-phone"
+          value={draft.phone}
+          onChange={(phone) => update((d) => ({ ...d, phone }))}
+          error={problem?.field === 'phone' ? problem.text : null}
+        />
+        {/* Google sign-ups haven't agreed yet; everyone else did on Sign up. */}
+        {draft.termsNeeded ? (
+          <TermsField
+            id="onboarding-terms"
+            checked={draft.acceptTerms}
+            onChange={(acceptTerms) => update((d) => ({ ...d, acceptTerms }))}
+            error={problem?.field === 'acceptTerms' ? problem.text : null}
+          />
+        ) : null}
 
         <div role="radiogroup" aria-label={t('language.label')} className="flex flex-col gap-2">
           <p className="text-muted-foreground text-xs">{t('language.label')}</p>

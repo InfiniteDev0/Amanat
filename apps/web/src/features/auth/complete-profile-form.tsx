@@ -27,9 +27,11 @@ import { useSignOutAndLeave } from './use-sign-out-and-leave';
 const FIELD_ORDER = ['phone', 'acceptTerms'] as const;
 
 /**
- * After a first Google sign-in: Google gave the name and email, so only the
- * phone (contact data) and the terms are missing. Nothing else in the app
- * opens until they're given (SessionGate sends people here).
+ * For someone invited to a shop, who skips the setup wizard: the phone
+ * (contact data), and the terms if they signed up with Google and haven't
+ * agreed yet. Nothing else in the app opens until they're given (SessionGate
+ * sends people here). Owners setting up their first shop give the same in
+ * the wizard's first step instead.
  */
 export function CompleteProfileForm() {
   const t = useTranslations('auth');
@@ -39,8 +41,9 @@ export function CompleteProfileForm() {
   const session = useSession();
   const complete = useCompleteProfile();
   const signOut = useSignOutAndLeave();
+  const needsTerms = session.data?.termsAcceptedAt === null;
   const form = useForm<CompleteProfileFormInput, unknown, CompleteProfileFormValues>({
-    resolver: zodResolver(completeProfileFormSchema),
+    resolver: zodResolver(completeProfileFormSchema(needsTerms)),
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     defaultValues: { phone: { country: DEFAULT_COUNTRY, number: '' }, acceptTerms: false },
@@ -69,13 +72,13 @@ export function CompleteProfileForm() {
     const e164 = toE164(phone);
     if (!e164) return;
     complete.mutate(
-      { phone: e164, acceptTerms: true },
+      { phone: e164, acceptTerms: needsTerms ? true : undefined },
       { onSuccess: async (updated) => router.replace(await homePathFor(updated, queryClient)) },
     );
   };
 
   return (
-    <AuthStep title={t('completeTitle')} subtitle={t('completeBody')}>
+    <AuthStep title={t('completeTitle')} subtitle={t(needsTerms ? 'completeBody' : 'completeBodyPhone')}>
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
         <FieldGroup className="gap-4">
           <Controller
@@ -95,6 +98,7 @@ export function CompleteProfileForm() {
               />
             )}
           />
+          {needsTerms ? (
           <Controller
             name="acceptTerms"
             control={form.control}
@@ -110,6 +114,7 @@ export function CompleteProfileForm() {
               />
             )}
           />
+          ) : null}
           <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
             {busy ? t('saving') : t('continue')}

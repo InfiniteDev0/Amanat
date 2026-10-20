@@ -7,8 +7,9 @@ import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query/keys';
 
 /** Every shop the user belongs to, with their role in each. */
-export function useMyWorkspaces() {
-  return useQuery({ queryKey: queryKeys.workspaces, queryFn: () => api.workspaces.listMine() });
+/** `enabled: false` waits (e.g. until someone is signed in). */
+export function useMyWorkspaces({ enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({ queryKey: queryKeys.workspaces, queryFn: () => api.workspaces.listMine(), enabled });
 }
 
 export function useCreateWorkspace() {

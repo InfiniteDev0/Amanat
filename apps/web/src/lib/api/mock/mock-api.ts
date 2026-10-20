@@ -518,11 +518,12 @@ export const mockApi: SarrifApi = {
     async signUp(input) {
       await latency();
       const db = getDb();
-      const { firstName, email, password, phone, language } = parse(signUpSchema, input);
+      const { firstName, email, password, language } = parse(signUpSchema, input);
       // As Supabase does: an address that has an account gets "check your email", nothing more.
       if (db.users.some((u) => u.email === email)) return { status: 'confirm_email' };
       const now = nowIso();
-      const user: User = { id: newId(), name: firstName, phone, email, avatar: null, language, createdAt: now, termsAcceptedAt: now };
+      // No phone yet: the setup wizard asks for it.
+      const user: User = { id: newId(), name: firstName, phone: '', email, avatar: null, language, createdAt: now, termsAcceptedAt: now };
       db.users.push(user);
       db.passwords = { ...db.passwords, [user.id]: password };
       db.sessionUserId = user.id;
@@ -576,8 +577,9 @@ export const mockApi: SarrifApi = {
       await latency();
       const db = getDb();
       const user = signedIn(db);
-      const { phone } = parse(completeProfileSchema, input);
-      Object.assign(user, { phone, termsAcceptedAt: nowIso() });
+      const { phone, acceptTerms } = parse(completeProfileSchema, input);
+      user.phone = phone;
+      if (acceptTerms) user.termsAcceptedAt = nowIso();
       acceptInvitations(db, user);
       saveDb();
       return user;

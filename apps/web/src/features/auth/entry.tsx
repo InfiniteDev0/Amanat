@@ -45,7 +45,7 @@ export function Entry() {
   const { mode, setMode } = useAuthFlow();
 
   return (
-    <div className="mx-auto w-full max-w-100 pt-[6vh] pb-10">
+    <div className="mx-auto w-full max-w-100 pt-[6vh] pb-24">
       {/* .hero: Luxurious Roman (one weight, so no bold) */}
       <h1 className="hero text-center text-4xl">{t('auth.welcome', { name: t('brand.name') })}</h1>
       <p className="text-muted-foreground mt-2 text-center text-sm">{t('brand.tagline')}</p>

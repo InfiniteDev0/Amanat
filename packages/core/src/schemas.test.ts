@@ -16,7 +16,6 @@ const signUp = {
   firstName: 'Amina',
   email: 'amina@example.com',
   password: 'sahan2026kes',
-  phone: '+254712345678',
   acceptTerms: true,
   language: 'so',
 } as const;
@@ -38,8 +37,8 @@ describe('signUpSchema', () => {
     expect(firstIssue(signUpSchema.safeParse({ ...signUp, email: 'amina@' }))).toBe('validation.email');
   });
 
-  it('needs the phone in E.164, as contact data', () => {
-    expect(firstIssue(signUpSchema.safeParse({ ...signUp, phone: '0712345678' }))).toBe('validation.phone');
+  it('has no phone: the setup wizard asks for it', () => {
+    expect('phone' in signUpSchema.parse({ ...signUp, phone: '+254712345678' })).toBe(false);
   });
 
   it('requires the terms, with a translatable message', () => {
@@ -78,8 +77,10 @@ describe('logInSchema', () => {
 });
 
 describe('completeProfileSchema and needsProfile', () => {
-  it('asks a Google sign-up for the phone and the terms', () => {
+  it('takes the phone in E.164, and the terms when they are given', () => {
     expect(completeProfileSchema.safeParse({ phone: '+254712345678', acceptTerms: true }).success).toBe(true);
+    expect(completeProfileSchema.safeParse({ phone: '+254712345678' }).success).toBe(true);
+    expect(firstIssue(completeProfileSchema.safeParse({ phone: '0712345678' }))).toBe('validation.phone');
     expect(firstIssue(completeProfileSchema.safeParse({ phone: '+254712345678', acceptTerms: false }))).toBe('validation.terms');
   });
 

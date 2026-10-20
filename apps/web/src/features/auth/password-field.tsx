@@ -9,22 +9,16 @@ import { FieldAlert } from '@/components/ui/field-alert';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group';
 import { cn } from '@/lib/utils';
 
-import { passwordStrength, type Strength } from './password-strength';
+import { passwordStrength } from './password-strength';
 
-const LEVELS = ['weak', 'weak', 'fair', 'good', 'strong'] as const;
-const BAR_COLOUR: Record<Strength, string> = {
-  0: 'bg-foreground/10',
-  1: 'bg-destructive',
-  2: 'bg-amber-500',
-  3: 'bg-emerald-500',
-  4: 'bg-emerald-500',
-};
+/** One colour for all the lit bars, by how many are lit: red, orange, yellow, green. */
+const BAR_COLOURS = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
 
 /**
  * A filled password field like TextField, with show / hide at the end. For a
- * new password (`meter`), a four-bar strength meter and the rule under it:
- * the same rule the server applies, so the meter never promises what the
- * server refuses.
+ * new password (`meter`), once something is typed: four bars and how strong
+ * it is, plus the rule while the password doesn't meet it yet (the same rule
+ * the server applies).
  */
 export function PasswordField({
   id,
@@ -44,7 +38,8 @@ export function PasswordField({
   const t = useTranslations('auth');
   const [shown, setShown] = useState(false);
   const strength = passwordStrength(value);
-  const describedBy = [error ? `${id}-error` : null, meter ? `${id}-rule` : null].filter(Boolean).join(' ') || undefined;
+  const showMeter = meter && strength !== null;
+  const describedBy = [error ? `${id}-error` : null, showMeter ? `${id}-strength` : null].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className="flex flex-col gap-2">
@@ -80,20 +75,20 @@ export function PasswordField({
         <FieldAlert id={`${id}-error`}>{error}</FieldAlert>
       </Field>
 
-      {meter ? (
+      {showMeter ? (
         // Below the error bubble while there is one (it floats), so they never overlap.
-        <div className={cn('flex flex-col gap-1.5 px-1', error && 'mt-10')}>
-          <div aria-hidden className="flex gap-1.5">
-            {[1, 2, 3, 4].map((bar) => (
+        <div className={cn('animate-in fade-in-0 slide-in-from-top-1 flex flex-col gap-1.5 pt-1 duration-200', error && 'mt-10')}>
+          <div aria-hidden className="flex gap-1">
+            {[0, 1, 2, 3].map((bar) => (
               <span
                 key={bar}
-                className={cn('h-1 flex-1 rounded-full transition-colors', strength >= bar ? BAR_COLOUR[strength] : 'bg-foreground/10')}
+                className={cn('h-1 flex-1 rounded-full transition-colors', bar < strength.bars ? BAR_COLOURS[strength.bars - 1] : 'bg-foreground/10')}
               />
             ))}
           </div>
-          <p id={`${id}-rule`} className="text-muted-foreground flex justify-between gap-3 text-xs">
-            <span>{t('passwordRule')}</span>
-            {strength > 0 ? <span className="text-foreground shrink-0 font-medium">{t(`strength.${LEVELS[strength]}`)}</span> : null}
+          <p id={`${id}-strength`} aria-live="polite" className="text-muted-foreground text-xs">
+            <span className="text-foreground font-medium">{t(`strength.${strength.label}`)}</span>
+            {strength.allowed ? null : ` · ${t('passwordRule')}`}
           </p>
         </div>
       ) : null}

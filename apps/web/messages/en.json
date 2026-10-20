@@ -39,10 +39,11 @@
     "hidePassword": "Hide password",
     "passwordRule": "At least 10 characters, with letters and numbers",
     "strength": {
+      "tooWeak": "Too weak",
       "weak": "Weak",
       "fair": "Fair",
-      "good": "Good",
-      "strong": "Strong"
+      "strong": "Strong",
+      "veryStrong": "Very strong"
     },
     "or": "or",
     "google": "Continue with Google",
@@ -70,7 +71,8 @@
     "signOut": "Sign out",
     "linkExpiredTitle": "This link has expired",
     "linkExpiredBody": "Email links work once, for a short time, and only in the browser that asked for them. Log in, or use Forgot password? to get a new one.",
-    "demoHint": "Demo: log in as {owner} (owner) or {cashier} (cashier), password {password}."
+    "demoHint": "Demo: log in as {owner} (owner) or {cashier} (cashier), password {password}.",
+    "completeBodyPhone": "Add your phone number so your team can reach you."
   },
   "nav": {
     "home": "Home",
@@ -222,7 +224,7 @@
     },
     "profile": {
       "title": "About you",
-      "hint": "Your name is what your staff see next to your entries.",
+      "hint": "Your name is what your staff see next to your entries; your phone is how they reach you.",
       "name": "Your name"
     },
     "shop": {
@@ -281,7 +283,8 @@
       "noRates": "Not set yet. Home will remind you.",
       "owner": "Owner",
       "noLocation": "No location given",
-      "currencies": "Currencies"
+      "currencies": "Currencies",
+      "phone": "Phone"
     },
     "preview": {
       "shopName": "Your shop"

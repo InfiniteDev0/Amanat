@@ -88,15 +88,15 @@ export const profileSchema = z.object({
     .nullish(),
 });
 /**
- * The Sign up tab. Email + password sign in; the phone is saved on the profile
- * as contact data. `language` is the page's, so the confirmation email's link
- * brings them back to it.
+ * The Sign up tab: email + password to sign in, the name, and the terms
+ * (agreed before the account exists). The phone comes later, in the setup
+ * wizard. `language` is the page's, so the confirmation email's link brings
+ * them back to it.
  */
 export const signUpSchema = z.object({
   firstName: name,
   email: emailSchema,
   password: passwordSchema,
-  phone: phoneSchema,
   acceptTerms: z.literal(true, 'validation.terms'),
   language: z.enum(LANGUAGES),
 });
@@ -115,10 +115,15 @@ export const googleSignInSchema = z.object({ language: z.enum(LANGUAGES) });
 /** After the reset link: the new password. */
 export const newPasswordSchema = z.object({ password: passwordSchema });
 
-/** Someone who signed up with Google: the phone and the terms the form would have asked for. */
+/**
+ * The phone (contact data), and the terms for anyone who hasn't agreed yet
+ * (Google sign-ups): from the setup wizard's first step, or from Complete
+ * your profile for people invited to a shop, who skip the wizard. Left out,
+ * the terms already agreed stay as they are.
+ */
 export const completeProfileSchema = z.object({
   phone: phoneSchema,
-  acceptTerms: z.literal(true, 'validation.terms'),
+  acceptTerms: z.literal(true, 'validation.terms').optional(),
 });
 
 // ── Shop setup ───────────────────────────────────────────────────────────────

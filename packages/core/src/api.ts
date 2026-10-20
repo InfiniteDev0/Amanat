@@ -238,7 +238,7 @@ export interface SarrifApi {
     requestPasswordReset(input: EmailLinkInput): Promise<void>;
     /** The signed-in user (after the reset link) sets a new password. */
     setNewPassword(input: NewPasswordInput): Promise<void>;
-    /** Google sign-ups: the phone and the terms, before anything else. */
+    /** Saves the phone, and the terms for anyone who hasn't agreed yet (setup wizard, or Complete your profile). */
     completeProfile(input: CompleteProfileInput): Promise<User>;
     /** The signed-in user, or null. */
     getSession(): Promise<User | null>;

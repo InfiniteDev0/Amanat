@@ -6,6 +6,7 @@ import { type ReactNode, useEffect } from 'react';
 
 import { Loader } from '@/components/motion/loader';
 import { Button } from '@/components/ui/button';
+import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { useRouter } from '@/i18n/navigation';
 import { useMinimumWait } from '@/lib/use-minimum-wait';
 
@@ -15,9 +16,10 @@ import { useSession } from './queries';
 const LOADING_MIN_MS = 2500;
 
 /**
- * Lets only signed-in people through. Signed out → the auth page. Signed up
- * with Google and no phone or terms yet → Complete your profile. Someone
- * without a shop yet is let in: the setup wizard asks for one.
+ * Lets only signed-in people through. Signed out → the auth page. Someone
+ * without a shop yet is let in: the setup wizard asks for the shop, and for
+ * the phone (and the terms, for Google sign-ups) in its first step. Someone
+ * in a shop (invited) with no phone or terms yet → Complete your profile.
  *
  * Today this runs in the browser against the mock. With real auth, proxy.ts
  * redirects on the server first and this stays as the second line.
@@ -29,14 +31,17 @@ export function SessionGate({ children }: { children: ReactNode }) {
   const user = session.data;
   const waited = useMinimumWait(LOADING_MIN_MS);
 
+  // Only an incomplete profile needs the shop list, to tell the wizard's case from an invite.
   const incomplete = user ? needsProfile(user) : false;
+  const workspaces = useMyWorkspaces({ enabled: incomplete });
+  const invited = incomplete && workspaces.isSuccess && workspaces.data.length > 0;
+  const deciding = incomplete && workspaces.isPending;
 
   useEffect(() => {
     if (session.isPending || session.isError) return;
     if (!user) router.replace('/');
-    // Signed up with Google: phone and terms first.
-    else if (incomplete) router.replace('/complete-profile');
-  }, [session.isPending, session.isError, user, incomplete, router]);
+    else if (invited) router.replace('/complete-profile');
+  }, [session.isPending, session.isError, user, invited, router]);
 
   if (session.isError) {
     return (
@@ -47,7 +52,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
       </Splash>
     );
   }
-  if (!user || incomplete || !waited) {
+  if (!user || invited || deciding || !waited) {
     return <LoadingScreen />;
   }
   return children;

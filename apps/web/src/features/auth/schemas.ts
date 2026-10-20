@@ -36,7 +36,6 @@ export const signUpFormSchema = z.object({
   firstName: required('validation.firstNameRequired').pipe(signUpSchema.shape.firstName),
   email,
   password: newPassword,
-  phone: phoneInput,
   acceptTerms,
 });
 
@@ -46,12 +45,14 @@ export const emailFormSchema = z.object({ email });
 
 export const newPasswordFormSchema = z.object({ password: newPassword });
 
-export const completeProfileFormSchema = z.object({ phone: phoneInput, acceptTerms });
+/** The terms only for someone who hasn't agreed yet (Google sign-ups). */
+export const completeProfileFormSchema = (needsTerms: boolean) =>
+  z.object({ phone: phoneInput, acceptTerms: needsTerms ? acceptTerms : z.boolean() });
 
 export type SignUpFormInput = z.input<typeof signUpFormSchema>;
 export type SignUpFormValues = z.output<typeof signUpFormSchema>;
 export type LogInFormValues = z.output<typeof logInFormSchema>;
 export type EmailFormValues = z.output<typeof emailFormSchema>;
 export type NewPasswordFormValues = z.output<typeof newPasswordFormSchema>;
-export type CompleteProfileFormInput = z.input<typeof completeProfileFormSchema>;
-export type CompleteProfileFormValues = z.output<typeof completeProfileFormSchema>;
+export type CompleteProfileFormInput = z.input<ReturnType<typeof completeProfileFormSchema>>;
+export type CompleteProfileFormValues = z.output<ReturnType<typeof completeProfileFormSchema>>;

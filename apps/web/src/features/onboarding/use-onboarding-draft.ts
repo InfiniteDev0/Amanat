@@ -8,23 +8,27 @@ import { readSignupCurrencies } from './signup-currencies';
 
 /**
  * The wizard's state. Picks up where this person left off in this tab, or
- * starts from what the Sign up tab collected (name, currencies).
+ * starts from their account (name, photo, phone if they have one).
  *
  * `update` saves synchronously, so a change made just before a page reload
  * (picking a language reloads the page in that language) is never lost.
  */
 export function useOnboardingDraft(user: User, locale: Language) {
-  const [draft, setDraft] = useState<OnboardingDraft>(
-    () =>
-      loadDraft(user.id) ??
-      initialDraft({
-        userId: user.id,
-        name: user.name,
-        avatar: user.avatar,
-        language: locale,
-        currencies: readSignupCurrencies(),
-      }),
-  );
+  // Whether the terms are still to be agreed always comes from the account, never from a saved draft.
+  const termsNeeded = user.termsAcceptedAt === null;
+  const [draft, setDraft] = useState<OnboardingDraft>(() => {
+    const saved = loadDraft(user.id);
+    if (saved) return { ...saved, termsNeeded };
+    return initialDraft({
+      userId: user.id,
+      name: user.name,
+      avatar: user.avatar,
+      phone: user.phone,
+      termsNeeded,
+      language: locale,
+      currencies: readSignupCurrencies(),
+    });
+  });
   const latest = useRef(draft);
 
   const update = useCallback((change: (draft: OnboardingDraft) => OnboardingDraft) => {

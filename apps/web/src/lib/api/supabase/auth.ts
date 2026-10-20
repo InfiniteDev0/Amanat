@@ -132,14 +132,14 @@ export function supabaseAuth(mock: MockSession): SarrifApi['auth'] {
 
   return {
     async signUp(input) {
-      const { firstName, email, password, phone, language } = parse(signUpSchema, input);
+      const { firstName, email, password, language } = parse(signUpSchema, input);
       const { data, error } = await supabase().auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: callbackUrl(`/${language}`),
-          // The profiles trigger reads these (first_name, phone, language, terms_version).
-          data: { first_name: firstName, phone, language, terms_version: TERMS_VERSION },
+          // The profiles trigger reads these. The phone comes later, in the setup wizard.
+          data: { first_name: firstName, language, terms_version: TERMS_VERSION },
         },
       });
       if (error) {
@@ -201,11 +201,12 @@ export function supabaseAuth(mock: MockSession): SarrifApi['auth'] {
     },
 
     async completeProfile(input) {
-      const { phone } = parse(completeProfileSchema, input);
+      const { phone, acceptTerms } = parse(completeProfileSchema, input);
       const { data } = await supabase().auth.getUser();
       if (!data.user) throw new ApiError('unauthenticated');
       // terms_accepted_at is stamped by the database when terms_version changes.
-      const { error } = await supabase().from('profiles').update({ phone, terms_version: TERMS_VERSION }).eq('id', data.user.id);
+      const change = acceptTerms ? { phone, terms_version: TERMS_VERSION } : { phone };
+      const { error } = await supabase().from('profiles').update(change).eq('id', data.user.id);
       if (error) throw databaseError(error);
       const user = await withProfile(data.user);
       mock.adopt(user);

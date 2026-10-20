@@ -1,9 +1,10 @@
 'use client';
 
-import { type OnboardingInput, parseAmount, type WorkspaceMembership } from '@sarrif/core';
+import { type CompleteProfileInput, type OnboardingInput, parseAmount, type WorkspaceMembership } from '@sarrif/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
+import { toE164 } from '@/features/auth/schemas';
 import { setLastWorkspaceId } from '@/features/workspaces/last-workspace';
 import { useRouter } from '@/i18n/navigation';
 import { api } from '@/lib/api';
@@ -17,9 +18,10 @@ import { clearSignupCurrencies } from './signup-currencies';
 import { useAccountName } from './use-account-name';
 
 /**
- * The wizard's one write: the draft becomes an OnboardingInput and is saved
- * in a single call (all or nothing). Then straight into the new shop, in the
- * language they picked.
+ * The wizard's write: first the account (phone, the terms for Google
+ * sign-ups, name and language), then the draft as an OnboardingInput in a
+ * single call (all or nothing). Then straight into the new shop, in the
+ * language they picked. Phase 1g makes it one database transaction.
  */
 export function useCompleteOnboarding() {
   const queryClient = useQueryClient();
@@ -29,7 +31,11 @@ export function useCompleteOnboarding() {
   const message = useMessage();
 
   const mutation = useMutation({
-    mutationFn: (input: OnboardingInput) => api.onboarding.complete(input),
+    mutationFn: async ({ profile, input }: { profile: CompleteProfileInput; input: OnboardingInput }) => {
+      await api.auth.completeProfile(profile);
+      await api.auth.updateProfile(input.profile);
+      return api.onboarding.complete(input);
+    },
     onSuccess: ({ user, workspace }) => {
       queryClient.setQueryData(queryKeys.session, user);
       queryClient.setQueryData<WorkspaceMembership[]>(queryKeys.workspaces, (list = []) => [
@@ -70,7 +76,9 @@ export function useCompleteOnboarding() {
       }),
     };
     // One expanded toast follows the save: "Setting up your shop…" → "Ezary shop is ready".
-    promiseToast(mutation.mutateAsync(input), {
+    const phone = toE164(draft.phone) ?? '';
+    const profile: CompleteProfileInput = { phone, acceptTerms: draft.termsNeeded ? true : undefined };
+    promiseToast(mutation.mutateAsync({ profile, input }), {
       loading: t('saving'),
       success: ({ workspace }) => t('saved', { shop: workspace.name }),
       error: (error) => message(errorKey(error)),

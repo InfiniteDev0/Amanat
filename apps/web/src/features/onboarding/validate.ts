@@ -1,5 +1,7 @@
 import { parseAmount, profileSchema, ratePairSchema } from '@sarrif/core';
 
+import { toE164 } from '@/features/auth/schemas';
+
 import { type OnboardingDraft, ratedOf } from './draft';
 
 /** The first thing wrong on a step: which field, and a `validation.*` key. */
@@ -17,8 +19,14 @@ function checkName(value: string, field: string, required: string): StepProblem 
   return result.success ? null : { field, message: result.error.issues[0]?.message ?? 'validation.nameShort' };
 }
 
+/** Name, phone (asked here rather than on Sign up), and the terms for Google sign-ups. */
 export function validateProfile(draft: OnboardingDraft): StepProblem | null {
-  return checkName(draft.name, 'name', 'validation.nameRequired');
+  const name = checkName(draft.name, 'name', 'validation.nameRequired');
+  if (name) return name;
+  if (!draft.phone.number.trim()) return { field: 'phone', message: 'validation.phoneRequired' };
+  if (!toE164(draft.phone)) return { field: 'phone', message: 'validation.phone' };
+  if (draft.termsNeeded && !draft.acceptTerms) return { field: 'acceptTerms', message: 'validation.terms' };
+  return null;
 }
 
 export function validateShop(draft: OnboardingDraft): StepProblem | null {

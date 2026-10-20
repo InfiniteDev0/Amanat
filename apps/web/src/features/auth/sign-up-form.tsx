@@ -13,23 +13,21 @@ import { useRouter } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { formErrorKey, useMessage } from '@/lib/api/errors';
 
-import { DEFAULT_COUNTRY } from './countries';
 import { FormError } from './form-error';
 import { GoogleButton } from './google-button';
 import { homePathFor } from './home-path';
 import { PasswordField } from './password-field';
-import { PhoneField } from './phone-field';
 import { useSignUp } from './queries';
-import { type SignUpFormInput, signUpFormSchema, type SignUpFormValues, toE164 } from './schemas';
+import { type SignUpFormInput, signUpFormSchema, type SignUpFormValues } from './schemas';
 import { TermsField } from './terms-field';
 
 /** Top to bottom; only the first field with a problem shows it. */
-const FIELD_ORDER = ['firstName', 'email', 'password', 'phone', 'acceptTerms'] as const;
+const FIELD_ORDER = ['firstName', 'email', 'password', 'acceptTerms'] as const;
 
 /**
- * The Sign up tab: first name, email, password (with its strength), phone
- * (saved on the profile, never used to sign in), terms → "Check your email".
- * Or Continue with Google.
+ * The Sign up tab: first name, email, password (with its strength), terms →
+ * "Check your email". Or Continue with Google. The phone is asked for later,
+ * in the setup wizard.
  */
 export function SignUpForm() {
   const t = useTranslations('auth');
@@ -49,7 +47,6 @@ export function SignUpForm() {
       firstName: '',
       email: '',
       password: '',
-      phone: { country: DEFAULT_COUNTRY, number: '' },
       acceptTerms: false,
     },
   });
@@ -67,11 +64,9 @@ export function SignUpForm() {
   };
   const busy = signUp.isPending || signUp.isSuccess;
 
-  const onSubmit = ({ firstName, email, password, phone }: SignUpFormValues) => {
-    const e164 = toE164(phone);
-    if (!e164) return; // the schema already checked it
+  const onSubmit = ({ firstName, email, password }: SignUpFormValues) => {
     signUp.mutate(
-      { firstName, email, password, phone: e164, acceptTerms: true, language: locale },
+      { firstName, email, password, acceptTerms: true, language: locale },
       {
         onSuccess: async (result) => {
           if (result.status === 'confirm_email') {
@@ -141,23 +136,6 @@ export function SignUpForm() {
                 autoComplete="new-password"
                 meter
                 error={errorFor('password')}
-              />
-            )}
-          />
-          <Controller
-            name="phone"
-            control={form.control}
-            render={({ field }) => (
-              <PhoneField
-                id="signup-phone"
-                value={field.value}
-                onChange={(value) => {
-                  field.onChange(value);
-                  edited();
-                }}
-                onBlur={field.onBlur}
-                error={errorFor('phone')}
-                disabled={busy}
               />
             )}
           />

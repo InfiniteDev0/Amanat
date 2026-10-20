@@ -1,4 +1,8 @@
 import { type AccountType, type CurrencyCode, isCurrencyCode, type Language, suggestedAccounts } from '@sarrif/core';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+
+import { DEFAULT_COUNTRY } from '@/features/auth/countries';
+import type { PhoneInput } from '@/features/auth/schemas';
 
 // Everything the wizard collects, kept as typed (strings for amounts and
 // rates) until the last step turns it into an OnboardingInput. Pure functions
@@ -31,6 +35,11 @@ export interface OnboardingDraft {
   name: string;
   /** Small square JPEG data URL, or null for initials. */
   avatar: string | null;
+  /** Contact data, asked for here rather than on Sign up. Prefilled when they have one. */
+  phone: PhoneInput;
+  /** Google sign-ups haven't agreed to the terms yet: the first step asks (set from the user, never stored as theirs). */
+  termsNeeded: boolean;
+  acceptTerms: boolean;
   language: Language;
   shopName: string;
   location: string;
@@ -44,12 +53,17 @@ export function initialDraft({
   userId,
   name,
   avatar,
+  phone,
+  termsNeeded,
   language,
   currencies,
 }: {
   userId: string;
   name: string;
   avatar: string | null;
+  /** E.164, or empty. */
+  phone: string;
+  termsNeeded: boolean;
   language: Language;
   currencies: CurrencyCode[];
 }): OnboardingDraft {
@@ -58,6 +72,9 @@ export function initialDraft({
     step: 0,
     name,
     avatar,
+    phone: phoneInputOf(phone),
+    termsNeeded,
+    acceptTerms: false,
     language,
     shopName: '',
     location: '',
@@ -67,6 +84,12 @@ export function initialDraft({
     rates: {},
   };
   return withCurrencies(empty, currencies);
+}
+
+/** A saved E.164 phone back into the field's country + number; empty starts on the default country. */
+export function phoneInputOf(phone: string): PhoneInput {
+  const parsed = phone ? parsePhoneNumberFromString(phone) : undefined;
+  return parsed?.country ? { country: parsed.country, number: parsed.nationalNumber } : { country: DEFAULT_COUNTRY, number: '' };
 }
 
 /** The currencies a shop prices against its base: the ones that need a rate. */
@@ -120,7 +143,14 @@ export function loadDraft(userId: string): OnboardingDraft | null {
   try {
     const saved = JSON.parse(window.sessionStorage.getItem(KEY) ?? 'null') as OnboardingDraft | null;
     if (!saved || saved.userId !== userId || !Array.isArray(saved.currencies)) return null;
-    return { ...saved, avatar: saved.avatar ?? null, currencies: saved.currencies.filter(isCurrencyCode) };
+    return {
+      ...saved,
+      avatar: saved.avatar ?? null,
+      // Drafts saved before the phone moved here have none.
+      phone: saved.phone ?? phoneInputOf(''),
+      acceptTerms: saved.acceptTerms ?? false,
+      currencies: saved.currencies.filter(isCurrencyCode),
+    };
   } catch {
     return null;
   }

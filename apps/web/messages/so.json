@@ -39,10 +39,11 @@
     "hidePassword": "Qari furaha",
     "passwordRule": "Ugu yaraan 10 xaraf, xarfo iyo tirooyin leh",
     "strength": {
+      "tooWeak": "Aad u daciif",
       "weak": "Daciif",
       "fair": "Dhexdhexaad",
-      "good": "Wanaagsan",
-      "strong": "Adag"
+      "strong": "Adag",
+      "veryStrong": "Aad u adag"
     },
     "or": "ama",
     "google": "Ku sii wad Google",
@@ -70,7 +71,8 @@
     "signOut": "Ka bax",
     "linkExpiredTitle": "Xiriirkan wuu dhacay",
     "linkExpiredBody": "Xiriirada iimaylka hal mar ayay shaqeeyaan, muddo gaaban, kaliya browser-kii codsaday. Gal, ama isticmaal \"Ma ilowday furaha?\" si aad mid cusub u hesho.",
-    "demoHint": "Tijaabo: ku gal {owner} (milkiile) ama {cashier} (khasnaji), furaha {password}."
+    "demoHint": "Tijaabo: ku gal {owner} (milkiile) ama {cashier} (khasnaji), furaha {password}.",
+    "completeBodyPhone": "Ku dar lambarkaaga telefoonka si kooxdaadu kuu heli karto."
   },
   "nav": {
     "home": "Hoyga",
@@ -222,7 +224,7 @@
     },
     "profile": {
       "title": "Adiga",
-      "hint": "Magacaagu waa kan shaqaalahaagu ku arkaan diiwaannadaada agtooda.",
+      "hint": "Magacaagu waa waxa shaqaalahaagu ku arkaan diiwaankaaga agtiisa; telefoonkaaguna waa sida ay kuu heli karaan.",
       "name": "Magacaaga"
     },
     "shop": {
@@ -281,7 +283,8 @@
       "noRates": "Weli lama dejin. Home ayaa ku xasuusin doona.",
       "owner": "Milkiilaha",
       "noLocation": "Goob lama sheegin",
-      "currencies": "Lacagaha"
+      "currencies": "Lacagaha",
+      "phone": "Telefoon"
     },
     "preview": {
       "shopName": "Dukaankaaga"

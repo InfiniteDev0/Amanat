@@ -1,18 +1,42 @@
 import { passwordSchema } from '@sarrif/core';
 
-/** 0 nothing typed · 1 doesn't meet the rule · 2 fair · 3 good · 4 strong. */
-export type Strength = 0 | 1 | 2 | 3 | 4;
+export type StrengthLabel = 'tooWeak' | 'weak' | 'fair' | 'strong' | 'veryStrong';
+
+export interface Strength {
+  /** How many of the four bars light up (0–4). */
+  bars: number;
+  label: StrengthLabel;
+  /** Meets the rule the server applies (core's passwordSchema: 10+, letters and digits). */
+  allowed: boolean;
+}
 
 /**
- * For the meter under a new password. Below the rule (10+, letters and
- * digits: core's passwordSchema, which the server applies too) it's always
- * weak; above it, length and variety add strength.
+ * For the meter under a new password: five checks (length, a letter, a digit,
+ * upper and lower case, a symbol), as in the old project. A password the
+ * server would refuse never shows more than Weak, so the meter can't promise
+ * what the server says no to. Null while nothing is typed.
  */
-export function passwordStrength(password: string): Strength {
-  if (!password) return 0;
-  if (!passwordSchema.safeParse(password).success) return 1;
-  let score = 2;
-  if (password.length >= 14) score += 1;
-  if ((/\p{Lu}/u.test(password) && /\p{Ll}/u.test(password)) || /[^\p{L}\d]/u.test(password)) score += 1;
-  return Math.min(score, 4) as Strength;
+export function passwordStrength(password: string): Strength | null {
+  if (!password) return null;
+  const allowed = passwordSchema.safeParse(password).success;
+  const checks = [
+    password.length >= 10,
+    /\p{L}/u.test(password),
+    /\d/.test(password),
+    /\p{Lu}/u.test(password) && /\p{Ll}/u.test(password),
+    /[^\p{L}\d\s]/u.test(password),
+  ].filter(Boolean).length;
+  const score = allowed ? checks : Math.min(checks, 2);
+  switch (score) {
+    case 5:
+      return { bars: 4, label: 'veryStrong', allowed };
+    case 4:
+      return { bars: 3, label: 'strong', allowed };
+    case 3:
+      return { bars: 2, label: 'fair', allowed };
+    case 2:
+      return { bars: 1, label: 'weak', allowed };
+    default:
+      return { bars: score, label: 'tooWeak', allowed };
+  }
 }
