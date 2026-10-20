@@ -89,7 +89,8 @@
       "confirm": "الخروج من كل مكان"
     },
     "wrongEmail": "بريد خاطئ؟",
-    "useDifferentEmail": "استخدم بريدًا آخر"
+    "useDifferentEmail": "استخدم بريدًا آخر",
+    "haveAccount": "لديك حساب بالفعل؟"
   },
   "nav": {
     "home": "الرئيسية",

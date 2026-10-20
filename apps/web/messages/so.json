@@ -89,7 +89,8 @@
       "confirm": "Ka bax meel kasta"
     },
     "wrongEmail": "Iimayl khaldan?",
-    "useDifferentEmail": "Isticmaal iimayl kale"
+    "useDifferentEmail": "Isticmaal iimayl kale",
+    "haveAccount": "Horey ma leedahay akoon?"
   },
   "nav": {
     "home": "Hoyga",

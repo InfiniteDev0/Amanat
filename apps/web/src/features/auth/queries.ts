@@ -15,9 +15,14 @@ import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tansta
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query/keys';
 
-/** The signed-in user, or null. */
-export function useSession() {
-  return useQuery({ queryKey: queryKeys.session, queryFn: () => api.auth.getSession() });
+/** The signed-in user, or null. `watch`: asks again every few seconds (waiting for an email link opened in another tab). */
+export function useSession({ watch = false }: { watch?: boolean } = {}) {
+  return useQuery({
+    queryKey: queryKeys.session,
+    queryFn: () => api.auth.getSession(),
+    refetchInterval: watch ? 4_000 : false,
+    refetchOnWindowFocus: watch ? 'always' : true,
+  });
 }
 
 /** Someone new signed in on this browser: drop whatever the last person had loaded. */

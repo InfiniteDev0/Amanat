@@ -179,3 +179,34 @@ test('forgot password: the link works in another browser and the new password si
   await expectInApp(again);
   await fresh.close();
 });
+
+test('confirmed in another tab: Check your email carries on into the app by itself', async ({ page, context }) => {
+  const email = uniqueEmail('othertab');
+  await page.goto('/en');
+  await openTab(page, 'Log in');
+  await openTab(page, 'Sign up');
+  await page.locator('#signup-first-name').fill('Amina');
+  await page.locator('#signup-email').fill(email);
+  await page.locator('#signup-password').fill(PASSWORD);
+  await page.getByText('I have read and agree to the').click();
+  await page.getByRole('button', { name: 'Sign up', exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/check-email/);
+  await forget(email);
+
+  const link = await linkFromEmail(email, 'confirm');
+  const tab = await context.newPage();
+  await tab.goto(link);
+  await expectInApp(tab);
+  // The first tab, still on Check your email, follows.
+  await expectInApp(page);
+});
+
+test('Check your email → Log in: the email is already filled in', async ({ page }) => {
+  await page.goto('/en/check-email?email=amina%40example.com');
+  await expect(async () => {
+    await page.getByRole('link', { name: 'Log in', exact: true }).click();
+    await expect(page.locator('#login-email')).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 30_000 });
+  await expect(page.locator('#login-email')).toHaveValue('amina@example.com');
+  await expect(page.locator('#login-password')).toHaveValue('');
+});

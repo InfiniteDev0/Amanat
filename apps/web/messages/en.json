@@ -89,7 +89,8 @@
       "confirm": "Sign out everywhere"
     },
     "wrongEmail": "Wrong email?",
-    "useDifferentEmail": "Use a different email"
+    "useDifferentEmail": "Use a different email",
+    "haveAccount": "Already have an account?"
   },
   "nav": {
     "home": "Home",

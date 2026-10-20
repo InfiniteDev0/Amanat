@@ -5,6 +5,7 @@ import { ApiError } from '@sarrif/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { TextField } from '@/components/text-field';
@@ -14,6 +15,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { CASHIER_EMAIL, DEMO_EMAIL, DEMO_PASSWORD, IS_DEMO_AUTH } from '@/lib/api';
 import { formErrorKey, useMessage } from '@/lib/api/errors';
 
+import { useAuthFlow } from './auth-flow';
 import { fieldError } from './field-error';
 import { FormError } from './form-error';
 import { GoogleButton } from './google-button';
@@ -41,6 +43,11 @@ export function LogInForm() {
     reValidateMode: 'onSubmit',
     defaultValues: { email: '', password: '' },
   });
+  // Sent here from Check your email: their address is filled in, the password is theirs to type.
+  const { loginEmail } = useAuthFlow();
+  useEffect(() => {
+    if (loginEmail) form.setValue('email', loginEmail);
+  }, [loginEmail, form]);
   const edited = () => {
     form.clearErrors();
     logIn.reset();
