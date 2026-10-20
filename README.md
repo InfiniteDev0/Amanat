@@ -46,8 +46,8 @@ pnpm exec supabase migration list --local          # what's applied
 | | Supabase project | Env file |
 |---|---|---|
 | Your machine | local (Docker) | `apps/web/.env.local` |
-| Staging | `sarrif-staging` | names in `apps/web/.env.staging.example`, values in Vercel |
-| Production | `sarrif-prod` | names in `apps/web/.env.production.example`, values in Vercel |
+| Staging | `amanat-staging` | names in `apps/web/.env.staging.example`, values in Vercel |
+| Production | `amanat-prod` | names in `apps/web/.env.production.example`, values in Vercel |
 
 Real keys never go in git: `.env*` is ignored, except the `*.example` files.
 
