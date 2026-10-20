@@ -110,7 +110,8 @@ export const logInSchema = z.object({
 /** Forgot password, and Send the email again: where to send it, and the language to come back in. */
 export const emailLinkSchema = z.object({ email: emailSchema, language: z.enum(LANGUAGES) });
 
-export const googleSignInSchema = z.object({ language: z.enum(LANGUAGES) });
+/** `next`: the app page to come back to (checked with appReturnPath before use). */
+export const googleSignInSchema = z.object({ language: z.enum(LANGUAGES), next: z.string().max(512).optional() });
 
 /** After the reset link: the new password. */
 export const newPasswordSchema = z.object({ password: passwordSchema });

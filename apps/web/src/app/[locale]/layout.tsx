@@ -2,7 +2,7 @@ import 'goey-toast/styles.css';
 import '../globals.css';
 
 import type { Metadata, Viewport } from 'next';
-import { Luxurious_Roman, Manrope, Noto_Sans_Arabic, Outfit } from 'next/font/google';
+import { IBM_Plex_Sans_Arabic, Luxurious_Roman, Manrope, Outfit } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -15,8 +15,8 @@ import { cn } from '@/lib/utils';
 const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'] });
 const outfit = Outfit({ variable: '--font-outfit', subsets: ['latin'] });
 const roman = Luxurious_Roman({ variable: '--font-roman', subsets: ['latin'], weight: '400' });
-// A variable font: every weight from one file.
-const arabic = Noto_Sans_Arabic({ variable: '--font-arabic', subsets: ['arabic'] });
+// IBM Plex Sans Arabic: not a variable font, so each weight the app uses is listed.
+const arabic = IBM_Plex_Sans_Arabic({ variable: '--font-arabic', subsets: ['arabic'], weight: ['400', '500', '600', '700'] });
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

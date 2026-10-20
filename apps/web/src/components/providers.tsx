@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GooeyToaster } from 'goey-toast';
 import { type ReactNode, useState } from 'react';
 
+import { AuthSync } from '@/features/auth/auth-sync';
 import type { Theme } from '@/features/theme/theme';
 
 /** Errors that won't fix themselves by asking again. */
@@ -27,6 +28,7 @@ export function Providers({ children, dir, theme }: { children: ReactNode; dir: 
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthSync />
       {children}
       <GooeyToaster position="top-center" dir={dir} theme={theme} />
     </QueryClientProvider>

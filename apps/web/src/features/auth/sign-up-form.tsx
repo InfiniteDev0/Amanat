@@ -20,6 +20,7 @@ import { PasswordField } from './password-field';
 import { useSignUp } from './queries';
 import { type SignUpFormInput, signUpFormSchema, type SignUpFormValues } from './schemas';
 import { TermsField } from './terms-field';
+import { useSubmitGuard } from './use-submit-guard';
 
 /** Top to bottom; only the first field with a problem shows it. */
 const FIELD_ORDER = ['firstName', 'email', 'password', 'acceptTerms'] as const;
@@ -62,22 +63,27 @@ export function SignUpForm() {
     const key = name === firstProblem ? errors[name]?.message : undefined;
     return key ? message(key) : null;
   };
+  const { online, run } = useSubmitGuard();
   const busy = signUp.isPending || signUp.isSuccess;
 
-  const onSubmit = ({ firstName, email, password }: SignUpFormValues) => {
-    signUp.mutate(
-      { firstName, email, password, acceptTerms: true, language: locale },
-      {
-        onSuccess: async (result) => {
-          if (result.status === 'confirm_email') {
-            router.push(`/check-email?email=${encodeURIComponent(email)}`);
-            return;
-          }
-          router.replace(await homePathFor(result.user, queryClient));
+  const onSubmit = ({ firstName, email, password }: SignUpFormValues) =>
+    run((done) =>
+      signUp.mutate(
+        { firstName, email, password, acceptTerms: true, language: locale },
+        {
+          onSettled: done,
+          // Everything typed stays, except the password.
+          onError: () => form.setValue('password', ''),
+          onSuccess: async (result) => {
+            if (result.status === 'confirm_email') {
+              router.push(`/check-email?email=${encodeURIComponent(email)}`);
+              return;
+            }
+            router.replace(await homePathFor(result.user, queryClient));
+          },
         },
-      },
+      ),
     );
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -155,7 +161,7 @@ export function SignUpForm() {
             )}
           />
 
-          <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl font-semibold">
+          <Button type="submit" disabled={busy || !online} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
             {busy ? t('signingUp') : t('signUp')}
           </Button>

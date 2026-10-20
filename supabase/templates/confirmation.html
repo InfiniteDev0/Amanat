@@ -1,0 +1,10 @@
+<!-- Phase 1b: the sign-up email. The link carries a one-time token (token
+     hash), so it works on any device or browser, not only the one that
+     signed up. RedirectTo is the app's /api/auth/confirm?next=… (sent by the
+     app), so the link goes back to whichever site asked: local, staging, prod.
+     Staging and production: paste this into Authentication → Emails →
+     Confirm signup (see README). -->
+<h2>Confirm your email</h2>
+<p>Welcome to Amanat. Tap the button to confirm this is your email address and finish signing up.</p>
+<p><a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=signup">Confirm my email</a></p>
+<p>The link works once, for 1 hour. If you didn't sign up for Amanat, ignore this email.</p>

@@ -3,9 +3,10 @@
 import { Tabs } from '@heroui/react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 
 import { directionOf } from '@/i18n/routing';
+import { cn } from '@/lib/utils';
 
 import { type AuthMode, useAuthFlow } from './auth-flow';
 import { LogInForm } from './log-in-form';
@@ -40,15 +41,32 @@ const panelClassName = 'mt-6 p-0 data-[inert=true]:hidden';
  * tabs never move (the column is anchored at the top, not centred); only the
  * form below changes, sliding in from the side of the tab you picked.
  */
-export function Entry() {
+/** A line above the tabs saying what just happened. */
+export type EntryNotice = 'googleCancelled' | 'googleFailed' | 'sessionEnded';
+
+export function Entry({ notice = null }: { notice?: EntryNotice | null }) {
   const t = useTranslations();
   const { mode, setMode } = useAuthFlow();
+
+  // Back from Google, or the session ended: they have an account, so Log in.
+  useEffect(() => {
+    if (notice) setMode('login');
+  }, [notice, setMode]);
 
   return (
     <div className="mx-auto w-full max-w-100 pt-[6vh] pb-24">
       {/* .hero: Luxurious Roman (one weight, so no bold) */}
       <h1 className="hero text-center text-4xl">{t('auth.welcome', { name: t('brand.name') })}</h1>
       <p className="text-muted-foreground mt-2 text-center text-sm">{t('brand.tagline')}</p>
+
+      {notice ? (
+        <p
+          role={notice === 'googleFailed' ? 'alert' : 'status'}
+          className={cn('bg-field mt-6 rounded-xl px-4 py-3 text-center text-sm', notice === 'googleFailed' && 'text-destructive')}
+        >
+          {t(`auth.notice.${notice}`)}
+        </p>
+      ) : null}
 
       <Tabs selectedKey={mode} onSelectionChange={(key) => setMode(key as AuthMode)} className="mt-8 w-full gap-0">
         <Tabs.List aria-label={t('auth.mode')} className={listClassName}>

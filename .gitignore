@@ -18,3 +18,7 @@ apps/web/public/flags
 
 # graphify's code graph (rebuild with: graphify update .)
 graphify-out/
+
+# Playwright (apps/web/e2e)
+test-results/
+playwright-report/

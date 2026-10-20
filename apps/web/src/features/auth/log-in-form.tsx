@@ -17,10 +17,11 @@ import { formErrorKey, useMessage } from '@/lib/api/errors';
 import { fieldError } from './field-error';
 import { FormError } from './form-error';
 import { GoogleButton } from './google-button';
-import { homePathFor } from './home-path';
+import { destinationFor } from './home-path';
 import { PasswordField } from './password-field';
 import { useLogIn } from './queries';
 import { type LogInFormValues, logInFormSchema } from './schemas';
+import { useSubmitGuard } from './use-submit-guard';
 
 /**
  * The Log in tab: email and password, Forgot password?, or Continue with
@@ -44,15 +45,21 @@ export function LogInForm() {
     form.clearErrors();
     logIn.reset();
   };
+  const { online, run } = useSubmitGuard();
   const busy = logIn.isPending || logIn.isSuccess;
   // Signed up but never clicked the link: offer to send it again.
   const unconfirmed = logIn.error instanceof ApiError && logIn.error.messageKey === 'errors.emailNotConfirmed';
 
-  const onSubmit = (values: LogInFormValues) => {
-    logIn.mutate(values, {
-      onSuccess: async (user) => router.replace(await homePathFor(user, queryClient), { locale: user.language }),
-    });
-  };
+  const onSubmit = (values: LogInFormValues) =>
+    run((done) =>
+      logIn.mutate(values, {
+        onSettled: done,
+        // Everything typed stays, except the password.
+        onError: () => form.setValue('password', ''),
+        // Back to the page they were on if the session had ended (?next=).
+        onSuccess: async (user) => router.replace(await destinationFor(user, queryClient), { locale: user.language }),
+      }),
+    );
 
   return (
     <div className="flex flex-col gap-4">
@@ -100,7 +107,7 @@ export function LogInForm() {
             {t('forgotPassword')}
           </Link>
 
-          <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl font-semibold">
+          <Button type="submit" disabled={busy || !online} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
             {busy ? t('loggingIn') : t('logIn')}
           </Button>
@@ -109,7 +116,7 @@ export function LogInForm() {
               {message(formErrorKey(logIn.error))}
               {unconfirmed ? (
                 <Link
-                  href={`/check-email?email=${encodeURIComponent(form.getValues('email').trim())}`}
+                  href={`/check-email?from=login&email=${encodeURIComponent(form.getValues('email').trim())}`}
                   className="text-foreground mt-1 block underline underline-offset-4"
                 >
                   {t('resendEmail')}

@@ -1,36 +1,39 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-import { routing } from '@/i18n/routing';
+import { localeNext } from '@/lib/auth-redirect';
+import { reportError } from '@/lib/report-error';
 import { createClient } from '@/lib/supabase/server';
 
-// Where Supabase sends people back from an email link (confirm sign-up, reset
-// password) or from Google, with a one-time `code`. The code is swapped for a
-// session here, on the server, which sets the session cookies; then on to
-// `next`. Under /api so the language middleware (proxy.ts) leaves it alone.
+// Where Google sends people back (through Supabase), with a one-time `code`.
+// The code is swapped for a session here, on the server, which sets the
+// session cookies; then on to `next`. Under /api so the language middleware
+// (proxy.ts) leaves it alone. Email links use /api/auth/confirm instead.
 //
-// It works only in the browser that asked for the link (PKCE): the code needs
-// the verifier that browser kept. Anything that fails lands on link-expired.
-
-/** `next` must be one of our own pages, starting with a language: never another site. */
-function safeNext(next: string | null): string {
-  const fallback = `/${routing.defaultLocale}`;
-  if (!next || !next.startsWith('/') || next.startsWith('//') || next.includes('\\')) return fallback;
-  const locale = next.split('/')[1];
-  return routing.locales.includes(locale as (typeof routing.locales)[number]) ? next : fallback;
-}
+// Every way out lands somewhere calm: cancelled on Google's screen → back to
+// log in with "Google sign-in was cancelled"; anything else that fails →
+// "We couldn't finish signing you in" with the Google button to try again.
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
-  const next = safeNext(searchParams.get('next'));
+  const { path, locale } = localeNext(searchParams.get('next'));
   const code = searchParams.get('code');
+  const providerError = searchParams.get('error');
+  const back = (notice: string) => NextResponse.redirect(new URL(`/${locale}?auth_error=${notice}`, origin));
 
-  if (code) {
-    const supabase = await createClient();
+  // Pressed Cancel (or "Back to safety") on Google's screen.
+  if (providerError === 'access_denied') return back('google_cancelled');
+
+  const supabase = await createClient();
+  if (code && !providerError) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(next, origin));
+    if (!error) return NextResponse.redirect(new URL(path, origin));
+    reportError(error, { during: 'googleCallback', code: error.code });
+  } else if (providerError) {
+    reportError(new Error(providerError), { during: 'googleCallback', description: searchParams.get('error_description') });
   }
 
-  // No code (Supabase sends ?error=… for an expired link), or it didn't work.
-  const locale = next.split('/')[1];
-  return NextResponse.redirect(new URL(`/${locale}/link-expired`, origin));
+  // Already signed in (the back button, a second tab): into the app, no error.
+  const { data } = await supabase.auth.getUser();
+  if (data.user) return NextResponse.redirect(new URL(`/${locale}`, origin));
+  return back('google_failed');
 }

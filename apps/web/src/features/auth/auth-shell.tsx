@@ -12,7 +12,8 @@ import { usePathname, useRouter } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
 import { AuthFlowProvider } from './auth-flow';
-import { homePathFor } from './home-path';
+import { destinationFor } from './home-path';
+import { OfflineBanner } from './offline-banner';
 import { useSession } from './queries';
 
 /**
@@ -58,7 +59,7 @@ function Frame({ children }: { children: ReactNode }) {
     if (session.isPending || firstSession.current !== null || keepsSession) return;
     firstSession.current = Boolean(session.data);
     if (session.data) {
-      void homePathFor(session.data, queryClient).then((path) => router.replace(path));
+      void destinationFor(session.data, queryClient).then((path) => router.replace(path));
     }
   }, [session.isPending, session.data, queryClient, router, keepsSession]);
 
@@ -112,6 +113,7 @@ function Frame({ children }: { children: ReactNode }) {
           !showForm && 'max-lg:ltr:translate-x-full max-lg:rtl:-translate-x-full',
         )}
       >
+        <OfflineBanner />
         <div className="relative z-20 flex shrink-0 items-center justify-between gap-2 p-6 md:px-10">
           <button
             type="button"

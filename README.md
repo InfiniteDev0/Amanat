@@ -35,6 +35,7 @@ On Windows, run `supabase start` from PowerShell: from Git Bash the CLI can fail
 - **Start the database over:** `pnpm exec supabase db reset` reruns every migration on an empty database.
 - **Back to the demo sign-in:** empty the two `NEXT_PUBLIC_SUPABASE_*` values in `.env.local` and restart `pnpm dev`.
 - **Database tests:** `pnpm exec supabase test db` runs `supabase/tests/*.sql` (pgTAP). CI runs them too.
+- **Sign-in tests in a browser:** `pnpm --filter @sarrif/web test:e2e` (Playwright, `apps/web/e2e`) with local Supabase running: going offline, a cut-off request, a double click, expired links, a link opened in another browser, Google cancelled, a session that ends, `?next=` to another site, signing out in another tab, forgot password. Not in CI yet (it needs the whole local stack). First time: `pnpm --filter @sarrif/web exec playwright install chromium`.
 
 ### Database changes
 
@@ -54,7 +55,9 @@ pnpm exec supabase migration list --local          # what's applied
 | Staging | `amanat-staging` | names in `apps/web/.env.staging.example`, values in Vercel |
 | Production | `amanat-prod` | names in `apps/web/.env.production.example`, values in Vercel |
 
-Real keys never go in git: `.env*` is ignored, except the `*.example` files.
+Real keys never go in git: `.env*` is ignored, except the `*.example` files. Never put a real key in a `.example` file: git uploads those.
+
+**Demo sign-in guard.** Without Supabase settings the app signs in against the public demo (owner@amanat.demo). A production build refuses that: on Vercel's production deployment (or with `APP_ENV=production`), `next build` stops unless `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are set. A Vercel project used as staging can set `APP_ENV=staging`.
 
 ### Sign-in settings (Phase 1b)
 
@@ -70,6 +73,8 @@ Local Supabase reads these from `supabase/config.toml`. Staging and production n
 | Redirect URLs | same page | `https://<your-domain>/**` (staging: its Vercel URL `/**`) |
 | Google | Authentication → Sign In / Providers → Google | On, with the client ID and secret |
 | Custom SMTP | Authentication → Emails → SMTP Settings | Resend's SMTP details (below) |
+| Confirm signup email | Authentication → Emails → Templates → Confirm signup | The HTML in `supabase/templates/confirmation.html` |
+| Reset password email | Authentication → Emails → Templates → Reset password | The HTML in `supabase/templates/recovery.html` |
 
 The password rule must match `passwordSchema` in `packages/core/src/schemas.ts`. Change both together.
 
@@ -79,13 +84,15 @@ The password rule must match `passwordSchema` in `packages/core/src/schemas.ts`.
 - Staging: `https://ifhkimbxunshayfbggzk.supabase.co/auth/v1/callback`
 - Production: `https://<amanat-prod ref>.supabase.co/auth/v1/callback`
 
-The app sends people back through `/api/auth/callback`, which is why the Redirect URLs above end in `/**`.
+Google sends people back through `/api/auth/callback`, and email links go to `/api/auth/confirm`, which is why the Redirect URLs above end in `/**`.
+
+**Email links work on any device.** The two templates put a one-time token in the link (`token_hash`), which `/api/auth/confirm` checks on the server. Sign up on a laptop, open the email on your phone: it still works. Supabase's default templates use a code that only works in the browser that asked, so staging and production must use ours. The link is built from `{{ .RedirectTo }}`, the address the app sent, so it only works when that address is in Redirect URLs.
 
 **Emails.** Supabase's own email sender allows only a few emails an hour. For staging and production, create a [Resend](https://resend.com) account, verify your domain, and paste Resend's SMTP host, port, user and password (an API key) into the SMTP settings.
 
 ### CI
 
-`.github/workflows/ci.yml` runs on every push and pull request: install, typecheck, lint, test. Run the same before pushing with the commands under Checks.
+`.github/workflows/ci.yml` runs on every push and pull request: install, typecheck, lint, test, and the database tests. Run the same before pushing with the commands under Checks.
 
 ## Layout
 

@@ -13,6 +13,7 @@ import { AuthStep } from './auth-step';
 import { useAuthFlow } from './auth-flow';
 import { FormError } from './form-error';
 import { useResendConfirmation } from './queries';
+import { useSubmitGuard } from './use-submit-guard';
 
 /** Seconds before the email can be sent again. Supabase also limits it per hour. */
 const RESEND_COOLDOWN_S = 60;
@@ -22,13 +23,14 @@ const RESEND_COOLDOWN_S = 60;
  * (after a minute), or go back to log in. Shown the same way whether or not
  * the address already had an account.
  */
-export function CheckEmail({ email }: { email: string }) {
+export function CheckEmail({ email, fromLogIn = false }: { email: string; fromLogIn?: boolean }) {
   const t = useTranslations('auth');
   const message = useMessage();
   const locale = useLocale() as Locale;
   const { setMode } = useAuthFlow();
   const resend = useResendConfirmation();
-  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_S);
+  const { online, run } = useSubmitGuard();
+  const [cooldown, setCooldown] = useState(fromLogIn ? 0 : RESEND_COOLDOWN_S);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -36,7 +38,8 @@ export function CheckEmail({ email }: { email: string }) {
     return () => clearTimeout(timer);
   }, [cooldown]);
 
-  const sendAgain = () => resend.mutate({ email, language: locale }, { onSuccess: () => setCooldown(RESEND_COOLDOWN_S) });
+  const sendAgain = () =>
+    run((done) => resend.mutate({ email, language: locale }, { onSettled: done, onSuccess: () => setCooldown(RESEND_COOLDOWN_S) }));
 
   return (
     <AuthStep title={t('checkEmailTitle')} subtitle={t('checkEmailBody', { email: ltr(email) })}>
@@ -49,7 +52,7 @@ export function CheckEmail({ email }: { email: string }) {
           <button
             type="button"
             onClick={sendAgain}
-            disabled={cooldown > 0 || resend.isPending}
+            disabled={cooldown > 0 || resend.isPending || !online}
             className="text-foreground underline underline-offset-4 transition hover:opacity-70 disabled:no-underline disabled:opacity-50"
           >
             {cooldown > 0 ? t('resendIn', { seconds: cooldown }) : t('resendEmail')}

@@ -55,7 +55,7 @@
     "backToLogIn": "Back to log in",
     "checkEmailTitle": "Check your email",
     "checkEmailBody": "We sent a link to {email}. Open it to finish signing up.",
-    "checkEmailHint": "Open the link in this browser. It can take a minute to arrive; check your spam folder too.",
+    "checkEmailHint": "It can take a minute to arrive. Check your spam folder too.",
     "forgotTitle": "Forgot your password?",
     "forgotBody": "Enter your email and we’ll send you a link to set a new one.",
     "sendLink": "Send link",
@@ -70,9 +70,17 @@
     "notYou": "Not {email}?",
     "signOut": "Sign out",
     "linkExpiredTitle": "This link has expired",
-    "linkExpiredBody": "Email links work once, for a short time, and only in the browser that asked for them. Log in, or use Forgot password? to get a new one.",
+    "linkExpiredBody": "Links in our emails work once, for one hour. Enter your email and we’ll send you a new one.",
     "demoHint": "Demo: log in as {owner} (owner) or {cashier} (cashier), password {password}.",
-    "completeBodyPhone": "Add your phone number so your team can reach you."
+    "completeBodyPhone": "Add your phone number so your team can reach you.",
+    "offline": "You’re offline. Check your connection.",
+    "sendNewLink": "Send a new link",
+    "newLinkSent": "If {email} has an account, we sent it a new link.",
+    "notice": {
+      "googleCancelled": "Google sign-in was cancelled.",
+      "googleFailed": "We couldn’t finish signing you in with Google. Try again.",
+      "sessionEnded": "Your session ended. Log in again to pick up where you were."
+    }
   },
   "nav": {
     "home": "Home",
@@ -177,7 +185,13 @@
     "wrongLogin": "Email or password is wrong.",
     "emailNotConfirmed": "Confirm your email first: open the link we sent you.",
     "linkExpired": "This link has expired or was already used.",
-    "googleUnavailable": "Google sign-in isn’t available in the demo."
+    "googleUnavailable": "Google sign-in isn’t available in the demo.",
+    "offline": "No connection. Try again.",
+    "timeout": "No connection. Try again.",
+    "tooManyAttempts": "Too many attempts. Try again in 5 minutes.",
+    "tooManyEmails": "Too many emails sent. Try again later.",
+    "serviceDown": "Service unavailable. Please try again shortly.",
+    "signUpFailed": "Something went wrong. Try again."
   },
   "recordTypes": {
     "exchange": "Exchange",

@@ -55,7 +55,7 @@
     "backToLogIn": "Ku noqo gelitaanka",
     "checkEmailTitle": "Fiiri iimaylkaaga",
     "checkEmailBody": "Xiriir ayaan u dirnay {email}. Fur si aad u dhammaystirto is-diiwaangelinta.",
-    "checkEmailHint": "Ku fur xiriirka browser-kan. Wuxuu qaadan karaa daqiiqad; sidoo kale fiiri spam-ka.",
+    "checkEmailHint": "Wuxuu qaadan karaa daqiiqad. Sidoo kale fiiri spam-ka.",
     "forgotTitle": "Ma ilowday furahaaga?",
     "forgotBody": "Geli iimaylkaaga, waxaan kuu soo diri doonnaa xiriir aad ku dejiso furo cusub.",
     "sendLink": "Dir xiriirka",
@@ -70,9 +70,17 @@
     "notYou": "Ma ahid {email}?",
     "signOut": "Ka bax",
     "linkExpiredTitle": "Xiriirkan wuu dhacay",
-    "linkExpiredBody": "Xiriirada iimaylka hal mar ayay shaqeeyaan, muddo gaaban, kaliya browser-kii codsaday. Gal, ama isticmaal \"Ma ilowday furaha?\" si aad mid cusub u hesho.",
+    "linkExpiredBody": "Xiriirada iimaylkayaga hal mar ayay shaqeeyaan, muddo hal saac ah. Geli iimaylkaaga, waxaan kuu soo diri doonnaa mid cusub.",
     "demoHint": "Tijaabo: ku gal {owner} (milkiile) ama {cashier} (khasnaji), furaha {password}.",
-    "completeBodyPhone": "Ku dar lambarkaaga telefoonka si kooxdaadu kuu heli karto."
+    "completeBodyPhone": "Ku dar lambarkaaga telefoonka si kooxdaadu kuu heli karto.",
+    "offline": "Internetka kuma xirnid. Hubi xiriirkaaga.",
+    "sendNewLink": "Dir xiriir cusub",
+    "newLinkSent": "Haddii {email} uu leeyahay akoon, waxaan u dirnay xiriir cusub.",
+    "notice": {
+      "googleCancelled": "Ku gelitaanka Google waa la joojiyay.",
+      "googleFailed": "Kuma dhammaystiri karin gelitaanka Google. Isku day mar kale.",
+      "sessionEnded": "Fadhigaagu wuu dhammaaday. Mar kale gal si aad uga sii wadato meeshii aad joogtay."
+    }
   },
   "nav": {
     "home": "Hoyga",
@@ -177,7 +185,13 @@
     "wrongLogin": "Iimaylka ama furaha waa khalad.",
     "emailNotConfirmed": "Marka hore xaqiiji iimaylkaaga: fur xiriirka aan kuu dirnay.",
     "linkExpired": "Xiriirkan wuu dhacay ama hore ayaa loo isticmaalay.",
-    "googleUnavailable": "Ku gelitaanka Google kuma jiro tijaabada."
+    "googleUnavailable": "Ku gelitaanka Google kuma jiro tijaabada.",
+    "offline": "Xiriir ma jiro. Isku day mar kale.",
+    "timeout": "Xiriir ma jiro. Isku day mar kale.",
+    "tooManyAttempts": "Isku day aad u badan. Isku day mar kale 5 daqiiqo kadib.",
+    "tooManyEmails": "Iimaylo aad u badan ayaa la diray. Isku day goor dambe.",
+    "serviceDown": "Adeeggu hadda ma shaqeynayo. Fadlan isku day wax yar kadib.",
+    "signUpFailed": "Wax baa khaldamay. Isku day mar kale."
   },
   "recordTypes": {
     "exchange": "Sarrif",

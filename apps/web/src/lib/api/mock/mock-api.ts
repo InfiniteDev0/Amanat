@@ -67,7 +67,7 @@ import {
 } from '@sarrif/core';
 import type { output, ZodType } from 'zod';
 
-import { clearRecords, getDb, type MockDb, resetDb, sampleBalances, saveDb } from './db';
+import { clearRecords, getDb, type MockDb, reloadDb, resetDb, sampleBalances, saveDb } from './db';
 import { DEMO_PASSWORD } from './seed';
 
 // The backend, faked in the browser. It keeps the rules the real one will:
@@ -470,6 +470,13 @@ function matchesFilter(row: BookRow, filter: BookFilter): boolean {
   return true;
 }
 
+/** Tells this browser's other tabs about a demo sign-out. One per tab; null where BroadcastChannel isn't there. */
+let channel: BroadcastChannel | null | undefined;
+function demoAuthChannel(): BroadcastChannel | null {
+  if (channel === undefined) channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('amanat-demo-auth');
+  return channel;
+}
+
 /** Invited to a shop with this phone: in they go (demo; invites move to email in 1f). */
 function acceptInvitations(db: MockDb, user: User) {
   const now = nowIso();
@@ -605,6 +612,21 @@ export const mockApi: SarrifApi = {
       const db = getDb();
       db.sessionUserId = null;
       saveDb();
+      // This browser's other tabs sign out too.
+      demoAuthChannel()?.postMessage('signed-out');
+    },
+
+    onSignedOut(listener) {
+      const channel = demoAuthChannel();
+      if (!channel) return () => undefined;
+      const onMessage = (event: MessageEvent) => {
+        if (event.data !== 'signed-out') return;
+        // The other tab saved the signed-out db; read it again rather than keep this tab's copy.
+        reloadDb();
+        listener();
+      };
+      channel.addEventListener('message', onMessage);
+      return () => channel.removeEventListener('message', onMessage);
     },
   },
 

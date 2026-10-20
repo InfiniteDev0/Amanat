@@ -16,13 +16,14 @@ import { ltr } from '@/lib/ltr';
 import { AuthStep } from './auth-step';
 import { DEFAULT_COUNTRY } from './countries';
 import { FormError } from './form-error';
-import { homePathFor } from './home-path';
+import { destinationFor } from './home-path';
 import { PhoneField } from './phone-field';
 import { useCompleteProfile, useSession } from './queries';
 import { type CompleteProfileFormInput, completeProfileFormSchema, type CompleteProfileFormValues, toE164 } from './schemas';
 import { LoadingScreen } from './session-gate';
 import { TermsField } from './terms-field';
 import { useSignOutAndLeave } from './use-sign-out-and-leave';
+import { useSubmitGuard } from './use-submit-guard';
 
 const FIELD_ORDER = ['phone', 'acceptTerms'] as const;
 
@@ -58,6 +59,7 @@ export function CompleteProfileForm() {
     const key = name === firstProblem ? errors[name]?.message : undefined;
     return key ? message(key) : null;
   };
+  const { online, run } = useSubmitGuard();
   const busy = complete.isPending || complete.isSuccess;
 
   // Signed out (or the session ended): back to the start.
@@ -71,9 +73,11 @@ export function CompleteProfileForm() {
   const onSubmit = ({ phone }: CompleteProfileFormValues) => {
     const e164 = toE164(phone);
     if (!e164) return;
-    complete.mutate(
-      { phone: e164, acceptTerms: needsTerms ? true : undefined },
-      { onSuccess: async (updated) => router.replace(await homePathFor(updated, queryClient)) },
+    run((done) =>
+      complete.mutate(
+        { phone: e164, acceptTerms: needsTerms ? true : undefined },
+        { onSettled: done, onSuccess: async (updated) => router.replace(await destinationFor(updated, queryClient)) },
+      ),
     );
   };
 
@@ -115,7 +119,7 @@ export function CompleteProfileForm() {
             )}
           />
           ) : null}
-          <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl font-semibold">
+          <Button type="submit" disabled={busy || !online} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
             {busy ? t('saving') : t('continue')}
           </Button>

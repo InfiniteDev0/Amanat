@@ -9,6 +9,14 @@ import { promiseToast } from '@/lib/promise-toast';
 import { useSignOut } from './queries';
 
 /**
+ * Set while this tab signs out on purpose, so SessionGate sends it to the
+ * plain auth page: a ?next= back to this person's shop would be wrong for
+ * whoever logs in next on this browser.
+ */
+let leaving = false;
+export const isLeaving = () => leaving;
+
+/**
  * Sign out with one toast that follows it ("Signing out…", then "Signed
  * out" or what went wrong), then back to the auth page.
  */
@@ -19,6 +27,7 @@ export function useSignOutAndLeave() {
   const signOut = useSignOut();
 
   return () => {
+    leaving = true;
     promiseToast(signOut.mutateAsync(), {
       loading: t('signingOut'),
       success: t('signedOut'),
@@ -29,8 +38,13 @@ export function useSignOutAndLeave() {
         error: t('signOutFailedDescription'),
       },
     }).then(
-      () => router.replace('/'),
-      () => undefined,
+      () => {
+        router.replace('/');
+        leaving = false;
+      },
+      () => {
+        leaving = false;
+      },
     );
   };
 }

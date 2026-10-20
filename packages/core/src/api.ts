@@ -244,6 +244,11 @@ export interface SarrifApi {
     getSession(): Promise<User | null>;
     updateProfile(input: ProfileInput): Promise<User>;
     signOut(): Promise<void>;
+    /**
+     * Calls back when this browser is signed out from anywhere: another tab,
+     * or a session that ended. Returns the unsubscribe.
+     */
+    onSignedOut(listener: () => void): () => void;
   };
 
   onboarding: {

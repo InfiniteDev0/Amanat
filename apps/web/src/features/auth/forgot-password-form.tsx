@@ -19,6 +19,7 @@ import { fieldError } from './field-error';
 import { FormError } from './form-error';
 import { useRequestPasswordReset } from './queries';
 import { type EmailFormValues, emailFormSchema } from './schemas';
+import { useSubmitGuard } from './use-submit-guard';
 
 /**
  * Forgot password: an email → a link to set a new one. The answer is the
@@ -31,6 +32,7 @@ export function ForgotPasswordForm() {
   const locale = useLocale() as Locale;
   const { setMode } = useAuthFlow();
   const reset = useRequestPasswordReset();
+  const { online, run } = useSubmitGuard();
   const form = useForm<EmailFormValues>({
     resolver: zodResolver(emailFormSchema),
     mode: 'onSubmit',
@@ -53,7 +55,7 @@ export function ForgotPasswordForm() {
 
   return (
     <AuthStep title={t('forgotTitle')} subtitle={t('forgotBody')}>
-      <form onSubmit={form.handleSubmit(({ email }) => reset.mutate({ email, language: locale }))} noValidate>
+      <form onSubmit={form.handleSubmit(({ email }) => run((done) => reset.mutate({ email, language: locale }, { onSettled: done })))} noValidate>
         <FieldGroup className="gap-4">
           <Controller
             name="email"
@@ -76,7 +78,7 @@ export function ForgotPasswordForm() {
               />
             )}
           />
-          <Button type="submit" disabled={reset.isPending} className="h-11 w-full rounded-xl font-semibold">
+          <Button type="submit" disabled={reset.isPending || !online} className="h-11 w-full rounded-xl font-semibold">
             {reset.isPending ? <Loader className="animate-spin" /> : null}
             {reset.isPending ? t('sending') : t('sendLink')}
           </Button>

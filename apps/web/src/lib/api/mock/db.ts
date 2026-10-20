@@ -91,6 +91,11 @@ export function getDb(): MockDb {
   return db;
 }
 
+/** Drops this tab's copy: the next getDb() reads what another tab saved (a sign-out there). */
+export function reloadDb(): void {
+  db = null;
+}
+
 export function saveDb(): void {
   if (typeof window === 'undefined' || !db) return;
   try {

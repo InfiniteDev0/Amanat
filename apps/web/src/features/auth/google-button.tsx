@@ -2,25 +2,52 @@
 
 import { Loader } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 
 import type { Locale } from '@/i18n/routing';
 import { formErrorKey, useMessage } from '@/lib/api/errors';
+import { useOnline } from '@/lib/use-online';
 
 import { FormError } from './form-error';
 import { useGoogleSignIn } from './queries';
+import { returnPath } from './return-path';
+
+/** If the browser hasn't left for Google by then, the button comes back. */
+const LEAVE_TIMEOUT_MS = 15_000;
 
 /**
  * "or", then Continue with Google. Google's page comes back to
- * /api/auth/callback, which signs the person in; a first-time Google user is
- * then asked for their phone and the terms (Complete your profile).
+ * /api/auth/callback, which signs the person in, or brings them back here
+ * with a calm message (cancelled, or couldn't finish). A first-time Google
+ * user is then asked for their phone and the terms.
+ *
+ * Never an endless spinner: it stops if the browser didn't leave, and when
+ * the back button returns from Google's page (the page comes back from the
+ * browser's memory, still spinning).
  */
 export function GoogleButton() {
   const t = useTranslations('auth');
   const message = useMessage();
   const locale = useLocale() as Locale;
+  const online = useOnline();
   const google = useGoogleSignIn();
+  const { reset, isSuccess } = google;
   // Stays busy after success: the browser is on its way to Google.
-  const busy = google.isPending || google.isSuccess;
+  const busy = google.isPending || isSuccess;
+
+  useEffect(() => {
+    const onShow = (event: PageTransitionEvent) => {
+      if (event.persisted) reset();
+    };
+    window.addEventListener('pageshow', onShow);
+    return () => window.removeEventListener('pageshow', onShow);
+  }, [reset]);
+
+  useEffect(() => {
+    if (!isSuccess) return;
+    const timer = setTimeout(reset, LEAVE_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [isSuccess, reset]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -31,8 +58,10 @@ export function GoogleButton() {
       </div>
       <button
         type="button"
-        onClick={() => google.mutate({ language: locale })}
-        disabled={busy}
+        onClick={() => {
+          if (!busy) google.mutate({ language: locale, next: returnPath() ?? undefined });
+        }}
+        disabled={busy || !online}
         className="bg-field hover:bg-field-focus flex h-11 w-full items-center justify-center gap-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60"
       >
         {busy ? <Loader className="size-4 animate-spin" /> : <GoogleMark />}

@@ -14,12 +14,13 @@ import { formErrorKey, useMessage } from '@/lib/api/errors';
 
 import { AuthStep } from './auth-step';
 import { FormError } from './form-error';
-import { homePathFor } from './home-path';
+import { destinationFor } from './home-path';
 import { LinkExpired } from './link-expired';
 import { PasswordField } from './password-field';
 import { useSession, useSetNewPassword } from './queries';
 import { type NewPasswordFormValues, newPasswordFormSchema } from './schemas';
 import { LoadingScreen } from './session-gate';
+import { useSubmitGuard } from './use-submit-guard';
 
 /**
  * Where the reset link lands: the callback has already signed them in with
@@ -39,23 +40,27 @@ export function ResetPasswordForm() {
     reValidateMode: 'onSubmit',
     defaultValues: { password: '' },
   });
+  const { online, run } = useSubmitGuard();
   const busy = setPassword.isPending || setPassword.isSuccess;
 
   if (session.isPending) return <LoadingScreen />;
-  if (!session.data) return <LinkExpired />;
+  if (!session.data) return <LinkExpired kind="recovery" />;
   const user = session.data;
 
-  const onSubmit = ({ password }: NewPasswordFormValues) => {
-    setPassword.mutate(
-      { password },
-      {
-        onSuccess: async () => {
-          gooeyToast.success(t('passwordChanged'));
-          router.replace(await homePathFor(user, queryClient));
+  const onSubmit = ({ password }: NewPasswordFormValues) =>
+    run((done) =>
+      setPassword.mutate(
+        { password },
+        {
+          onSettled: done,
+          onError: () => form.setValue('password', ''),
+          onSuccess: async () => {
+            gooeyToast.success(t('passwordChanged'));
+            router.replace(await destinationFor(user, queryClient));
+          },
         },
-      },
+      ),
     );
-  };
 
   return (
     <AuthStep title={t('resetTitle')} subtitle={t('resetBody')}>
@@ -82,7 +87,7 @@ export function ResetPasswordForm() {
               />
             )}
           />
-          <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl font-semibold">
+          <Button type="submit" disabled={busy || !online} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
             {busy ? t('saving') : t('savePassword')}
           </Button>

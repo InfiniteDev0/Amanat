@@ -8,6 +8,7 @@ export * from './ledger';
 export * from './money';
 export * from './notifications';
 export * from './onboarding';
+export * from './paths';
 export * from './permissions';
 export * from './rates';
 export * from './reports';
