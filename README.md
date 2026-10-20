@@ -90,6 +90,10 @@ Google sends people back through `/api/auth/callback`, and email links go to `/a
 
 **Emails.** Supabase's own email sender allows only a few emails an hour. For staging and production, create a [Resend](https://resend.com) account, verify your domain, and paste Resend's SMTP host, port, user and password (an API key) into the SMTP settings.
 
+### Errors (Sentry)
+
+Errors from the browser and the server go to Sentry (project `amanat-web`, org `closet-kp`) when `NEXT_PUBLIC_SENTRY_DSN` is set: in `.env.local` here, in Vercel for staging and production. Code reports a caught error with `reportError(error, context)` (`apps/web/src/lib/report-error.ts`); the screen shows a plain message, Sentry gets the real one. Errors only: no tracing, no session replay, no personal data. Source maps (readable stack traces in production) need a `SENTRY_AUTH_TOKEN` in Vercel and Sentry's build plugin, not set up yet.
+
 ### CI
 
 `.github/workflows/ci.yml` runs on every push and pull request: install, typecheck, lint, test, and the database tests. Run the same before pushing with the commands under Checks.
