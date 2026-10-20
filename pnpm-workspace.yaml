@@ -6,4 +6,6 @@ allowBuilds:
   '@swc/core': true
   # core-js (from the PDF export) only prints a banner on install.
   core-js: false
+  # The Supabase CLI downloads its binary on install.
+  supabase: true
   unrs-resolver: true
