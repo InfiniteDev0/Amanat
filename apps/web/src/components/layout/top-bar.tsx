@@ -6,12 +6,14 @@ import { PageBreadcrumb } from '@/components/layout/page-breadcrumb';
 import { ShopMenu } from '@/components/layout/shop-menu';
 import { ActivityButton } from '@/features/activity/activity-sheet';
 import { NotificationsButton } from '@/features/notifications/notifications-sheet';
-import { SidebarDay } from '@/features/workspaces/sidebar-day';
+// The day picker is off for now; it comes back with the import and the block below.
+// import { SidebarDay } from '@/features/workspaces/sidebar-day';
 
 /**
  * The bar across the top of the app, on the page itself (no panel), in three
  * parts: the shop menu and where you are (the breadcrumb) at the start, the
- * shop's day in the centre, and the activity log and the bell at the end.
+ * centre (the shop's day, off for now), and the activity log and the bell at
+ * the end.
  */
 export function TopBar({ workspaceId, shopName }: { workspaceId: string; shopName: string }) {
   return (
@@ -22,9 +24,11 @@ export function TopBar({ workspaceId, shopName }: { workspaceId: string; shopNam
         <PageBreadcrumb workspaceId={workspaceId} />
       </div>
 
+      {/* The centre stays, so the start and end keep their places.
       <Suspense fallback={null}>
         <SidebarDay />
-      </Suspense>
+      </Suspense> */}
+      <div />
 
       <div className="flex items-center justify-end gap-3">
         <Suspense fallback={null}>
