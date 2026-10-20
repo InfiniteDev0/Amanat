@@ -7,7 +7,8 @@ import { supabasePublishableKey, supabaseUrl } from './env';
 // acting as the signed-in user from the request's cookies, so row-level
 // security applies. Make a new one per request; never share it.
 //
-// Not used yet (Phase 1a): server actions and proxy.ts start using it in 1c.
+// Used by the auth callback (app/api/auth/callback). Server actions and
+// proxy.ts start using it in 1c and 1e.
 export async function createClient() {
   const cookieStore = await cookies();
 

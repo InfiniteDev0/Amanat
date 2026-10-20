@@ -1,14 +1,27 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDealSchema, profileSchema, ratePairSchema, signUpSchema, updateAccountSchema, verifyCodeSchema } from './schemas';
+import { needsProfile } from './entities';
+import {
+  completeProfileSchema,
+  createDealSchema,
+  logInSchema,
+  passwordSchema,
+  profileSchema,
+  ratePairSchema,
+  signUpSchema,
+  updateAccountSchema,
+} from './schemas';
 
 const signUp = {
   firstName: 'Amina',
   email: 'amina@example.com',
+  password: 'sahan2026kes',
   phone: '+254712345678',
-  currencies: ['USD', 'KES'],
   acceptTerms: true,
+  language: 'so',
 } as const;
+
+const firstIssue = (result: { error?: { issues: { message: string }[] } }) => result.error?.issues[0]?.message;
 
 describe('signUpSchema', () => {
   it('accepts a complete sign-up', () => {
@@ -17,35 +30,63 @@ describe('signUpSchema', () => {
 
   it('trims names and rejects one letter', () => {
     expect(signUpSchema.parse({ ...signUp, firstName: '  Amina ' }).firstName).toBe('Amina');
-    expect(signUpSchema.safeParse({ ...signUp, firstName: 'A' }).error?.issues[0]?.message).toBe('validation.nameShort');
+    expect(firstIssue(signUpSchema.safeParse({ ...signUp, firstName: 'A' }))).toBe('validation.nameShort');
   });
 
   it('checks and normalises the email', () => {
     expect(signUpSchema.parse({ ...signUp, email: '  Amina@Example.COM ' }).email).toBe('amina@example.com');
-    expect(signUpSchema.safeParse({ ...signUp, email: 'amina@' }).error?.issues[0]?.message).toBe('validation.email');
+    expect(firstIssue(signUpSchema.safeParse({ ...signUp, email: 'amina@' }))).toBe('validation.email');
+  });
+
+  it('needs the phone in E.164, as contact data', () => {
+    expect(firstIssue(signUpSchema.safeParse({ ...signUp, phone: '0712345678' }))).toBe('validation.phone');
   });
 
   it('requires the terms, with a translatable message', () => {
-    const result = signUpSchema.safeParse({ ...signUp, acceptTerms: false });
-    expect(result.error?.issues[0]?.message).toBe('validation.terms');
+    expect(firstIssue(signUpSchema.safeParse({ ...signUp, acceptTerms: false }))).toBe('validation.terms');
   });
 
-  it('takes any ISO currency, at least one', () => {
-    expect(signUpSchema.safeParse({ ...signUp, currencies: ['EUR', 'JPY'] }).success).toBe(true);
-    expect(signUpSchema.safeParse({ ...signUp, currencies: ['XYZ'] }).success).toBe(false);
-    expect(signUpSchema.safeParse({ ...signUp, currencies: [] }).error?.issues[0]?.message).toBe('validation.currencies');
+  it('refuses a weak password, like the server', () => {
+    expect(firstIssue(signUpSchema.safeParse({ ...signUp, password: 'short1' }))).toBe('validation.passwordShort');
   });
 });
 
-describe('verifyCodeSchema', () => {
-  it('takes an optional profile from the Sign up tab', () => {
-    expect(verifyCodeSchema.parse({ phone: '+254712345678', code: '123456' }).profile).toBeUndefined();
-    const withProfile = verifyCodeSchema.parse({
-      phone: '+254712345678',
-      code: '123456',
-      profile: { name: 'Amina', language: 'so', email: 'amina@example.com' },
-    });
-    expect(withProfile.profile).toEqual({ name: 'Amina', language: 'so', email: 'amina@example.com' });
+describe('passwordSchema (the same rule as Supabase Auth: 10+, letters and digits)', () => {
+  it.each(['sahan2026kes', 'Hoyo-iyo-aabo-7', 'كلمة سر 2026 قوية', 'abcdefghi1'])('accepts %j', (password) => {
+    expect(passwordSchema.safeParse(password).success).toBe(true);
+  });
+
+  it('needs at least 10 characters', () => {
+    expect(firstIssue(passwordSchema.safeParse('abc123def'))).toBe('validation.passwordShort');
+  });
+
+  it('needs letters and digits', () => {
+    expect(firstIssue(passwordSchema.safeParse('abcdefghijkl'))).toBe('validation.passwordWeak');
+    expect(firstIssue(passwordSchema.safeParse('123456789012'))).toBe('validation.passwordWeak');
+  });
+
+  it('stops at 72 characters, where bcrypt stops reading', () => {
+    expect(firstIssue(passwordSchema.safeParse('a1'.repeat(37)))).toBe('validation.passwordLong');
+  });
+});
+
+describe('logInSchema', () => {
+  it('checks only that a password was typed: the rule is for new passwords', () => {
+    expect(logInSchema.safeParse({ email: 'amina@example.com', password: 'old-pass' }).success).toBe(true);
+    expect(firstIssue(logInSchema.safeParse({ email: 'amina@example.com', password: '' }))).toBe('validation.passwordRequired');
+  });
+});
+
+describe('completeProfileSchema and needsProfile', () => {
+  it('asks a Google sign-up for the phone and the terms', () => {
+    expect(completeProfileSchema.safeParse({ phone: '+254712345678', acceptTerms: true }).success).toBe(true);
+    expect(firstIssue(completeProfileSchema.safeParse({ phone: '+254712345678', acceptTerms: false }))).toBe('validation.terms');
+  });
+
+  it('knows who still has to complete it', () => {
+    expect(needsProfile({ phone: '', termsAcceptedAt: null })).toBe(true);
+    expect(needsProfile({ phone: '+254712345678', termsAcceptedAt: null })).toBe(true);
+    expect(needsProfile({ phone: '+254712345678', termsAcceptedAt: '2026-10-20T08:00:00Z' })).toBe(false);
   });
 });
 

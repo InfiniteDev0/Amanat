@@ -47,6 +47,12 @@ export interface MockDb {
   invitations?: Invitation[];
   /** Who is signed in on this browser. */
   sessionUserId: string | null;
+  /**
+   * Demo sign-in only: user id → password, in plain text in this browser's
+   * storage. Never real credentials: with Supabase set, sign-in is Supabase's.
+   * The seeded owner and cashier use DEMO_PASSWORD without an entry.
+   */
+  passwords?: Record<string, string>;
   /** Shops that already got the sample month (development only). */
   sampledShopsV2?: string[];
   /** Shops that got today's sample exchanges, as "shop:date:count" (development only). */

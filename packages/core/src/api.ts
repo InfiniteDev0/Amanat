@@ -35,10 +35,14 @@ import type {
   CreateWorkspaceInput,
   OnboardingInput,
   ProfileInput,
-  SendCodeInput,
+  SignUpInput,
+  LogInInput,
+  GoogleSignInInput,
+  EmailLinkInput,
+  NewPasswordInput,
+  CompleteProfileInput,
   SetRatesInput,
   UpdateAccountInput,
-  VerifyCodeInput,
   HoldAmanatInput,
   CloseDayInput,
   ReopenDayInput,
@@ -94,11 +98,12 @@ export interface WorkspaceMembership {
   role: Role;
 }
 
-export interface VerifyCodeResult {
-  user: User;
-  /** True when this phone had no account (or no name) before this sign-in. */
-  isNewUser: boolean;
-}
+/**
+ * After Sign up: in straight away (no email check, as in the demo), or "check
+ * your email". An address that already has an account gets the same answer as
+ * a new one, so the form never reveals who has an account.
+ */
+export type SignUpResult = { status: 'signed_in'; user: User } | { status: 'confirm_email' };
 
 export type BookRowType = 'exchange' | 'expense' | 'amanat' | 'debt' | 'debt_payment' | 'transfer';
 /** The Book's filter chips: "Debt" covers new debts and repayments. */
@@ -217,10 +222,24 @@ export interface MarketRates {
 }
 
 export interface SarrifApi {
+  /**
+   * Email + password, or Google (Phase 1b). The phone is profile data, never
+   * a way in. A wrong password and an unknown email fail the same way
+   * (`errors.wrongLogin`), so nobody can probe who has an account.
+   */
   auth: {
-    /** Texts a 6-digit code. Signs up and signs in alike. */
-    sendCode(input: SendCodeInput): Promise<{ phone: string }>;
-    verifyCode(input: VerifyCodeInput): Promise<VerifyCodeResult>;
+    signUp(input: SignUpInput): Promise<SignUpResult>;
+    logIn(input: LogInInput): Promise<User>;
+    /** Leaves for Google's page; the browser comes back signed in. */
+    signInWithGoogle(input: GoogleSignInInput): Promise<void>;
+    /** Sends the sign-up email again. Says nothing about whether the address has an account. */
+    resendConfirmation(input: EmailLinkInput): Promise<void>;
+    /** Emails a link to set a new password, if the address has an account (and says nothing either way). */
+    requestPasswordReset(input: EmailLinkInput): Promise<void>;
+    /** The signed-in user (after the reset link) sets a new password. */
+    setNewPassword(input: NewPasswordInput): Promise<void>;
+    /** Google sign-ups: the phone and the terms, before anything else. */
+    completeProfile(input: CompleteProfileInput): Promise<User>;
     /** The signed-in user, or null. */
     getSession(): Promise<User | null>;
     updateProfile(input: ProfileInput): Promise<User>;

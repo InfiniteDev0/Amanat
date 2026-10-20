@@ -1,5 +1,5 @@
-# Every push and pull request: install, typecheck, lint, test. A red run
-# blocks the merge; fix it rather than skipping it.
+# Every push and pull request: install, typecheck, lint, test, and the
+# database tests. A red run blocks the merge; fix it rather than skipping it.
 name: CI
 
 on:
@@ -35,3 +35,26 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  # The database: every migration applies on an empty Postgres, then the
+  # pgTAP tests in supabase/tests (profiles, RLS) run against it.
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Start Postgres and apply migrations
+        run: pnpm exec supabase db start
+
+      - name: Database tests
+        run: pnpm exec supabase test db

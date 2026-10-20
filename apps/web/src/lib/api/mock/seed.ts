@@ -21,12 +21,15 @@ import type { MockDb } from './db';
 // something to show from the first run. The dates follow the real calendar:
 // "today" is today in Nairobi when the seed runs.
 //
-// Sign in as the owner with DEMO_PHONE, or as the cashier (Editor in
-// Eastleigh only) with CASHIER_PHONE. The code is always DEMO_CODE.
+// Log in as the owner with DEMO_EMAIL, or as the cashier (Editor in Eastleigh
+// only) with CASHIER_EMAIL. The password is always DEMO_PASSWORD. This is the
+// demo sign-in, used only when no Supabase project is set (lib/supabase/env.ts).
 
-export const DEMO_PHONE = '+254700000000';
-export const CASHIER_PHONE = '+254711111111';
-export const DEMO_CODE = '123456';
+export const DEMO_EMAIL = 'owner@amanat.demo';
+export const CASHIER_EMAIL = 'cashier@amanat.demo';
+export const DEMO_PASSWORD = 'amanat2026';
+const DEMO_PHONE = '+254700000000';
+const CASHIER_PHONE = '+254711111111';
 
 const TIME_ZONE = 'Africa/Nairobi';
 
@@ -61,8 +64,8 @@ export function seedDb(): MockDb {
 
   // ── People and shops ───────────────────────────────────────────────────────
 
-  const owner: User = { id: 'user-owner', name: 'Ahmed Mohamed', phone: DEMO_PHONE, email: null, avatar: null, language: 'en', createdAt: ago(60 * 24 * 60) };
-  const cashier: User = { id: 'user-cashier', name: 'Amina Hassan', phone: CASHIER_PHONE, email: null, avatar: null, language: 'so', createdAt: ago(60 * 24 * 30) };
+  const owner: User = { id: 'user-owner', name: 'Ahmed Mohamed', phone: DEMO_PHONE, email: DEMO_EMAIL, avatar: null, language: 'en', createdAt: ago(60 * 24 * 60), termsAcceptedAt: ago(60 * 24 * 60) };
+  const cashier: User = { id: 'user-cashier', name: 'Amina Hassan', phone: CASHIER_PHONE, email: CASHIER_EMAIL, avatar: null, language: 'so', createdAt: ago(60 * 24 * 30), termsAcceptedAt: ago(60 * 24 * 30) };
   db.users.push(owner, cashier);
 
   const shop = (id: string, name: string, location: string, currencies: CurrencyCode[]): Workspace => ({

@@ -9,13 +9,15 @@ pnpm install
 pnpm dev          # http://localhost:3000
 ```
 
-Sign in with **+254 700 000 000** (Kenya is the default country, so type `700000000`), code **123456**. That's the owner of two demo shops. `711111111` is a cashier (Editor) in Eastleigh only; any other number is a brand-new user and goes to onboarding.
+Without Supabase settings (no `apps/web/.env.local`), sign-in is a demo that runs in the browser. Log in with **owner@amanat.demo**, password **amanat2026**: the owner of two demo shops. **cashier@amanat.demo** (same password) is a cashier (Editor) in Eastleigh only. Sign up with any other email to start as a brand-new user. The Log in tab shows these too.
 
-The backend is a mock that runs in the browser and saves to localStorage. To start over, run `sarrifMock.reset()` in the browser console.
+With Supabase settings (see "Running locally"), sign-in is real: email + password with a confirmation email, or Google.
+
+Everything else (shops, records, rates) is still a mock that runs in the browser and saves to localStorage. To start over, run `sarrifMock.reset()` in the browser console.
 
 ## Running locally
 
-The screens still use the mock above. Supabase runs alongside it, ready for the real backend (Phase 1). You need Node 22, pnpm and Docker Desktop (running).
+Sign-in runs on Supabase; the rest of the screens still use the mock above. You need Node 22, pnpm and Docker Desktop (running).
 
 ```bash
 pnpm install                        # also installs the Supabase CLI (pnpm exec supabase)
@@ -28,8 +30,11 @@ pnpm dev                            # http://localhost:3000
 On Windows, run `supabase start` from PowerShell: from Git Bash the CLI can fail to find Docker.
 
 - **Studio** (browse the local database): http://127.0.0.1:54323
+- **Emails** (sign-up confirmations, password resets): local Supabase doesn't send them; they land in Mailpit at http://127.0.0.1:54324.
 - **Stop it:** `pnpm exec supabase stop`. Your data is kept.
 - **Start the database over:** `pnpm exec supabase db reset` reruns every migration on an empty database.
+- **Back to the demo sign-in:** empty the two `NEXT_PUBLIC_SUPABASE_*` values in `.env.local` and restart `pnpm dev`.
+- **Database tests:** `pnpm exec supabase test db` runs `supabase/tests/*.sql` (pgTAP). CI runs them too.
 
 ### Database changes
 
@@ -50,6 +55,33 @@ pnpm exec supabase migration list --local          # what's applied
 | Production | `amanat-prod` | names in `apps/web/.env.production.example`, values in Vercel |
 
 Real keys never go in git: `.env*` is ignored, except the `*.example` files.
+
+### Sign-in settings (Phase 1b)
+
+Local Supabase reads these from `supabase/config.toml`. Staging and production need the same settings in the Supabase dashboard of each project:
+
+| Setting | Where in the dashboard | Value |
+|---|---|---|
+| Confirm email | Authentication → Sign In / Providers → Email | On |
+| Minimum password length | same page | 10 |
+| Password requirements | same page | Letters and digits |
+| Leaked password protection | same page (paid plans only) | On, when available |
+| Site URL | Authentication → URL Configuration | `https://<your-domain>` |
+| Redirect URLs | same page | `https://<your-domain>/**` (staging: its Vercel URL `/**`) |
+| Google | Authentication → Sign In / Providers → Google | On, with the client ID and secret |
+| Custom SMTP | Authentication → Emails → SMTP Settings | Resend's SMTP details (below) |
+
+The password rule must match `passwordSchema` in `packages/core/src/schemas.ts`. Change both together.
+
+**Google sign-in.** In Google Cloud Console → APIs & Services → Credentials, create an **OAuth client ID** (Web application) and add each Supabase callback as an **Authorized redirect URI**:
+
+- Local: `http://127.0.0.1:54321/auth/v1/callback` (put the ID and secret in `supabase/.env`, copied from `supabase/.env.example`)
+- Staging: `https://ifhkimbxunshayfbggzk.supabase.co/auth/v1/callback`
+- Production: `https://<amanat-prod ref>.supabase.co/auth/v1/callback`
+
+The app sends people back through `/api/auth/callback`, which is why the Redirect URLs above end in `/**`.
+
+**Emails.** Supabase's own email sender allows only a few emails an hour. For staging and production, create a [Resend](https://resend.com) account, verify your domain, and paste Resend's SMTP host, port, user and password (an API key) into the SMTP settings.
 
 ### CI
 

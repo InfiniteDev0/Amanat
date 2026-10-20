@@ -16,8 +16,8 @@ import { homePathFor } from './home-path';
 import { useSession } from './queries';
 
 /**
- * The frame around both auth steps (phone, then code). There is no landing
- * page: this is the first screen.
+ * The frame around the auth pages (Sign up / Log in, then check your email,
+ * forgot password…). There is no landing page: this is the first screen.
  *
  * Desktop: the photo on one side (logo, floating rate cards), the form on the
  * other on the plain dark background.
@@ -25,7 +25,7 @@ import { useSession } from './queries';
  * to the form.
  *
  * The form is rendered once and only its frame changes with the screen size,
- * so there is one set of inputs (one #phone, one code field, one form state).
+ * so there is one set of inputs (one form state).
  */
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
@@ -35,31 +35,37 @@ export function AuthShell({ children }: { children: ReactNode }) {
   );
 }
 
+/** Auth pages for someone already signed in: they're not sent on into the app from here. */
+const SESSION_PAGES = ['/reset-password', '/complete-profile'];
+
 function Frame({ children }: { children: ReactNode }) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const session = useSession();
-  const onCodeStep = pathname.startsWith('/verify');
+  // Any page after the first (check your email, forgot password…) shows the form side on a phone.
+  const onStep = pathname !== '/';
   const [started, setStarted] = useState(false);
-  const showForm = started || onCodeStep;
+  const showForm = started || onStep;
+  // These two need the session and handle it themselves.
+  const keepsSession = SESSION_PAGES.some((page) => pathname.startsWith(page));
 
   // Already signed in when the page opened: skip straight into the app. Only
   // the first answer counts, so signing in here doesn't trigger it twice.
   const firstSession = useRef<boolean | null>(null);
   useEffect(() => {
-    if (session.isPending || firstSession.current !== null) return;
+    if (session.isPending || firstSession.current !== null || keepsSession) return;
     firstSession.current = Boolean(session.data);
     if (session.data) {
       void homePathFor(session.data, queryClient).then((path) => router.replace(path));
     }
-  }, [session.isPending, session.data, queryClient, router]);
+  }, [session.isPending, session.data, queryClient, router, keepsSession]);
 
   // No auto-focus on the first field: it pops Chrome's autofill list and the
-  // phone keyboard before anyone asked. The code step focuses its own field.
+  // phone keyboard before anyone asked.
 
-  const back = () => (onCodeStep ? router.push('/') : setStarted(false));
+  const back = () => (onStep ? router.push('/') : setStarted(false));
   const year = new Date().getFullYear();
 
   return (

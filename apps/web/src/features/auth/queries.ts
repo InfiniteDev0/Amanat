@@ -1,7 +1,16 @@
 'use client';
 
-import type { ProfileInput, SendCodeInput, VerifyCodeInput } from '@sarrif/core';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type {
+  CompleteProfileInput,
+  EmailLinkInput,
+  GoogleSignInInput,
+  LogInInput,
+  NewPasswordInput,
+  ProfileInput,
+  SignUpInput,
+  User,
+} from '@sarrif/core';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query/keys';
@@ -11,19 +20,51 @@ export function useSession() {
   return useQuery({ queryKey: queryKeys.session, queryFn: () => api.auth.getSession() });
 }
 
-export function useSendCode() {
-  return useMutation({ mutationFn: (input: SendCodeInput) => api.auth.sendCode(input) });
+/** Someone new signed in on this browser: drop whatever the last person had loaded. */
+function startFresh(queryClient: QueryClient, user: User) {
+  queryClient.clear();
+  queryClient.setQueryData(queryKeys.session, user);
 }
 
-export function useVerifyCode() {
+export function useSignUp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: VerifyCodeInput) => api.auth.verifyCode(input),
-    onSuccess: ({ user }) => {
-      // A different person may have used this browser before: start clean.
-      queryClient.clear();
-      queryClient.setQueryData(queryKeys.session, user);
+    mutationFn: (input: SignUpInput) => api.auth.signUp(input),
+    onSuccess: (result) => {
+      if (result.status === 'signed_in') startFresh(queryClient, result.user);
     },
+  });
+}
+
+export function useLogIn() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: LogInInput) => api.auth.logIn(input),
+    onSuccess: (user) => startFresh(queryClient, user),
+  });
+}
+
+export function useGoogleSignIn() {
+  return useMutation({ mutationFn: (input: GoogleSignInInput) => api.auth.signInWithGoogle(input) });
+}
+
+export function useResendConfirmation() {
+  return useMutation({ mutationFn: (input: EmailLinkInput) => api.auth.resendConfirmation(input) });
+}
+
+export function useRequestPasswordReset() {
+  return useMutation({ mutationFn: (input: EmailLinkInput) => api.auth.requestPasswordReset(input) });
+}
+
+export function useSetNewPassword() {
+  return useMutation({ mutationFn: (input: NewPasswordInput) => api.auth.setNewPassword(input) });
+}
+
+export function useCompleteProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CompleteProfileInput) => api.auth.completeProfile(input),
+    onSuccess: (user) => queryClient.setQueryData(queryKeys.session, user),
   });
 }
 

@@ -49,13 +49,31 @@ const exchangeRate = positiveDecimal(/^\d+(\.\d{1,10})?$/);
 
 // ── Auth and profile ─────────────────────────────────────────────────────────
 
-/** E.164: + then 8–15 digits. The phone field builds this from country + number. */
+/**
+ * E.164: + then 8–15 digits. The phone field builds this from country + number.
+ * Contact data only: nobody signs in with it (Phase 1b).
+ */
 export const phoneSchema = z.string().regex(/^\+[1-9]\d{7,14}$/, 'validation.phone');
-export const otpSchema = z.string().regex(/^\d{6}$/, 'validation.otp');
 
-export const sendCodeSchema = z.object({ phone: phoneSchema });
 /** Trimmed and lower-cased, so the same address always matches. */
 export const emailSchema = z.string().trim().toLowerCase().pipe(z.email('validation.email'));
+
+/**
+ * Which Terms and Risk statements (docs/legal) someone agrees to. Bump it when
+ * they change, so the profile records which version each person accepted.
+ */
+export const TERMS_VERSION = '2026-10-20';
+
+/** The password rule, the same as Supabase Auth's settings (supabase/config.toml), so the form can't be bypassed. */
+export const PASSWORD_MIN_LENGTH = 10;
+/** bcrypt, under Supabase Auth, reads only the first 72 bytes. */
+export const PASSWORD_MAX_LENGTH = 72;
+
+export const passwordSchema = z
+  .string()
+  .min(PASSWORD_MIN_LENGTH, 'validation.passwordShort')
+  .max(PASSWORD_MAX_LENGTH, 'validation.passwordLong')
+  .refine((value) => /\p{L}/u.test(value) && /\d/.test(value), 'validation.passwordWeak');
 
 export const profileSchema = z.object({
   name,
@@ -69,24 +87,37 @@ export const profileSchema = z.object({
     .refine((value) => /^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/.test(value), 'validation.photo')
     .nullish(),
 });
-export const verifyCodeSchema = z.object({
-  phone: phoneSchema,
-  code: otpSchema,
-  /** From the Sign up tab. Saved only when the account is new; an existing account keeps its own. */
-  profile: profileSchema.optional(),
-});
-
 /**
- * The Sign up tab of the auth page, checked in the browser before the code is
- * sent. Name and email reach the server through verifyCode's `profile`; the
- * currencies become the suggested currencies of their first shop (the first
- * one picked suggests the base currency).
+ * The Sign up tab. Email + password sign in; the phone is saved on the profile
+ * as contact data. `language` is the page's, so the confirmation email's link
+ * brings them back to it.
  */
 export const signUpSchema = z.object({
   firstName: name,
   email: emailSchema,
+  password: passwordSchema,
   phone: phoneSchema,
-  currencies: z.array(currency).min(1, 'validation.currencies'),
+  acceptTerms: z.literal(true, 'validation.terms'),
+  language: z.enum(LANGUAGES),
+});
+
+/** The Log in tab. Any password is checked by the server, which answers the same for a wrong password or an unknown email. */
+export const logInSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, 'validation.passwordRequired').max(PASSWORD_MAX_LENGTH, 'validation.passwordLong'),
+});
+
+/** Forgot password, and Send the email again: where to send it, and the language to come back in. */
+export const emailLinkSchema = z.object({ email: emailSchema, language: z.enum(LANGUAGES) });
+
+export const googleSignInSchema = z.object({ language: z.enum(LANGUAGES) });
+
+/** After the reset link: the new password. */
+export const newPasswordSchema = z.object({ password: passwordSchema });
+
+/** Someone who signed up with Google: the phone and the terms the form would have asked for. */
+export const completeProfileSchema = z.object({
+  phone: phoneSchema,
   acceptTerms: z.literal(true, 'validation.terms'),
 });
 
@@ -309,9 +340,12 @@ export const createTransferSchema = z
   });
 
 // What callers pass (defaults optional) — the API parses it into the full shape.
-export type SendCodeInput = z.input<typeof sendCodeSchema>;
-export type VerifyCodeInput = z.input<typeof verifyCodeSchema>;
 export type SignUpInput = z.input<typeof signUpSchema>;
+export type LogInInput = z.input<typeof logInSchema>;
+export type EmailLinkInput = z.input<typeof emailLinkSchema>;
+export type GoogleSignInInput = z.input<typeof googleSignInSchema>;
+export type NewPasswordInput = z.input<typeof newPasswordSchema>;
+export type CompleteProfileInput = z.input<typeof completeProfileSchema>;
 export type ProfileInput = z.input<typeof profileSchema>;
 export type CreateWorkspaceInput = z.input<typeof createWorkspaceSchema>;
 export type CreateAccountInput = z.input<typeof createAccountSchema>;

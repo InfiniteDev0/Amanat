@@ -5,7 +5,12 @@ import {
   type BookRow,
   businessDate,
   can,
+  completeProfileSchema,
   createAccountSchema,
+  emailLinkSchema,
+  logInSchema,
+  newPasswordSchema,
+  signUpSchema,
   createAmanatSchema,
   holdAmanatSchema,
   createClientSchema,
@@ -38,11 +43,9 @@ import {
   missingRates,
   rateBoard,
   type SarrifApi,
-  sendCodeSchema,
   setRatesSchema,
   toMinor,
   type User,
-  verifyCodeSchema,
   type Workspace,
   dailyNotificationId,
   isNotificationKept,
@@ -65,7 +68,7 @@ import {
 import type { output, ZodType } from 'zod';
 
 import { clearRecords, getDb, type MockDb, resetDb, sampleBalances, saveDb } from './db';
-import { DEMO_CODE } from './seed';
+import { DEMO_PASSWORD } from './seed';
 
 // The backend, faked in the browser. It keeps the rules the real one will:
 // sign-in required, membership and role checked on every call, inputs parsed
@@ -467,39 +470,117 @@ function matchesFilter(row: BookRow, filter: BookFilter): boolean {
   return true;
 }
 
-export const mockApi: SarrifApi = {
-  auth: {
-    async sendCode(input) {
-      await latency();
-      const { phone } = parse(sendCodeSchema, input);
-      return { phone };
-    },
+/** Invited to a shop with this phone: in they go (demo; invites move to email in 1f). */
+function acceptInvitations(db: MockDb, user: User) {
+  const now = nowIso();
+  for (const invitation of db.invitations ?? []) {
+    if (!user.phone || invitation.phone !== user.phone || invitation.status !== 'pending' || invitation.expiresAt < now) continue;
+    if (!db.members.some((m) => m.workspaceId === invitation.workspaceId && m.userId === user.id)) {
+      db.members.push({ id: newId(), workspaceId: invitation.workspaceId, userId: user.id, role: invitation.role, joinedAt: now });
+    }
+    invitation.status = 'accepted';
+  }
+}
 
-    async verifyCode(input) {
+/** The demo's password check: the seeded owner and cashier use DEMO_PASSWORD. */
+function passwordOf(db: MockDb, user: User): string | undefined {
+  return db.passwords?.[user.id] ?? (user.id === 'user-owner' || user.id === 'user-cashier' ? DEMO_PASSWORD : undefined);
+}
+
+/**
+ * When sign-in is Supabase's (lib/api/index.ts), the rest of the mock still
+ * needs to know who that is: their account is copied in (a photo the demo
+ * already holds stays) and becomes the demo's session. Null signs it out.
+ */
+export const mockSession = {
+  adopt(user: User | null) {
+    const db = getDb();
+    if (!user) {
+      if (db.sessionUserId === null) return;
+      db.sessionUserId = null;
+      saveDb();
+      return;
+    }
+    const known = db.users.find((u) => u.id === user.id);
+    if (known) Object.assign(known, { ...user, avatar: known.avatar ?? user.avatar });
+    else db.users.push({ ...user });
+    db.sessionUserId = user.id;
+    acceptInvitations(db, known ?? user);
+    saveDb();
+  },
+};
+
+export const mockApi: SarrifApi = {
+  // The demo sign-in, for builds with no Supabase project: no emails are sent,
+  // so a new account is signed in straight away. Otherwise the same answers as
+  // the real one (one message for a wrong password or an unknown email).
+  auth: {
+    async signUp(input) {
       await latency();
       const db = getDb();
-      const { phone, code, profile } = parse(verifyCodeSchema, input);
-      if (code !== DEMO_CODE) throw new ApiError('invalid', 'errors.wrongCode', { code: 'errors.wrongCode' });
-      let user = db.users.find((u) => u.phone === phone);
-      const isNewUser = !user?.name;
-      if (!user) {
-        user = { id: newId(), name: '', phone, email: null, avatar: null, language: 'en', createdAt: nowIso() };
-        db.users.push(user);
-      }
-      // Sign-up details only fill an empty profile; they never rename an existing account.
-      if (isNewUser && profile) Object.assign(user, profile);
-      // Invited to a shop with this phone: in they go.
-      const signedInAt = nowIso();
-      for (const invitation of db.invitations ?? []) {
-        if (invitation.phone !== phone || invitation.status !== 'pending' || invitation.expiresAt < signedInAt) continue;
-        if (!db.members.some((m) => m.workspaceId === invitation.workspaceId && m.userId === user.id)) {
-          db.members.push({ id: newId(), workspaceId: invitation.workspaceId, userId: user.id, role: invitation.role, joinedAt: signedInAt });
-        }
-        invitation.status = 'accepted';
+      const { firstName, email, password, phone, language } = parse(signUpSchema, input);
+      // As Supabase does: an address that has an account gets "check your email", nothing more.
+      if (db.users.some((u) => u.email === email)) return { status: 'confirm_email' };
+      const now = nowIso();
+      const user: User = { id: newId(), name: firstName, phone, email, avatar: null, language, createdAt: now, termsAcceptedAt: now };
+      db.users.push(user);
+      db.passwords = { ...db.passwords, [user.id]: password };
+      db.sessionUserId = user.id;
+      acceptInvitations(db, user);
+      saveDb();
+      return { status: 'signed_in', user };
+    },
+
+    async logIn(input) {
+      await latency();
+      const db = getDb();
+      const { email, password } = parse(logInSchema, input);
+      const user = db.users.find((u) => u.email === email);
+      if (!user || passwordOf(db, user) !== password) {
+        throw new ApiError('unauthenticated', 'errors.wrongLogin', { form: 'errors.wrongLogin' });
       }
       db.sessionUserId = user.id;
+      acceptInvitations(db, user);
       saveDb();
-      return { user, isNewUser };
+      return user;
+    },
+
+    async signInWithGoogle() {
+      await latency();
+      throw new ApiError('unavailable', 'errors.googleUnavailable', { form: 'errors.googleUnavailable' });
+    },
+
+    async resendConfirmation(input) {
+      await latency();
+      parse(emailLinkSchema, input);
+    },
+
+    async requestPasswordReset(input) {
+      await latency();
+      parse(emailLinkSchema, input);
+    },
+
+    async setNewPassword(input) {
+      await latency();
+      const db = getDb();
+      const user = signedIn(db);
+      const { password } = parse(newPasswordSchema, input);
+      if (passwordOf(db, user) === password) {
+        throw new ApiError('invalid', 'validation.passwordSame', { password: 'validation.passwordSame' });
+      }
+      db.passwords = { ...db.passwords, [user.id]: password };
+      saveDb();
+    },
+
+    async completeProfile(input) {
+      await latency();
+      const db = getDb();
+      const user = signedIn(db);
+      const { phone } = parse(completeProfileSchema, input);
+      Object.assign(user, { phone, termsAcceptedAt: nowIso() });
+      acceptInvitations(db, user);
+      saveDb();
+      return user;
     },
 
     async getSession() {

@@ -1,5 +1,6 @@
 'use client';
 
+import { needsProfile } from '@sarrif/core';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useEffect } from 'react';
 
@@ -14,8 +15,9 @@ import { useSession } from './queries';
 const LOADING_MIN_MS = 2500;
 
 /**
- * Lets only signed-in people through. Signed out → the auth page. Someone
- * without a name or a shop yet is let in: the setup wizard asks for both.
+ * Lets only signed-in people through. Signed out → the auth page. Signed up
+ * with Google and no phone or terms yet → Complete your profile. Someone
+ * without a shop yet is let in: the setup wizard asks for one.
  *
  * Today this runs in the browser against the mock. With real auth, proxy.ts
  * redirects on the server first and this stays as the second line.
@@ -27,10 +29,14 @@ export function SessionGate({ children }: { children: ReactNode }) {
   const user = session.data;
   const waited = useMinimumWait(LOADING_MIN_MS);
 
+  const incomplete = user ? needsProfile(user) : false;
+
   useEffect(() => {
     if (session.isPending || session.isError) return;
     if (!user) router.replace('/');
-  }, [session.isPending, session.isError, user, router]);
+    // Signed up with Google: phone and terms first.
+    else if (incomplete) router.replace('/complete-profile');
+  }, [session.isPending, session.isError, user, incomplete, router]);
 
   if (session.isError) {
     return (
@@ -41,7 +47,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
       </Splash>
     );
   }
-  if (!user || !waited) {
+  if (!user || incomplete || !waited) {
     return <LoadingScreen />;
   }
   return children;
