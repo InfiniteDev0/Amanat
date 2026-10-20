@@ -13,3 +13,17 @@ export function CalendarIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+/** Calendar (Streamline Flex "Notepad Text"): the day picker in the top bar. Takes the text colour. */
+export function CalendarFlexIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden {...props}>
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M4.309 2.104c0.741 -0.057 1.413 -0.09 1.941 -0.106l0 -1.083a0.75 0.75 0 0 1 1.5 0l0 1.083c0.528 0.016 1.2 0.049 1.941 0.106V0.915a0.75 0.75 0 0 1 1.5 0v1.366a3.224 3.224 0 0 1 2.426 2.856c0.102 1.193 0.133 2.278 0.133 2.774s-0.031 1.58 -0.133 2.772a3.23 3.23 0 0 1 -2.905 2.941A40.18 40.18 0 0 1 7 13.835a40.18 40.18 0 0 1 -3.712 -0.21 3.23 3.23 0 0 1 -2.905 -2.942A36.425 36.425 0 0 1 0.25 7.911c0 -0.496 0.031 -1.581 0.133 -2.774A3.224 3.224 0 0 1 2.809 2.28l0 -1.366a0.75 0.75 0 0 1 1.5 0l0 1.19ZM3.297 6.667c0 -0.345 0.28 -0.625 0.625 -0.625h6.156a0.625 0.625 0 1 1 0 1.25H3.922a0.625 0.625 0 0 1 -0.625 -0.625Zm0.625 2.344a0.625 0.625 0 1 0 0 1.25h2.951a0.625 0.625 0 1 0 0 -1.25H3.922Z"
+      />
+    </svg>
+  );
+}

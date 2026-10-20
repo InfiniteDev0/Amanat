@@ -1,7 +1,7 @@
 // The sidebar's pages, in order, in one place. Paths are relative to the shop
 // (/w/<id>…); labels are the `nav.*` messages.
 
-export type NavKey = 'home' | 'profit' | 'amanat' | 'reports';
+export type NavKey = 'home' | 'profit' | 'amanat' | 'reports' | 'settings' | 'trash';
 
 export interface NavItem {
   key: NavKey;
@@ -20,6 +20,12 @@ export const NAV_MAIN: NavItem[] = [
   { key: 'profit', path: '/profit', icon: '/book.svg' },
   { key: 'reports', path: '/reports', icon: '/report.svg' },
   { key: 'amanat', path: '/amanat', icon: '/amanat.svg' },
+];
+
+/** At the sidebar's foot, above the shop menu. Trash is a placeholder page for now. */
+export const NAV_FOOT: NavItem[] = [
+  { key: 'settings', path: '/settings', icon: '/settings.svg' },
+  { key: 'trash', path: '/trash', icon: '/trash.svg' },
 ];
 
 export function hrefFor(workspaceId: string, item: Pick<NavItem, 'path'>) {

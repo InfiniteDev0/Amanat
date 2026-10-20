@@ -9,6 +9,7 @@ import * as React from 'react';
 
 import { BellRingIcon } from '@/components/icons/bell-ring-icon';
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRouter } from '@/i18n/navigation';
@@ -114,25 +115,33 @@ export function NotificationsButton({ className }: { className?: string }) {
         else setRevealed(null);
       }}
     >
-      <SheetTrigger
-        render={
-          <button
-            type="button"
-            aria-label={unread.length > 0 ? t('buttonUnread', { count: unread.length }) : t('button')}
-            className={cn(
-              'text-foreground/80 hover:text-foreground bg-foreground/5 hover:bg-foreground/10 aria-expanded:bg-foreground/10 dark:bg-white/5 dark:hover:bg-muted dark:aria-expanded:bg-muted relative flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
-              className,
-            )}
-          />
-        }
-      >
-        <BellRingIcon className="size-[18px]" />
-        {unread.length > 0 ? (
-          <span className="ring-background absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white tabular-nums ring-2">
-            {unread.length > 99 ? '99+' : unread.length}
-          </span>
-        ) : null}
-      </SheetTrigger>
+      <Tooltip>
+        <SheetTrigger
+          render={
+            <TooltipTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label={unread.length > 0 ? t('buttonUnread', { count: unread.length }) : t('button')}
+                  className={cn(
+                    // No fill, like the activity log beside it: just the icon, full strength on hover.
+                    'text-foreground/80 hover:text-foreground relative flex size-8 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
+                    className,
+                  )}
+                />
+              }
+            />
+          }
+        >
+          <BellRingIcon className="size-[18px]" />
+          {unread.length > 0 ? (
+            <span className="ring-background absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white tabular-nums ring-2">
+              {unread.length > 99 ? '99+' : unread.length}
+            </span>
+          ) : null}
+        </SheetTrigger>
+        <TooltipContent side="bottom">{t('button')}</TooltipContent>
+      </Tooltip>
 
       <SheetContent
         // eslint-disable-next-line no-restricted-syntax -- the sheet's side is physical: the end of the page in either direction

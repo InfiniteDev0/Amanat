@@ -69,7 +69,8 @@
     "balances": "Balances",
     "amanat": "Amanat",
     "pages": "Pages",
-    "profit": "Profit"
+    "profit": "Profit",
+    "trash": "Trash"
   },
   "roles": {
     "owner": "Owner",
@@ -271,8 +272,15 @@
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
     "collapse": "Collapse",
+    "closeSidebar": "Close sidebar",
+    "openSidebar": "Open sidebar",
+    "sidebarShortcut": "Ctrl+B",
+    "sidebarShortcutMac": "⌘B",
     "closeDay": "Close day",
-    "closedBy": "Closed by {name}"
+    "closedBy": "Closed by {name}",
+    "dayOpen": "Open",
+    "dayClosed": "Closed",
+    "dateRange": "Date range"
   },
   "theme": {
     "label": "Theme",
@@ -414,7 +422,9 @@
       "sallamHint": "Sold or bought Sallam",
       "exchange": "Exchange",
       "exchangeHint": "Bought or sold dollars"
-    }
+    },
+    "yourShops": "Your shops",
+    "addShop": "Add shop"
   },
   "rates": {
     "title": "Today's rates",
@@ -866,5 +876,10 @@
     "openingSaved": "{account} opening amount saved",
     "rates": "Today’s rate, last 2 weeks",
     "noRate": "Not set"
+  },
+  "search": {
+    "placeholder": "Search",
+    "shortcut": "Ctrl K",
+    "shortcutMac": "⌘K"
   }
 }

@@ -69,7 +69,8 @@
     "balances": "الأرصدة",
     "amanat": "الأمانات",
     "pages": "الصفحات",
-    "profit": "الأرباح"
+    "profit": "الأرباح",
+    "trash": "سلة المهملات"
   },
   "roles": {
     "owner": "مالك",
@@ -271,8 +272,15 @@
     "collapseSidebar": "طي الشريط الجانبي",
     "expandSidebar": "توسيع الشريط الجانبي",
     "collapse": "طي",
+    "closeSidebar": "إغلاق الشريط الجانبي",
+    "openSidebar": "فتح الشريط الجانبي",
+    "sidebarShortcut": "Ctrl+B",
+    "sidebarShortcutMac": "⌘B",
     "closeDay": "إغلاق اليوم",
-    "closedBy": "أغلقه {name}"
+    "closedBy": "أغلقه {name}",
+    "dayOpen": "مفتوح",
+    "dayClosed": "مغلق",
+    "dateRange": "نطاق التاريخ"
   },
   "theme": {
     "label": "المظهر",
@@ -414,7 +422,9 @@
       "sallamHint": "بيع أو شراء سلام",
       "exchange": "صرف",
       "exchangeHint": "شراء أو بيع الدولار"
-    }
+    },
+    "yourShops": "متاجرك",
+    "addShop": "أضف متجرًا"
   },
   "rates": {
     "title": "أسعار اليوم",
@@ -866,5 +876,10 @@
     "openingSaved": "حُفظ مبلغ بداية {account}",
     "rates": "سعر اليوم، آخر أسبوعين",
     "noRate": "غير محدد"
+  },
+  "search": {
+    "placeholder": "بحث",
+    "shortcut": "Ctrl K",
+    "shortcutMac": "⌘K"
   }
 }

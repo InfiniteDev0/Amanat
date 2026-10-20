@@ -100,6 +100,16 @@ function TotalFigure({ id, amount, currency }: { id: 'totalUsd' | 'totalKsh'; am
   );
 }
 
+/** Good morning / afternoon / evening by the shop's clock, with the first name, in Luxurious Roman. */
+export function Greeting() {
+  const t = useTranslations('home');
+  const { workspace } = useWorkspace();
+  const firstName = useSession().data?.name.trim().split(/\s+/)[0] ?? '';
+  const greeting = t(`greeting.${partOfDay(useShopHour(workspace.timeZone))}`);
+  // Luxurious Roman has one weight: no bold, or the browser fakes it.
+  return <h1 className="hero text-2xl font-normal">{firstName ? t('greetingNamed', { greeting, name: firstName }) : greeting}</h1>;
+}
+
 /**
  * The top of Home: a greeting by name in Luxurious Roman (morning, afternoon
  * or evening by the shop's clock, kept current), then two totals side by side: Total
@@ -108,11 +118,8 @@ function TotalFigure({ id, amount, currency }: { id: 'totalUsd' | 'totalKsh'; am
  * neither waits on a rate. Each has its own eye to blur it.
  */
 export function HomeHeader({ date }: { date: string | undefined }) {
-  const t = useTranslations('home');
   const { workspace } = useWorkspace();
   const summary = useDaySummary(workspace.id, date).data;
-  const firstName = useSession().data?.name.trim().split(/\s+/)[0] ?? '';
-  const greeting = t(`greeting.${partOfDay(useShopHour(workspace.timeZone))}`);
   const sumOf = (currency: CurrencyCode) =>
     summary?.accounts.filter(({ account }) => account.currency === currency).reduce((sum, { balance }) => sum + balance, 0) ?? null;
   const totals = [
@@ -122,8 +129,7 @@ export function HomeHeader({ date }: { date: string | undefined }) {
 
   return (
     <section className="flex flex-col gap-6">
-      {/* Luxurious Roman has one weight: no bold, or the browser fakes it. */}
-      <h1 className="hero text-3xl font-normal">{firstName ? t('greetingNamed', { greeting, name: firstName }) : greeting}</h1>
+      <Greeting />
 
       <div className="flex flex-wrap gap-x-12 gap-y-4">
         {totals.map(({ key, amount, currency }) => (

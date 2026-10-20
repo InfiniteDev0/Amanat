@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { ActionSheet } from '@/components/action-sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useShortMoney } from '@/features/profit/money-text';
 import { useShopDay } from '@/features/workspaces/shop-day';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
@@ -102,15 +103,21 @@ export function ActivityButton() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={t('title')}
-        title={t('title')}
-        className="hover:bg-foreground/10 flex size-9 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30 [&_svg]:size-5"
-      >
-        <HistoryIcon />
-      </button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label={t('title')}
+              className="text-foreground/80 hover:text-foreground flex size-8 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
+            />
+          }
+        >
+          <HistoryIcon className="size-5" />
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{t('title')}</TooltipContent>
+      </Tooltip>
       <ActionSheet open={open} onOpenChange={setOpen} title={t('title')} closeLabel={t('close')}>
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={t('kind')}>

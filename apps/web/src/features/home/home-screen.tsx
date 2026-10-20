@@ -9,15 +9,19 @@ import { DealSheet, MoveSheet } from '@/features/profit/forms';
 import { useDeals } from '@/features/deals/queries';
 import { ExpenseDialog } from '@/features/expenses/expense-dialog';
 import { RatesDialog } from '@/features/rates/rates-dialog';
+// import { NotificationsButton } from '@/features/notifications/notifications-sheet';
+// import { SearchBar } from '@/features/search/search-bar';
 import { useShopDay } from '@/features/workspaces/shop-day';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 
-import { AccountCards } from './account-cards';
-import { HomeHeader } from './home-header';
+// import { AccountCards } from './account-cards';
+import { Greeting } from './home-header';
+// import { HomeHeader } from './home-header';
 import { useOpenFromAddress } from './open-from-address';
 import { useDaySummary } from './queries';
-import { QuickActions } from './quick-actions';
-import { RateCards, RatesBanner } from './rates-section';
+// import { QuickActions } from './quick-actions';
+// import { RateCards, RatesBanner } from './rates-section';
+import { YourShops } from './your-shops';
 
 /**
  * Home, top to bottom: a one-line banner across the panel while today's
@@ -47,26 +51,16 @@ export function HomeScreen() {
   const deals = useDeals(workspace.id).data ?? [];
 
   return (
-    <>
-      <RatesBanner isToday={isToday} onSet={setEditing} />
-      <div className="flex flex-col gap-4 p-4 lg:p-6">
-        <HomeHeader date={picked ?? undefined} />
-        {/* <RateCards date={picked ?? undefined} isToday={isToday} onEdit={setEditing} /> */}
-        <AccountCards
-          date={picked ?? undefined}
-          onOpen={(id) => {
-            setMoving(false);
-            setAccountId(id);
-          }}
-        />
-        <QuickActions
-          onSallam={() => setDealSheet('sallam')}
-          onExchange={() => setDealSheet('exchange')}
-          onExpense={() => setExpenseOpen(true)}
-          onMove={() => setMoveOpen(true)}
-          onAmanat={() => setHoldOpen(true)}
-        />
+    <div className="flex h-full flex-col">
+      {/* The greeting, centred near the top of the page. */}
+      <header className="flex justify-center px-4 pt-15">
+        <Greeting />
+      </header>
+
+      <div className="mx-auto mt-10 w-full max-w-5xl px-6">
+        <YourShops />
       </div>
+
       {todays ? (
         <>
           <DealSheet
@@ -103,6 +97,6 @@ export function HomeScreen() {
           board={board}
         />
       ) : null}
-    </>
+    </div>
   );
 }

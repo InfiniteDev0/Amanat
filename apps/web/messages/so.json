@@ -69,7 +69,8 @@
     "balances": "Haraaga",
     "amanat": "Amaano",
     "pages": "Bogagga",
-    "profit": "Faa'iido"
+    "profit": "Faa'iido",
+    "trash": "Qashinka"
   },
   "roles": {
     "owner": "Milkiile",
@@ -271,8 +272,15 @@
     "collapseSidebar": "Yaree dhinaca",
     "expandSidebar": "Ballaari dhinaca",
     "collapse": "Yaree",
+    "closeSidebar": "Xir liiska dhinaca",
+    "openSidebar": "Fur liiska dhinaca",
+    "sidebarShortcut": "Ctrl+B",
+    "sidebarShortcutMac": "⌘B",
     "closeDay": "Xir maalinta",
-    "closedBy": "Waxaa xiray {name}"
+    "closedBy": "Waxaa xiray {name}",
+    "dayOpen": "Furan",
+    "dayClosed": "Xiran",
+    "dateRange": "Muddada taariikhda"
   },
   "theme": {
     "label": "Muuqaalka",
@@ -414,7 +422,9 @@
       "sallamHint": "Iibiyay ama iibsaday Salaam",
       "exchange": "Sarrif",
       "exchangeHint": "Iibsaday ama iibiyay doollar"
-    }
+    },
+    "yourShops": "Dukaamadaada",
+    "addShop": "Ku dar dukaan"
   },
   "rates": {
     "title": "Sicirrada maanta",
@@ -866,5 +876,10 @@
     "openingSaved": "Lacagta bilowga {account} waa la kaydiyay",
     "rates": "Sicirka maanta, 2-dii toddobaad ee la soo dhaafay",
     "noRate": "Lama dhigin"
+  },
+  "search": {
+    "placeholder": "Raadi",
+    "shortcut": "Ctrl K",
+    "shortcutMac": "⌘K"
   }
 }

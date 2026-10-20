@@ -8,6 +8,7 @@
 @import "@heroui/styles/components/input-otp.css" layer(components);
 @import "@heroui/styles/components/tabs.css" layer(components);
 @import "@heroui/styles/components/avatar.css" layer(components);
+@import "@heroui/styles/components/range-calendar.css" layer(components);
 
 @custom-variant dark (&:is(.dark *));
 
@@ -74,6 +75,9 @@
   --color-danger-soft-foreground: var(--destructive);
   --color-warning-soft: color-mix(in oklab, #f5a524 15%, transparent);
   --color-warning-soft-foreground: #f5a524;
+  /* RangeCalendar's hover fills; their values are set on .range-calendar below. */
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft-hover: var(--accent-soft-hover);
   --shadow-field: 0 0 #0000;
   --shadow-surface: 0 0 #0000;
   --radius-field: calc(var(--radius) * 1.4);
@@ -260,7 +264,7 @@ p {
 }
 
 .dark {
-  --background: oklch(21.779% 0.00002 271.152);
+  --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --panel: oklch(0.1 0 0);
   --card: oklch(0.205 0 0);
@@ -302,6 +306,25 @@ p {
   --border-strong: oklch(1 0 0 / 30%);
   --field-background: oklch(0.205 0 0);
   --field-focus: oklch(0.25 0 0);
+}
+
+/* HeroUI's RangeCalendar as HeroUI draws it: its own blue, grey and muted
+   values, kept inside the calendar so shadcn's --accent, --muted and
+   --secondary stay as they are everywhere else. (bg-default is --secondary
+   here; bg-accent-soft mixes --primary.) */
+.range-calendar {
+  --accent: oklch(0.6204 0.195 253.83);
+  --accent-foreground: oklch(0.9911 0 0);
+  --primary: var(--accent);
+  --muted: oklch(0.5517 0.0138 285.94);
+  --secondary: oklch(94% 0.001 286.375);
+  --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+  --accent-soft-hover: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.dark .range-calendar {
+  --muted: oklch(70.5% 0.015 286.067);
+  --secondary: oklch(27.4% 0.006 286.033);
+  --accent-soft-hover: color-mix(in oklab, var(--accent) 16%, transparent);
 }
 
 @layer base {
