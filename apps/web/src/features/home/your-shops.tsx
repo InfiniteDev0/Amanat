@@ -1,6 +1,6 @@
 'use client';
 
-import { addTo, type CurrencyCode, type Money, totalsToList, type Workspace, type WorkspaceMembership } from '@sarrif/core';
+import type { Workspace, WorkspaceMembership } from '@sarrif/core';
 import { EllipsisIcon, EyeIcon, EyeOffIcon, PlusIcon, StarIcon, Trash2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,7 @@ import { Carousel, type CarouselApi, CarouselContent, CarouselItem } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAccountLabel } from '@/features/accounts/account-label';
 import { useRemoveShop, useSetMainShop } from '@/features/workspaces/queries';
 import { Link } from '@/i18n/navigation';
 import { directionOf } from '@/i18n/routing';
@@ -44,9 +45,8 @@ function writeHidden(hidden: boolean) {
 /**
  * Your shops as cards, like M-Pesa's balance cards: swipe from one to the
  * next (the main shop first), one dot per card underneath, and a last card
- * to add a shop. Each card: ★ on the main shop, its name, the eye, its money
- * per currency (dollars first; the opening amounts while nothing is
- * recorded), and Open shop. The eye hides every shop's money and stays that
+ * to add a shop. Each card: ★ on the main shop, its name, the eye, each
+ * account with its balance (two to a row), and Open shop. The eye hides every shop's money and stays that
  * way, even after closing the app, until it's tapped again.
  *
  * `onShown` says which shop is on screen: Home's quick actions record into it.
@@ -186,9 +186,10 @@ function ShopCard({
   );
 }
 
-/** What the shop's accounts hold, one currency a line, dollars first. */
+/** Each of the shop's accounts with its balance, two to a row: $ Cash and $ Sallam, then KSh Cash and M-Pesa. */
 function ShopTotals({ shopId, hidden }: { shopId: string; hidden: boolean }) {
   const summary = useDaySummary(shopId).data;
+  const label = useAccountLabel();
   if (!summary) {
     return (
       <div className="flex flex-col gap-2">
@@ -197,13 +198,20 @@ function ShopTotals({ shopId, hidden }: { shopId: string; hidden: boolean }) {
       </div>
     );
   }
-  const totals = new Map<CurrencyCode, number>();
-  for (const { account, balance } of summary.accounts) addTo(totals, { amount: balance, currency: account.currency });
-  const list: Money[] = totalsToList(totals).sort((a, b) => Number(b.currency === 'USD') - Number(a.currency === 'USD'));
+  // Dollars first, then by currency; cash before the other place within one ($ Cash, $ Sallam, KSh Cash, M-Pesa).
+  const accounts = [...summary.accounts].sort(
+    (a, b) =>
+      Number(b.account.currency === 'USD') - Number(a.account.currency === 'USD') ||
+      a.account.currency.localeCompare(b.account.currency) ||
+      Number(a.account.type !== 'cash') - Number(b.account.type !== 'cash'),
+  );
   return (
-    <div aria-hidden={hidden} className={cn('flex flex-col gap-1 transition-[filter]', hidden && 'pointer-events-none blur-md select-none')}>
-      {list.map((money, index) => (
-        <MoneyText key={money.currency} money={money} className={index === 0 ? 'text-2xl font-semibold' : 'text-muted-foreground text-base font-medium'} />
+    <div aria-hidden={hidden} className={cn('grid grid-cols-2 gap-x-4 gap-y-3 transition-[filter]', hidden && 'pointer-events-none blur-md select-none')}>
+      {accounts.map(({ account, balance }) => (
+        <div key={account.id} className="flex min-w-0 flex-col">
+          <span className="text-muted-foreground truncate text-xs">{label(account)}</span>
+          <MoneyText money={{ amount: balance, currency: account.currency }} className="truncate text-lg font-semibold" />
+        </div>
       ))}
     </div>
   );
