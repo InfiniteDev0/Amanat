@@ -1,5 +1,6 @@
 'use client';
 
+import { RecordButton } from '@/components/record-button';
 import { type Account, EXPENSE_CATEGORIES, type ExpenseCategory, parseAmount } from '@sarrif/core';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -117,9 +118,7 @@ function ExpenseForm({ accounts, onDone }: { accounts: Account[]; onDone: () => 
           className="bg-field focus-visible:bg-field-focus placeholder:text-muted-foreground h-14 w-full rounded-xl px-4 text-lg outline-none"
         />
       </label>
-      <Button type="submit" disabled={create.isPending} className="h-14 w-full rounded-xl text-lg font-bold">
-        {t('record')}
-      </Button>
+      <RecordButton disabled={create.isPending}>{t('record')}</RecordButton>
     </form>
   );
 }

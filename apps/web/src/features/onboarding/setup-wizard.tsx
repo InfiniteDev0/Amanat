@@ -253,7 +253,7 @@ function SetupWizard({ draft, update, onClose }: ReturnType<typeof useOnboarding
  * line of the books, and changing one later is a recorded adjustment, not an
  * edit. So the totals are shown once more and must be confirmed.
  */
-function ConfirmOpening({
+export function ConfirmOpening({
   draft,
   open,
   onOpenChange,

@@ -212,6 +212,18 @@ export const onboardingSchema = z
     });
   });
 
+/**
+ * Another shop of the same business ("+ New shop"): its name and place, and
+ * its accounts with their opening amounts, saved in one go. It trades the
+ * business's currencies; each account must be in one of them (checked by the
+ * backend, which knows them).
+ */
+export const createShopSchema = z.object({
+  name,
+  location: z.string().trim().max(120).default(''),
+  accounts: z.array(createAccountSchema).min(1, 'validation.accounts').max(50),
+});
+
 export const createClientSchema = z.object({
   name,
   phone: phoneSchema.nullish().transform((value) => value || null),
@@ -372,6 +384,7 @@ export type SetRatesInput = z.input<typeof setRatesSchema>;
 export type CreateClientInput = z.input<typeof createClientSchema>;
 export type OnboardingInput = z.input<typeof onboardingSchema>;
 export type UsdQuoteInput = z.input<typeof usdQuoteSchema>;
+export type CreateShopInput = z.input<typeof createShopSchema>;
 export type CreateExchangeInput = z.input<typeof createExchangeSchema>;
 export type CreateDealInput = z.input<typeof createDealSchema>;
 export type CreateExpenseInput = z.input<typeof createExpenseSchema>;

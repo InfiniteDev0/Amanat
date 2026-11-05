@@ -1,5 +1,6 @@
 'use client';
 
+import { RecordButton } from '@/components/record-button';
 import { type Account, type AmanatRow, parseAmount } from '@sarrif/core';
 import { gooeyToast } from 'goey-toast';
 import { useLocale, useTranslations } from 'next-intl';
@@ -69,9 +70,7 @@ function HoldForm({ accounts, onDone }: { accounts: Account[]; onDone: () => voi
       <Field label={t('note')}>
         <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} className={INPUT} />
       </Field>
-      <Button type="submit" disabled={!ready} className="h-14 w-full rounded-xl text-lg font-bold">
-        {t('save')}
-      </Button>
+      <RecordButton disabled={!ready}>{t('save')}</RecordButton>
     </form>
   );
 }

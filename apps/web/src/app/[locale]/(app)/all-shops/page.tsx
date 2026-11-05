@@ -1,8 +1,7 @@
-import { GoToShop } from '@/features/workspaces/go-to-shop';
+import { redirect } from '@/i18n/navigation';
+import type { Locale } from '@/i18n/routing';
 
-// Owners with two or more shops will get one read-only row per shop plus
-// combined totals here. Until it's designed it shows nothing: someone with no
-// shop sets one up on top of it, then goes straight to that shop.
-export default function AllShopsPage() {
-  return <GoToShop />;
+// The old address of Home: links and bookmarks to it go to /home.
+export default async function AllShopsPage({ params }: PageProps<'/[locale]/all-shops'>) {
+  redirect({ href: '/home', locale: (await params).locale as Locale });
 }

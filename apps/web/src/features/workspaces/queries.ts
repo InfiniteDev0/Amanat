@@ -1,6 +1,6 @@
 'use client';
 
-import type { CreateWorkspaceInput, UpdateWorkspaceInput } from '@sarrif/core';
+import type { CreateShopInput, CreateWorkspaceInput, UpdateWorkspaceInput } from '@sarrif/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
@@ -16,6 +16,33 @@ export function useCreateWorkspace() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateWorkspaceInput) => api.workspaces.create(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspaces }),
+  });
+}
+
+/** + New shop: another shop with its accounts and opening amounts (one transaction). */
+export function useCreateShop() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateShopInput) => api.workspaces.createShop(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspaces }),
+  });
+}
+
+/** Moves the ★ to this shop. */
+export function useSetMainShop() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (workspaceId: string) => api.workspaces.setMain(workspaceId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspaces }),
+  });
+}
+
+/** Deletes a shop that isn't the main one. */
+export function useRemoveShop() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (workspaceId: string) => api.workspaces.remove(workspaceId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspaces }),
   });
 }

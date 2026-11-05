@@ -6,8 +6,8 @@ import { appReturnPath } from './paths';
 //
 //   signed out                  → the auth page ('/'), ?next=<the page>
 //   email not confirmed         → Check your email
-//   setup not finished          → All shops, where the setup wizard opens
-//   setup finished              → into the app (All shops goes on to a shop)
+//   setup not finished          → Home, where the setup wizard opens
+//   setup finished              → into the app (Home)
 //
 // "Setup finished" is profiles.onboarding_completed_at, set in the same
 // transaction that creates the main shop: finished ⇔ has a shop.
@@ -22,8 +22,8 @@ export interface RouteState {
 export const PUBLIC_PAGES = ['/', '/check-email', '/forgot-password', '/reset-password', '/link-expired', '/terms'] as const;
 /** Of those, the ones a signed-in person is sent on from, into the app. */
 export const AUTH_ENTRY_PAGES = ['/', '/check-email', '/forgot-password', '/link-expired'] as const;
-/** Where the setup wizard opens (there is no onboarding page: it's an overlay). */
-export const SETUP_PAGE = '/all-shops';
+/** Home: your shops. The setup wizard opens over it (there is no onboarding page: it's an overlay). */
+export const SETUP_PAGE = '/home';
 
 const isOneOf = (list: readonly string[], page: string) => list.includes(page);
 

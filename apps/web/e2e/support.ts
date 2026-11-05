@@ -91,9 +91,9 @@ export async function fillLogIn(page: Page, email: string, password = PASSWORD) 
 
 export const logInButton = (page: Page) => page.getByRole('button', { name: 'Log in', exact: true });
 
-/** Signed in, past the auth page (the app, or the setup wizard over it). */
+/** Signed in, past the auth page (Home or a shop page, or the setup wizard over Home). */
 export async function expectInApp(page: Page) {
-  await expect(page).toHaveURL(/\/en\/(w\/|all-shops)/);
+  await expect(page).toHaveURL(/\/en\/(w\/|home)/);
 }
 
 /** The session cookie local Supabase sets (sb-<host>-auth-token, maybe split into .0, .1…). */

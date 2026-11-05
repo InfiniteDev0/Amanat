@@ -33,6 +33,7 @@ import type {
   CreateExpenseInput,
   CreateTransferInput,
   CreateWorkspaceInput,
+  CreateShopInput,
   OnboardingInput,
   ProfileInput,
   SignUpInput,
@@ -284,6 +285,12 @@ export interface SarrifApi {
     listMine(): Promise<WorkspaceMembership[]>;
     /** Creates the shop and makes the caller its Owner. */
     create(input: CreateWorkspaceInput): Promise<Workspace>;
+    /** "+ New shop": another shop of the business, with its accounts and opening amounts. All or nothing. */
+    createShop(input: CreateShopInput): Promise<Workspace>;
+    /** Makes this shop the main one (★); the old main becomes an ordinary shop. One transaction. */
+    setMain(workspaceId: Id): Promise<void>;
+    /** Deletes a shop that isn't the main one (set another as main first). */
+    remove(workspaceId: Id): Promise<void>;
   };
 
   accounts: {

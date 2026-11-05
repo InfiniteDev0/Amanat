@@ -21,7 +21,7 @@ import { useOpenFromAddress } from './open-from-address';
 import { useDaySummary } from './queries';
 // import { QuickActions } from './quick-actions';
 // import { RateCards, RatesBanner } from './rates-section';
-import { YourShops } from './your-shops';
+// import { YourShops } from './your-shops';
 
 /**
  * Home, top to bottom: a one-line banner across the panel while today's
@@ -57,9 +57,10 @@ export function HomeScreen() {
         <Greeting />
       </header>
 
+      {/* Your shops live on Home (/home) now; this screen only shows behind the setup wizard.
       <div className="mx-auto mt-10 w-full max-w-5xl px-6">
         <YourShops />
-      </div>
+      </div> */}
 
       {todays ? (
         <>

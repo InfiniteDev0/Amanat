@@ -18,7 +18,7 @@ import {
 
 import { createClient } from '@/lib/supabase/client';
 
-import { completeOnboardingAction } from './actions';
+import { completeOnboardingAction, createShopAction } from './actions';
 import { databaseError, formError, parse, withTimeout } from './common';
 
 // The main shop for real (Phase 1d): onboarding, the shop list, accounts,
@@ -94,6 +94,7 @@ function toWorkspace(row: ShopRow): Workspace {
     ownerId: row.workspace.owner_id,
     status: 'active',
     createdAt: row.created_at,
+    isMain: row.is_main,
   };
 }
 
@@ -279,9 +280,32 @@ export function supabaseShops(auth: SarrifApi['auth']): Pick<SarrifApi, 'onboard
         return toWorkspace(data);
       },
 
-      // More shops come after the main one (a later phase).
+      // The old way in (a whole new business) isn't used with the database: see createShop.
       async create() {
         throw notYet();
+      },
+
+      async createShop(input) {
+        let result: Awaited<ReturnType<typeof createShopAction>>;
+        try {
+          result = await withTimeout(createShopAction(input));
+        } catch (error) {
+          if (error instanceof ApiError) throw error;
+          throw formError('unavailable', 'errors.offline');
+        }
+        if (!result.ok) throw new ApiError(result.code, result.messageKey, result.fields);
+        return toWorkspace(await shop(result.data.shopId));
+      },
+
+      async setMain(shopId) {
+        const { error } = await withTimeout(supabase().rpc('set_main_shop', { shop: shopId }));
+        if (error) throw databaseError(error, 'setMainShop');
+      },
+
+      async remove(shopId) {
+        const { error } = await withTimeout(supabase().rpc('delete_shop', { shop: shopId }));
+        if (error?.hint === 'main_shop') throw formError('invalid', 'errors.mainShopDelete');
+        if (error) throw databaseError(error, 'deleteShop');
       },
     },
 

@@ -1,6 +1,15 @@
 'use server';
 
-import { type ApiErrorCode, onboardingSchema, type OnboardingInput, TERMS_VERSION, toMinor } from '@sarrif/core';
+import {
+  type ApiErrorCode,
+  type CreateShopInput,
+  createShopSchema,
+  type CurrencyCode,
+  onboardingSchema,
+  type OnboardingInput,
+  TERMS_VERSION,
+  toMinor,
+} from '@sarrif/core';
 
 import { reportError } from '@/lib/report-error';
 import { createClient } from '@/lib/supabase/server';
@@ -72,6 +81,49 @@ export async function completeOnboardingAction(input: OnboardingInput): Promise<
   if (error) {
     // 22023: the database refused the setup itself (it passed Zod, so this is unexpected).
     reportError(error, { during: 'completeOnboarding', code: error.code });
+    if (error.code === '42501' || error.code === 'PGRST301') return fail('unauthenticated', 'errors.unauthenticated');
+    if (error.code === '22023' || error.code === '23514') return fail('invalid', 'errors.setupRefused', { form: 'errors.setupRefused' });
+    return fail('unavailable', 'errors.serviceDown', { form: 'errors.serviceDown' });
+  }
+  return { ok: true, data: { shopId: data as string } };
+}
+
+/**
+ * + New shop: another shop of the business with its accounts and opening
+ * amounts, in ONE transaction (create_shop, supabase/migrations/*_shops.sql).
+ */
+export async function createShopAction(input: CreateShopInput): Promise<ActionResult<{ shopId: string }>> {
+  const parsed = createShopSchema.safeParse(input);
+  if (!parsed.success) {
+    const fields: Record<string, string> = {};
+    for (const issue of parsed.error.issues) fields[issue.path.join('.')] ??= issue.message;
+    return fail('invalid', 'errors.invalid', fields);
+  }
+
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return fail('unauthenticated', 'errors.unauthenticated');
+  // Row-level security shows only their own business.
+  const { data: business } = await supabase.from('workspaces').select('base_currency').limit(1).maybeSingle<{ base_currency: CurrencyCode }>();
+  if (!business) return fail('invalid', 'errors.setupRefused', { form: 'errors.setupRefused' });
+
+  const { name, location, accounts } = parsed.data;
+  const setup = {
+    name,
+    location,
+    large_row_limit: toMinor('5000', business.base_currency),
+    accounts: accounts.map((account) => ({
+      name: account.name,
+      type: account.type,
+      currency: account.currency,
+      provider: account.provider,
+      opening_amount: account.openingBalance,
+    })),
+  };
+
+  const { data, error } = await supabase.rpc('create_shop', { setup });
+  if (error) {
+    reportError(error, { during: 'createShop', code: error.code });
     if (error.code === '42501' || error.code === 'PGRST301') return fail('unauthenticated', 'errors.unauthenticated');
     if (error.code === '22023' || error.code === '23514') return fail('invalid', 'errors.setupRefused', { form: 'errors.setupRefused' });
     return fail('unavailable', 'errors.serviceDown', { form: 'errors.serviceDown' });

@@ -28,6 +28,7 @@ import {
   createExpenseSchema,
   createTransferSchema,
   createWorkspaceSchema,
+  createShopSchema,
   updateAccountSchema,
   type CurrencyCode,
   daySummary,
@@ -81,6 +82,20 @@ const newId = () => crypto.randomUUID();
 const nowIso = () => new Date().toISOString();
 /** Where the demo keeps a person's setup progress (localStorage, + ':' + their id). */
 const PROGRESS_KEY = 'sarrif-onboarding-progress';
+
+/** The live shops someone owns, oldest first. */
+function ownedShops(db: MockDb, ownerId: Id): Workspace[] {
+  return db.workspaces.filter((w) => w.ownerId === ownerId && w.status === 'active').sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+/** Whether a shop is its owner's main one: marked so, or (older demo data, none marked) their first. */
+function isMainShop(db: MockDb) {
+  return (workspace: Workspace): boolean => {
+    const owned = ownedShops(db, workspace.ownerId);
+    const marked = owned.find((w) => w.isMain);
+    return marked ? marked.id === workspace.id : owned[0]?.id === workspace.id;
+  };
+}
 
 /** A little delay, so loading states get exercised like on a real network. */
 const latency = () => new Promise((resolve) => setTimeout(resolve, 120 + Math.random() * 180));
@@ -745,12 +760,15 @@ export const mockApi: SarrifApi = {
       await latency();
       const db = getDb();
       const user = signedIn(db);
+      const main = isMainShop(db);
       return db.members
         .filter((m) => m.userId === user.id)
         .flatMap((m) => {
           const workspace = db.workspaces.find((w) => w.id === m.workspaceId && w.status === 'active');
-          return workspace ? [{ workspace, role: m.role }] : [];
-        });
+          return workspace ? [{ workspace: { ...workspace, isMain: main(workspace) }, role: m.role }] : [];
+        })
+        // The main shop first, as the real backend lists them.
+        .sort((a, b) => Number(b.workspace.isMain) - Number(a.workspace.isMain));
     },
 
     async create(input) {
@@ -771,6 +789,54 @@ export const mockApi: SarrifApi = {
       db.members.push({ id: newId(), workspaceId: workspace.id, userId: user.id, role: 'owner', joinedAt: workspace.createdAt });
       saveDb();
       return workspace;
+    },
+
+    // Another shop of the same business: its currencies, base and time zone come from the main shop.
+    async createShop(input) {
+      await latency();
+      const db = getDb();
+      const user = signedIn(db);
+      const { name, location, accounts } = parse(createShopSchema, input);
+      const main = ownedShops(db, user.id).find(isMainShop(db));
+      if (!main) throw new ApiError('invalid', 'errors.setupRefused', { form: 'errors.setupRefused' });
+      if (accounts.some((account) => !main.currencies.includes(account.currency))) {
+        throw new ApiError('invalid', 'errors.setupRefused', { form: 'errors.setupRefused' });
+      }
+      const now = nowIso();
+      const workspace: Workspace = {
+        id: newId(),
+        name,
+        location,
+        baseCurrency: main.baseCurrency,
+        currencies: main.currencies,
+        timeZone: main.timeZone,
+        closingTime: '21:00',
+        largeTransactionLimit: toMinor('5000', main.baseCurrency),
+        ownerId: user.id,
+        status: 'active',
+        createdAt: now,
+        isMain: false,
+      };
+      db.workspaces.push(workspace);
+      db.members.push({ id: newId(), workspaceId: workspace.id, userId: user.id, role: 'owner', joinedAt: now });
+      for (const account of accounts) db.accounts.push({ id: newId(), workspaceId: workspace.id, ...account, archived: false, createdAt: now });
+      saveDb();
+      return workspace;
+    },
+
+    async setMain(workspaceId) {
+      await latency();
+      const { db, user, workspace } = access(getDb(), workspaceId, 'manage_shop');
+      for (const shop of ownedShops(db, user.id)) shop.isMain = shop.id === workspace.id;
+      saveDb();
+    },
+
+    async remove(workspaceId) {
+      await latency();
+      const { db, workspace } = access(getDb(), workspaceId, 'manage_shop');
+      if (isMainShop(db)(workspace)) throw new ApiError('invalid', 'errors.mainShopDelete', { form: 'errors.mainShopDelete' });
+      workspace.status = 'archived';
+      saveDb();
     },
   },
 

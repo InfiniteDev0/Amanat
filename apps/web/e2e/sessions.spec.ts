@@ -61,18 +61,18 @@ test('a tampered or deleted session cookie: log in, with nothing private sent fi
   await expect(page).toHaveURL(/\/en\?next=/);
 });
 
-test('signed in, the auth page sends you into your shop', async ({ page }) => {
-  const { shop } = await signedInWithShop(page);
+test('signed in, the auth page sends you Home', async ({ page }) => {
+  await signedInWithShop(page);
   await page.goto('/en');
-  await expect(page).toHaveURL(new RegExp(`/en/w/${shop}`));
+  await expect(page).toHaveURL(/\/en\/home$/);
 });
 
-test('someone else\'s shop in the last-shop cookie: you land in your own', async ({ page, context }) => {
-  const { shop } = await signedInWithShop(page);
+test('someone else\'s shop, by typing its URL: No access, nothing of it shown', async ({ page }) => {
+  await signedInWithShop(page);
   const other = await strangersShop();
-  await context.addCookies([{ name: 'amanat_last_workspace', value: other, url: 'http://localhost:3000' }]);
-  await page.goto('/en');
-  await expect(page).toHaveURL(new RegExp(`/en/w/${shop}$`));
+  await page.goto(`/en/w/${other}`);
+  await expect(page.getByText("You don't have access to this shop.")).toBeVisible();
+  await expect(page.getByText('Garissa')).toHaveCount(0);
 });
 
 test('an expired access token is renewed quietly on the next request', async ({ page, context }) => {
@@ -108,7 +108,7 @@ test('sign out of all devices: the other device is signed out on its next click'
   await expect(phone).toHaveURL(new RegExp(`/en/w/${shop}`));
 
   await laptop.goto(`/en/w/${shop}`);
-  await laptop.getByRole('button', { name: 'Switch shop' }).click();
+  await laptop.getByRole('button', { name: 'Your account' }).click();
   await laptop.getByRole('menuitem', { name: 'Sign out of all devices' }).click();
   await laptop.getByRole('button', { name: 'Sign out everywhere' }).click();
   await expect(laptop).toHaveURL(/\/en$/);
@@ -125,22 +125,22 @@ test('setup not finished (a first Google sign-in): no shop page opens, even by t
   await page.goto('/en');
   await fillLogIn(page, user.email);
   await logInButton(page).click();
-  await expect(page).toHaveURL(/\/en\/all-shops$/);
+  await expect(page).toHaveURL(/\/en\/home$/);
   for (const path of [`/en/w/${shop}`, `/en/w/${shop}/settings`, `/en/w/${shop}/team`]) {
     await page.goto(path);
-    await expect(page).toHaveURL(/\/en\/all-shops$/);
+    await expect(page).toHaveURL(/\/en\/home$/);
   }
 });
 
-test('?next=https://evil.com is ignored: into your shop', async ({ page }) => {
-  const { shop } = await signedInWithShop(page);
+test('?next=https://evil.com is ignored: Home', async ({ page }) => {
+  await signedInWithShop(page);
   await page.goto('/en?next=https%3A%2F%2Fevil.example.com');
-  await expect(page).toHaveURL(new RegExp(`/en/w/${shop}`));
+  await expect(page).toHaveURL(/\/en\/home$/);
   expect(new URL(page.url()).hostname).toBe('localhost');
 });
 
 test('"who am I" never comes from browser storage', async ({ page, context }) => {
-  const { shop } = await signedInWithShop(page);
+  await signedInWithShop(page);
   const other = await strangersShop();
   // Claim to be the demo owner (who is in every demo shop) in the demo data.
   await page.evaluate(() => {
@@ -148,9 +148,9 @@ test('"who am I" never comes from browser storage', async ({ page, context }) =>
     db.sessionUserId = 'user-owner';
     localStorage.setItem('sarrif-mock-db', JSON.stringify(db));
   });
-  // Still yourself: someone else's shop isn't yours, so you land in your own.
+  // Still yourself: someone else's shop isn't yours.
   await page.goto(`/en/w/${other}`);
-  await expect(page).toHaveURL(new RegExp(`/en/w/${shop}$`));
+  await expect(page.getByText("You don't have access to this shop.")).toBeVisible();
 
   // Signed out, the claim gets you nothing: the server sends you to log in.
   await context.clearCookies();

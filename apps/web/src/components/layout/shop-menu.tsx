@@ -23,7 +23,6 @@ import {
 import { AccountSettingsDialog } from "@/features/auth/account-settings-dialog";
 import { SignOutEverywhereDialog } from "@/features/auth/sign-out-everywhere-dialog";
 import { useStartNewShop } from "@/features/onboarding/setup-wizard";
-import { CAN_ADD_SHOPS } from "@/lib/api";
 import { useMyWorkspaces } from "@/features/workspaces/queries";
 import { Link } from "@/i18n/navigation";
 
@@ -120,9 +119,7 @@ export function ShopMenu({
 
         <DropdownMenuSeparator className="my-1" /> */}
 
-        {/* Shops beyond the main one: the demo only, until they're in the database. */}
-        {CAN_ADD_SHOPS ? (
-          <>
+        {/* Shops are on Home now (+ New shop); this menu is no longer shown. */}
             <DropdownMenuSeparator className="my-1" />
 
             <DropdownMenuItem
@@ -134,8 +131,7 @@ export function ShopMenu({
               </span>
               {t("shell.createShop")}
             </DropdownMenuItem>
-          </>
-        ) : null}
+
 
         <DropdownMenuSeparator className="my-1" />
 

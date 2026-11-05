@@ -16,6 +16,7 @@ import {
   sallamAmounts,
   type SallamSide,
 } from '@sarrif/core';
+import { RecordButton } from '@/components/record-button';
 import { gooeyToast } from 'goey-toast';
 import { Trash2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -134,9 +135,7 @@ function Extras({ customer, note, onCustomer, onNote }: { customer: string; note
 function Save({ ready }: { ready: boolean }) {
   const t = useTranslations('form');
   return (
-    <Button type="submit" disabled={!ready} className="h-14 w-full rounded-xl text-lg font-bold">
-      {t('save')}
-    </Button>
+    <RecordButton disabled={!ready}>{t('save')}</RecordButton>
   );
 }
 
@@ -400,9 +399,7 @@ export function MoveForm({ accounts, board, onDone }: { accounts: Account[]; boa
         </Field>
       ) : null}
       <Result label={t('receives')} value={arrives && to ? money({ amount: arrives, currency: to.currency }) : '—'} strong />
-      <Button type="submit" disabled={!ready} className="h-14 w-full rounded-xl text-lg font-bold">
-        {tf('save')}
-      </Button>
+      <RecordButton disabled={!ready}>{tf('save')}</RecordButton>
     </form>
   );
 }

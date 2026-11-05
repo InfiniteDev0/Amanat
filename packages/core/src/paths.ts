@@ -16,12 +16,12 @@ export function sameSitePath(next: unknown): string | null {
 }
 
 /**
- * The app page to go back to after signing in (`/w/…` or `/all-shops`, with
+ * The app page to go back to after signing in (`/w/…`, `/home` or `/all-shops`, with
  * no language prefix: the router adds it), or null for anything else.
  */
 export function appReturnPath(next: unknown): string | null {
   const path = sameSitePath(next);
   if (!path) return null;
   const page = path.split(/[?#]/)[0]!;
-  return /^\/w\/[\w-]+(\/[\w-]+)*$/.test(page) || page === '/all-shops' ? path : null;
+  return /^\/w\/[\w-]+(\/[\w-]+)*$/.test(page) || (page === '/home' || page === '/all-shops') ? path : null;
 }

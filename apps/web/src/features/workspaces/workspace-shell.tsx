@@ -1,12 +1,12 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { type ReactNode, useEffect } from 'react';
 
 import { WorkspaceFrame } from '@/components/layout/workspace-frame';
-import { LoadingScreen, Splash } from '@/features/auth/session-gate';
+import { LoadingScreen } from '@/features/auth/session-gate';
 
 import { setLastWorkspaceId } from './last-workspace';
+import { NoAccess } from './no-access';
 import { useMyWorkspaces } from './queries';
 import { WorkspaceProvider } from './workspace-context';
 
@@ -16,7 +16,6 @@ import { WorkspaceProvider } from './workspace-context';
  * every screen below through WorkspaceProvider.
  */
 export function WorkspaceShell({ workspaceId, children }: { workspaceId: string; children: ReactNode }) {
-  const t = useTranslations('common');
   const memberships = useMyWorkspaces();
   const membership = memberships.data?.find((m) => m.workspace.id === workspaceId);
 
@@ -25,7 +24,7 @@ export function WorkspaceShell({ workspaceId, children }: { workspaceId: string;
   }, [membership, workspaceId]);
 
   if (memberships.isPending) return <LoadingScreen />;
-  if (!membership) return <Splash>{t('noAccess')}</Splash>;
+  if (!membership) return <NoAccess />;
 
   return (
     <WorkspaceProvider workspace={membership.workspace} role={membership.role}>

@@ -206,7 +206,8 @@
     "signUpFailed": "Something went wrong. Try again.",
     "notYet": "Not available yet. Coming soon.",
     "setupRefused": "Your shop couldn't be saved. Check your answers and try again.",
-    "rateNeedsDollar": "Set the dollar's rate first."
+    "rateNeedsDollar": "Set the dollar's rate first.",
+    "mainShopDelete": "The main shop can't be deleted. Set another shop as main first."
   },
   "recordTypes": {
     "exchange": "Exchange",
@@ -359,7 +360,9 @@
     "closedBy": "Closed by {name}",
     "dayOpen": "Open",
     "dayClosed": "Closed",
-    "dateRange": "Date range"
+    "dateRange": "Date range",
+    "accountMenu": "Your account",
+    "plan": "Plan"
   },
   "theme": {
     "label": "Theme",
@@ -503,7 +506,30 @@
       "exchangeHint": "Bought or sold dollars"
     },
     "yourShops": "Your shops",
-    "addShop": "Add shop"
+    "addShop": "Add shop",
+    "main": "Main",
+    "forShop": "For which shop?",
+    "closeDay": "Close day",
+    "closeDaySoon": "Coming soon",
+    "shopMenu": "Options for {shop}",
+    "setMain": "Set as main",
+    "deleteShop": "Delete shop",
+    "saving": "Saving…",
+    "setMainTitle": "Make {shop} your main shop?",
+    "setMainBody": "{old} becomes an ordinary shop. You can change it back any time.",
+    "deleteTitle": "Delete {shop}?",
+    "deleteBody": "Its accounts go with it. This can't be undone.",
+    "mainSaved": "{shop} is now your main shop",
+    "deleted": "{shop} was deleted",
+    "newShop": {
+      "button": "New shop",
+      "title": "New shop",
+      "hint": "Another shop of your business. It trades the same currencies as your main shop.",
+      "create": "Create shop",
+      "cancel": "Cancel",
+      "saving": "Creating the shop…",
+      "created": "{shop} is ready"
+    }
   },
   "rates": {
     "title": "Today's rates",
@@ -766,7 +792,8 @@
     "delete": "Delete",
     "deleted": "Deleted",
     "close": "Close",
-    "locked": "This day is closed."
+    "locked": "This day is closed.",
+    "comingSoon": "Coming in the next update"
   },
   "sallam": {
     "title": "Sallam",
@@ -970,5 +997,24 @@
     "password": "Password",
     "changePassword": "Change password",
     "googleOnly": "You sign in with Google, so there is no password to change here."
+  },
+  "shop": {
+    "back": "Home",
+    "main": "Main shop",
+    "tabsLabel": "Shop sections",
+    "tabs": {
+      "activity": "Recent activity",
+      "exchange": "Exchange",
+      "profit": "Profit",
+      "amanat": "Amanat",
+      "reports": "Reports"
+    },
+    "empty": {
+      "activity": "Nothing recorded yet. What this shop does will show here.",
+      "exchange": "No exchanges yet. Dollars bought and sold will show here.",
+      "profit": "No profit yet. It comes from Sallam and Exchange.",
+      "amanat": "No amanat held. Money kept for customers will show here.",
+      "reports": "Reports fill in as the days are recorded."
+    }
   }
 }

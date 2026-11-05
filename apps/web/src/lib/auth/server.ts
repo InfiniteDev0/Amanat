@@ -49,14 +49,13 @@ export async function requireOnboarded(locale: string): Promise<ServerUser> {
 }
 
 /**
- * requireOnboarded, and the shop in the URL is theirs: row-level security
- * returns only the shops they own, so anyone else's (or a made-up id) goes
- * back to All shops, which opens their own. Team members come in 1e.
+ * requireOnboarded, then whether the shop in the URL is theirs: row-level
+ * security returns only the shops they own, so anyone else's (or a made-up
+ * id) is false, and the page says "No access". Team members come in 1e.
  */
-export async function requireShop(locale: string, shopId: string): Promise<ServerUser> {
-  const user = await requireOnboarded(locale);
+export async function ownsShop(locale: string, shopId: string): Promise<boolean> {
+  await requireOnboarded(locale);
   const supabase = await createClient();
   const { data } = await supabase.from('shops').select('id').eq('id', shopId).maybeSingle();
-  if (!data) redirect(`/${locale}${SETUP_PAGE}`);
-  return user;
+  return Boolean(data);
 }

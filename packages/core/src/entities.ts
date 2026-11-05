@@ -72,6 +72,8 @@ export interface Workspace {
   ownerId: Id;
   status: 'active' | 'archived';
   createdAt: Timestamp;
+  /** The owner's central shop (★): exactly one per business; it can't be deleted. Left out by older demo data: the owner's first shop. */
+  isMain?: boolean;
 }
 
 export interface Member {

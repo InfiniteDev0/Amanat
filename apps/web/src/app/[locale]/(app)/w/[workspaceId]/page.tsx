@@ -1,12 +1,7 @@
-import { Suspense } from 'react';
+import { ShopScreen } from '@/features/shop/shop-screen';
 
-import { HomeScreen } from '@/features/home/home-screen';
-
-export default function HomePage() {
-  // Suspense: Home reads the address (?do=set-rates from a notification).
-  return (
-    <Suspense fallback={null}>
-      <HomeScreen />
-    </Suspense>
-  );
+// A shop's page: its drawers, the everyday actions and its tabs.
+// The old shop Home (features/home/home-screen.tsx) is no longer shown here.
+export default function ShopPage() {
+  return <ShopScreen />;
 }

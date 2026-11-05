@@ -2,11 +2,17 @@
 
 import { XIcon } from 'lucide-react';
 import { useLocale } from 'next-intl';
-import type { ReactNode } from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
 
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { directionOf } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+
+/**
+ * Something to show above the form in every action sheet opened inside it:
+ * Home's shop picker ("which shop is this for?"), without each form knowing.
+ */
+export const ActionSheetTop = createContext<ReactNode>(null);
 
 const CLOSE_BUTTON =
   'text-foreground hover:bg-foreground/10 flex size-9 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30 [&_svg]:size-5';
@@ -34,6 +40,7 @@ export function ActionSheet({
   children: ReactNode;
 }) {
   const rtl = directionOf(useLocale()) === 'rtl';
+  const top = useContext(ActionSheetTop);
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -52,7 +59,10 @@ export function ActionSheet({
             <XIcon />
           </SheetClose>
         </div>
-        <div className="scrollbar-pill min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pt-2 pb-8">{children}</div>
+        <div className="scrollbar-pill min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pt-2 pb-8">
+          {top}
+          {children}
+        </div>
       </SheetContent>
     </Sheet>
   );

@@ -206,7 +206,8 @@
     "signUpFailed": "Wax baa khaldamay. Isku day mar kale.",
     "notYet": "Weli lama heli karo. Dhawaan ayay imanaysaa.",
     "setupRefused": "Dukaanka lama kaydin karo. Hubi jawaabahaaga oo isku day mar kale.",
-    "rateNeedsDollar": "Marka hore deji sicirka doollarka."
+    "rateNeedsDollar": "Marka hore deji sicirka doollarka.",
+    "mainShopDelete": "Dukaanka ugu weyn lama tirtiri karo. Marka hore dukaan kale ka dhig kan ugu weyn."
   },
   "recordTypes": {
     "exchange": "Sarrif",
@@ -359,7 +360,9 @@
     "closedBy": "Waxaa xiray {name}",
     "dayOpen": "Furan",
     "dayClosed": "Xiran",
-    "dateRange": "Muddada taariikhda"
+    "dateRange": "Muddada taariikhda",
+    "accountMenu": "Akoonkaaga",
+    "plan": "Qorshaha"
   },
   "theme": {
     "label": "Muuqaalka",
@@ -503,7 +506,30 @@
       "exchangeHint": "Iibsaday ama iibiyay doollar"
     },
     "yourShops": "Dukaamadaada",
-    "addShop": "Ku dar dukaan"
+    "addShop": "Ku dar dukaan",
+    "main": "Ugu weyn",
+    "forShop": "Dukaankee?",
+    "closeDay": "Xir maalinta",
+    "closeDaySoon": "Dhawaan",
+    "shopMenu": "Doorashooyinka {shop}",
+    "setMain": "Ka dhig kan ugu weyn",
+    "deleteShop": "Tirtir dukaanka",
+    "saving": "Waa la kaydinayaa…",
+    "setMainTitle": "{shop} ma ka dhigaysaa dukaankaaga ugu weyn?",
+    "setMainBody": "{old} wuxuu noqonayaa dukaan caadi ah. Mar kasta waad beddeli kartaa.",
+    "deleteTitle": "{shop} ma tirtiraysaa?",
+    "deleteBody": "Xisaabaadkiisuna way la tagayaan. Dib looma soo celin karo.",
+    "mainSaved": "{shop} hadda waa dukaankaaga ugu weyn",
+    "deleted": "{shop} waa la tirtiray",
+    "newShop": {
+      "button": "Dukaan cusub",
+      "title": "Dukaan cusub",
+      "hint": "Dukaan kale oo ganacsigaaga ah. Wuxuu ka ganacsadaa lacagaha dukaankaaga ugu weyn.",
+      "create": "Samee dukaanka",
+      "cancel": "Jooji",
+      "saving": "Dukaanka waa la samaynayaa…",
+      "created": "{shop} waa diyaar"
+    }
   },
   "rates": {
     "title": "Sicirrada maanta",
@@ -766,7 +792,8 @@
     "delete": "Tirtir",
     "deleted": "Waa la tirtiray",
     "close": "Xir",
-    "locked": "Maalintan waa la xiray."
+    "locked": "Maalintan waa la xiray.",
+    "comingSoon": "Waxay imanaysaa cusboonaysiinta xigta"
   },
   "sallam": {
     "title": "Salaam",
@@ -970,5 +997,24 @@
     "password": "Furaha sirta",
     "changePassword": "Beddel furaha sirta",
     "googleOnly": "Waxaad ku gashaa Google, markaa halkan ma jiro fure sir ah oo la beddelo."
+  },
+  "shop": {
+    "back": "Bogga hore",
+    "main": "Dukaanka ugu weyn",
+    "tabsLabel": "Qaybaha dukaanka",
+    "tabs": {
+      "activity": "Waxyaabihii dhawaa",
+      "exchange": "Sarrif",
+      "profit": "Faa'iido",
+      "amanat": "Amaanad",
+      "reports": "Warbixinno"
+    },
+    "empty": {
+      "activity": "Weli waxba lama diiwaangelin. Waxa dukaankani sameeyo halkan ayay ka muuqan doonaan.",
+      "exchange": "Weli sarrif ma jiro. Doollarka la iibsado iyo la iibiyo halkan ayuu ka muuqan doonaa.",
+      "profit": "Weli faa'iido ma jirto. Waxay ka timaadaa Sallam iyo Sarrif.",
+      "amanat": "Amaanad lama hayo. Lacagta macaamiisha loo hayo halkan ayay ka muuqan doontaa.",
+      "reports": "Warbixinnadu way buuxsamaan marka maalmaha la diiwaangeliyo."
+    }
   }
 }

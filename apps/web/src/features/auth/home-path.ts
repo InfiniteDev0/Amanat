@@ -2,39 +2,21 @@
 
 import type { QueryClient } from '@tanstack/react-query';
 
-import { getLastWorkspaceId } from '@/features/workspaces/last-workspace';
-import { api } from '@/lib/api';
-import { queryKeys } from '@/lib/query/keys';
-
 import { returnPath } from './return-path';
 
 /**
- * Where a signed-in person belongs:
- * - setup not finished (no shop yet) → All shops, where the setup wizard
- *   opens on top (it asks for the phone, and the terms if missing)
- * - otherwise → the shop they used last, or their main shop.
+ * Where a signed-in person belongs: Home. With no shop yet the setup wizard
+ * opens over it (features/onboarding/setup-wizard.tsx); there is no
+ * onboarding page. The server agrees (core's routing table, in proxy.ts).
  *
- * There is no onboarding page: setup is an overlay in the app layout
- * (features/onboarding/setup-wizard.tsx). The server agrees (core's routing
- * table, used by proxy.ts).
+ * Async, and given the query client, so callers stay the same if it ever
+ * needs data to decide.
  */
-export async function homePathFor(queryClient: QueryClient): Promise<string> {
-  const memberships = await queryClient.fetchQuery({
-    queryKey: queryKeys.workspaces,
-    queryFn: () => api.workspaces.listMine(),
-  });
-  if (memberships.length === 0) return '/all-shops';
-  const lastId = getLastWorkspaceId();
-  const target = memberships.find((m) => m.workspace.id === lastId) ?? memberships[0]!;
-  return `/w/${target.workspace.id}`;
+export async function homePathFor(_queryClient: QueryClient): Promise<string> {
+  return '/home';
 }
 
-/**
- * After signing in: back to the page they were on when the session ended
- * (?next=, only an app page), unless setup comes first.
- */
+/** After signing in: back to the page they were on when the session ended (?next=, only an app page), else Home. */
 export async function destinationFor(queryClient: QueryClient): Promise<string> {
-  const home = await homePathFor(queryClient);
-  if (home === '/all-shops') return home;
-  return returnPath() ?? home;
+  return returnPath() ?? homePathFor(queryClient);
 }
