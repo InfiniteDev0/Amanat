@@ -92,7 +92,7 @@ export function ShopScreen() {
 
 function EmptyState({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="bg-foreground/3 text-muted-foreground flex flex-col items-center gap-3 rounded-2xl px-6 py-14 text-center text-sm">
+    <div className="bg-foreground/3 text-muted-foreground flex flex-col items-center gap-3 rounded-xl px-6 py-14 text-center text-sm">
       <span className="bg-foreground/5 flex size-10 items-center justify-center rounded-xl [&_svg]:size-5">{icon}</span>
       <p className="max-w-sm">{children}</p>
     </div>

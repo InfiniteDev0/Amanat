@@ -42,7 +42,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          'bg-popover dark:bg-card text-popover-foreground border-border fixed top-1/2 left-1/2 z-50 flex max-h-[min(720px,92svh)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border p-6 outline-none',
+          'bg-popover dark:bg-card text-popover-foreground border-border fixed top-1/2 left-1/2 z-50 flex max-h-[min(720px,92svh)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl border p-6 outline-none',
           'dark:[--field-background:oklch(0.26_0_0)] dark:[--field-focus:oklch(0.3_0_0)]',
           'transition-[opacity,scale] duration-200 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0',
           className,

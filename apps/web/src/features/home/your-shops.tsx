@@ -102,7 +102,7 @@ export function YourShops({ shops, main, onShown }: { shops: WorkspaceMembership
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="border-border text-muted-foreground hover:text-foreground hover:bg-foreground/3 flex h-full min-h-52 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-colors"
+              className="border-border text-muted-foreground hover:text-foreground hover:bg-foreground/3 flex h-full min-h-52 w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors"
             >
               <span className="bg-foreground/5 flex size-12 items-center justify-center rounded-full">
                 <PlusIcon className="size-6" />
@@ -147,7 +147,7 @@ function ShopCard({
 }) {
   const t = useTranslations('home');
   return (
-    <div className="bg-card relative flex h-full min-h-52 flex-col gap-4 overflow-hidden rounded-2xl p-5 ps-6">
+    <div className="bg-card relative flex h-full min-h-52 flex-col gap-4 overflow-hidden rounded-xl p-5 ps-6">
       {/* The shop's colour down the leading edge, like M-Pesa's green. */}
       <span aria-hidden className={cn('absolute inset-y-3 start-0 w-1 rounded-e-full', colourFor(shop.id))} />
       <div className="flex items-start justify-between gap-3">
@@ -178,7 +178,7 @@ function ShopCard({
 
       <Link
         href={`/w/${shop.id}`}
-        className="border-primary/50 hover:bg-primary/10 mt-auto flex h-11 items-center justify-center rounded-xl border text-sm font-semibold transition-colors"
+        className="border-primary/50 hover:bg-primary/10 mt-auto flex h-11 items-center justify-center rounded-lg border text-sm font-semibold transition-colors"
       >
         {t('openShop')}
       </Link>

@@ -30,7 +30,7 @@ export const ACTION_ICONS: Record<ShopAction, ReactNode> = {
 export const SHOP_ACTIONS: ShopAction[] = ['exchange', 'sallam', 'move', 'amanat', 'expense'];
 
 const BUTTON =
-  'bg-card hover:bg-card/70 focus-visible:ring-ring/50 flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors outline-none focus-visible:ring-3 disabled:opacity-50 disabled:hover:bg-card [&_svg]:size-4';
+  'bg-card hover:bg-card/70 focus-visible:ring-ring/50 flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors outline-none focus-visible:ring-3 disabled:opacity-50 disabled:hover:bg-card [&_svg]:size-4';
 
 /**
  * A shop's page: the everyday jobs in a row (Exchange, Sallam, Move, Amanat,

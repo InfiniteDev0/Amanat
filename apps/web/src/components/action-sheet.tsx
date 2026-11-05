@@ -48,7 +48,7 @@ export function ActionSheet({
         side={rtl ? 'left' : 'right'}
         showCloseButton={false}
         className={cn(
-          'bg-background border-border my-2 me-2 h-[calc(100svh-1rem)]! w-full gap-0 rounded-3xl border p-0 shadow-none sm:max-w-[26rem]!',
+          'bg-background border-border my-2 me-2 h-[calc(100svh-1rem)]! w-full gap-0 rounded-2xl border p-0 shadow-none sm:max-w-[26rem]!',
           'max-md:m-0 max-md:h-svh! max-md:max-w-none! max-md:rounded-none max-md:border-0 max-md:pt-[env(safe-area-inset-top)]',
         )}
       >

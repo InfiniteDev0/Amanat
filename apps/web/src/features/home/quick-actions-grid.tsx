@@ -58,7 +58,7 @@ export function QuickActionsGrid({ shops, shopId }: { shops: WorkspaceMembership
   const team = <Tile key="team" icon={<UsersIcon />} label={t('actions.team')} href={`/w/${shopId}/team`} />;
 
   return (
-    <section aria-labelledby="quick-actions" className="bg-card rounded-2xl p-5">
+    <section aria-labelledby="quick-actions" className="bg-card rounded-xl p-5">
       <div className="mb-4 flex items-center justify-between">
         <h2 id="quick-actions" className="text-base font-semibold">
           {t('quick.title')}

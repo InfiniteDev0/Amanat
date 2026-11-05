@@ -92,7 +92,7 @@ export function AccountCards({
             type="button"
             onClick={() => onOpen(account.id)}
             aria-label={t('openAccount', { account: label(account) })}
-            className="bg-card hover:bg-card/70 focus-visible:ring-ring/50 flex min-w-0 flex-col gap-2 rounded-xl p-4 text-start transition-colors outline-none focus-visible:ring-3"
+            className="bg-card hover:bg-card/70 focus-visible:ring-ring/50 flex min-w-0 flex-col gap-2 rounded-lg p-4 text-start transition-colors outline-none focus-visible:ring-3"
           >
             <span className="text-muted-foreground flex min-w-0 items-center gap-2 text-sm">
               <span className={cn('size-2.5 shrink-0 rounded-full', colour)} aria-hidden />
