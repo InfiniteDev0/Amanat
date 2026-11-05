@@ -20,6 +20,7 @@ import { fieldError } from './field-error';
 import { FormError } from './form-error';
 import { GoogleButton } from './google-button';
 import { destinationFor } from './home-path';
+import { rememberSignInMethod } from './last-sign-in';
 import { PasswordField } from './password-field';
 import { useLogIn } from './queries';
 import { type LogInFormValues, logInFormSchema } from './schemas';
@@ -64,7 +65,10 @@ export function LogInForm() {
         // Everything typed stays, except the password.
         onError: () => form.setValue('password', ''),
         // Back to the page they were on if the session had ended (?next=).
-        onSuccess: async (user) => router.replace(await destinationFor(user, queryClient), { locale: user.language }),
+        onSuccess: async (user) => {
+          rememberSignInMethod('email');
+          router.replace(await destinationFor(queryClient), { locale: user.language });
+        },
       }),
     );
 

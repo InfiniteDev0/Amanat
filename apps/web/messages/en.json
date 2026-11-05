@@ -91,7 +91,8 @@
     "wrongEmail": "Wrong email?",
     "useDifferentEmail": "Use a different email",
     "alreadyRegistered": "You already have an account",
-    "alreadyRegisteredDescription": "Log in with your password."
+    "alreadyRegisteredDescription": "Log in with your password.",
+    "lastUsed": "Last used"
   },
   "nav": {
     "home": "Home",
@@ -202,7 +203,10 @@
     "tooManyAttempts": "Too many attempts. Try again in 5 minutes.",
     "tooManyEmails": "Too many emails sent. Try again later.",
     "serviceDown": "Service unavailable. Please try again shortly.",
-    "signUpFailed": "Something went wrong. Try again."
+    "signUpFailed": "Something went wrong. Try again.",
+    "notYet": "Not available yet. Coming soon.",
+    "setupRefused": "Your shop couldn't be saved. Check your answers and try again.",
+    "rateNeedsDollar": "Set the dollar's rate first."
   },
   "recordTypes": {
     "exchange": "Exchange",
@@ -245,7 +249,8 @@
       "changePhoto": "Change photo",
       "photoAlt": "Your photo",
       "photoFailed": "That picture could not be read. Try another one.",
-      "removePhoto": "Remove photo"
+      "removePhoto": "Remove photo",
+      "photoOptional": "A photo is optional."
     },
     "profile": {
       "title": "About you",
@@ -253,8 +258,8 @@
       "name": "Your name"
     },
     "shop": {
-      "title": "Your shop",
-      "hint": "The name your staff and the shop switcher will show.",
+      "title": "Your main shop",
+      "hint": "Your central shop. You can add more shops later.",
       "name": "Shop name",
       "location": "Location (optional)"
     },
@@ -284,11 +289,13 @@
         "cash": "Cash",
         "mobile_money": "Mobile money",
         "bank": "Bank"
-      }
+      },
+      "countFirst": "Count your drawers first. These numbers start your books.",
+      "totals": "Total per currency"
     },
     "rates": {
       "title": "Today's rates",
-      "hint": "The market value of 1 {base} today. Every balance is valued at it.",
+      "hint": "Today's market rate: how much of each currency for 1 US dollar.",
       "onlyBase": "Your shop only trades {currency}, so there are no rates to set.",
       "buy": "We buy",
       "sell": "We sell",
@@ -298,7 +305,7 @@
       "credit": "Market rates: {source}, updated {updated}.",
       "marketColumn": "Market",
       "todaysRate": "Today's rate",
-      "rateFor": "Today's rate: 1 {base} in {currency}"
+      "rateFor": "Today's rate: 1 USD in {currency}"
     },
     "review": {
       "title": "Here's your shop",
@@ -309,7 +316,15 @@
       "owner": "Owner",
       "noLocation": "No location given",
       "currencies": "Currencies",
-      "phone": "Phone"
+      "phone": "Phone",
+      "edit": "Edit",
+      "editShop": "Edit the shop",
+      "editProfile": "Edit your details",
+      "editCurrencies": "Edit the currencies",
+      "editAccounts": "Edit the accounts",
+      "editRates": "Edit the rates",
+      "you": "You",
+      "trade": "What you trade"
     },
     "preview": {
       "shopName": "Your shop"
@@ -319,7 +334,13 @@
     "saved": "{shop} is ready",
     "savedDescription": "Here’s your dashboard.",
     "saveFailedDescription": "Nothing was saved. Try again.",
-    "close": "Close"
+    "close": "Close",
+    "confirm": {
+      "title": "Are these opening amounts correct?",
+      "description": "These numbers start your books. Changing one later is recorded as an adjustment.",
+      "back": "Check again",
+      "yes": "Yes, open my shop"
+    }
   },
   "shell": {
     "shops": "Shops",
@@ -939,5 +960,15 @@
     "placeholder": "Search",
     "shortcut": "Ctrl K",
     "shortcutMac": "⌘K"
+  },
+  "me": {
+    "menu": "Account settings",
+    "title": "Account settings",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "password": "Password",
+    "changePassword": "Change password",
+    "googleOnly": "You sign in with Google, so there is no password to change here."
   }
 }

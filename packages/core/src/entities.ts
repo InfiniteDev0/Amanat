@@ -42,6 +42,8 @@ export interface User {
   createdAt: Timestamp;
   /** When they agreed to the Terms and Risk statements; null until they have (Google sign-ups). */
   termsAcceptedAt: Timestamp | null;
+  /** Whether they can sign in with a password (false: Google only, nothing to change). Left out by the demo: yes. */
+  hasPassword?: boolean;
 }
 
 /**

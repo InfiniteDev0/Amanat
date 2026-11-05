@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
+import { LAST_SIGN_IN_COOKIE, LAST_SIGN_IN_MAX_AGE } from '@/features/auth/last-sign-in';
 import { localeNext } from '@/lib/auth-redirect';
 import { reportError } from '@/lib/report-error';
 import { createClient } from '@/lib/supabase/server';
@@ -26,7 +27,12 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   if (code && !providerError) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(path, origin));
+    if (!error) {
+      const signedIn = NextResponse.redirect(new URL(path, origin));
+      // "Last used" next to the Google button next time (features/auth/last-sign-in.ts).
+      signedIn.cookies.set(LAST_SIGN_IN_COOKIE, 'google', { path: '/', maxAge: LAST_SIGN_IN_MAX_AGE, sameSite: 'lax' });
+      return signedIn;
+    }
     reportError(error, { during: 'googleCallback', code: error.code });
   } else if (providerError) {
     reportError(new Error(providerError), { during: 'googleCallback', description: searchParams.get('error_description') });

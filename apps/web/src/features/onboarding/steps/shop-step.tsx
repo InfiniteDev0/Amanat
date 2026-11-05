@@ -8,7 +8,7 @@ import { TextField } from '@/components/text-field';
 import type { StepProps } from '.';
 import { StepHeader } from './step-header';
 
-/** The shop's name (what staff and the shop switcher see) and where it is. */
+/** The main shop: its name (what staff and the shop switcher see) and where it is. */
 export default function ShopStep({ draft, update, problem }: StepProps) {
   const t = useTranslations('onboarding.shop');
   return (

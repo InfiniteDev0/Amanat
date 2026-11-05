@@ -1,20 +1,24 @@
 'use client';
 
-import type { Language, User } from '@sarrif/core';
+import type { Language, OnboardingProgress, User } from '@sarrif/core';
 import { ChevronLeft, Loader, X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { createContext, type ReactNode, Suspense, useCallback, useContext, useEffect, useState } from 'react';
 
+import { MoneyText } from '@/components/money-text';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useSession } from '@/features/auth/queries';
+import { LoadingScreen } from '@/features/auth/session-gate';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { directionOf } from '@/i18n/routing';
 import { useMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 import { DashboardPreview } from './dashboard-preview';
-import { clearDraft, type OnboardingDraft } from './draft';
+import { clearDraft, type OnboardingDraft, openingTotals } from './draft';
+import { useOnboardingProgress } from './queries';
 import { STEPS } from './steps';
 import { useCompleteOnboarding } from './use-complete-onboarding';
 import { useOnboardingDraft } from './use-onboarding-draft';
@@ -63,10 +67,20 @@ export function useStartNewShop() {
   return useContext(StartNewShopContext);
 }
 
-/** One draft for both: the wizard edits it, the dashboard behind shows it. */
+/**
+ * Waits for the progress saved on the profile (a first shop resumes where it
+ * was left, even on another device); another shop starts fresh.
+ */
 function Setup({ user, onClose }: { user: User; onClose?: () => void }) {
+  const progress = useOnboardingProgress({ enabled: !onClose });
+  if (!onClose && progress.isPending) return <LoadingScreen />;
+  return <SetupWithDraft user={user} saved={onClose ? null : (progress.data ?? null)} onClose={onClose} />;
+}
+
+/** One draft for both: the wizard edits it, the dashboard behind shows it. */
+function SetupWithDraft({ user, saved, onClose }: { user: User; saved: OnboardingProgress | null; onClose?: () => void }) {
   const locale = useLocale() as Language;
-  const { draft, update } = useOnboardingDraft(user, locale);
+  const { draft, update } = useOnboardingDraft(user, locale, saved);
   return (
     <>
       <div inert className="contents">
@@ -93,10 +107,15 @@ function SetupWizard({ draft, update, onClose }: ReturnType<typeof useOnboarding
   const completion = useCompleteOnboarding();
   const [problem, setProblem] = useState<StepProblem | null>(null);
   const [direction, setDirection] = useState<1 | -1>(1);
+  // "Are these opening amounts correct?" before anything is saved.
+  const [confirming, setConfirming] = useState(false);
 
   const index = Math.min(Math.max(draft.step, 0), STEPS.length - 1);
   const step = STEPS[index]!;
   const last = index === STEPS.length - 1;
+  // Welcome and the review aren't counted: "1 of 5" … "5 of 5" are the real steps.
+  const counted = STEPS.length - 2;
+  const showCount = index > 0 && !last;
   const blocked = step.validate?.(draft) ?? null;
   const { Component } = step;
 
@@ -119,8 +138,12 @@ function SetupWizard({ draft, update, onClose }: ReturnType<typeof useOnboarding
   };
   const next = () => {
     if (blocked) return setProblem(blocked);
-    if (last) completion.complete(draft, onClose);
+    if (last) setConfirming(true);
     else go(index + 1);
+  };
+  const open = () => {
+    setConfirming(false);
+    completion.complete(draft, onClose);
   };
   const skip = () => {
     if (step.onSkip) update(step.onSkip);
@@ -148,7 +171,9 @@ function SetupWizard({ draft, update, onClose }: ReturnType<typeof useOnboarding
           >
             <ChevronLeft className="size-5 rtl:rotate-180" />
           </button>
-          <span className="text-muted-foreground text-xs tabular-nums">{t('progress', { step: index + 1, total: STEPS.length })}</span>
+          <span className="text-muted-foreground text-xs tabular-nums">
+            {showCount ? t('progress', { step: index, total: counted }) : null}
+          </span>
           {onClose ? (
             <button
               type="button"
@@ -217,6 +242,54 @@ function SetupWizard({ draft, update, onClose }: ReturnType<typeof useOnboarding
           </div>
         </footer>
       </div>
+
+      <ConfirmOpening draft={draft} open={confirming} onOpenChange={setConfirming} onConfirm={open} />
     </div>
+  );
+}
+
+/**
+ * The last check before Open my shop: the opening amounts are the starting
+ * line of the books, and changing one later is a recorded adjustment, not an
+ * edit. So the totals are shown once more and must be confirmed.
+ */
+function ConfirmOpening({
+  draft,
+  open,
+  onOpenChange,
+  onConfirm,
+}: {
+  draft: OnboardingDraft;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}) {
+  const t = useTranslations('onboarding.confirm');
+  const totals = openingTotals(draft.accounts);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
+        </DialogHeader>
+        <ul className="bg-field flex flex-col gap-2 rounded-xl p-3 text-sm">
+          {totals.map((money) => (
+            <li key={money.currency} className="flex items-center justify-between gap-3">
+              <span className="font-medium">{money.currency}</span>
+              <MoneyText money={money} className="font-semibold" />
+            </li>
+          ))}
+        </ul>
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="h-11 rounded-xl">
+            {t('back')}
+          </Button>
+          <Button type="button" onClick={onConfirm} className="h-11 rounded-xl font-semibold">
+            {t('yes')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

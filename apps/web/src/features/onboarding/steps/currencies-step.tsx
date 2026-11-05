@@ -14,8 +14,9 @@ import { withBase, withCurrencies } from '../draft';
 import { StepHeader } from './step-header';
 
 /**
- * What the shop trades, and which of those it counts in (the base). Rates are
- * set against the base; it's also the currency of totals and profit.
+ * What the shop trades (picked here only: Sign up no longer asks), and which
+ * of those it counts in (the base): the currency of totals and profit. Rates
+ * are always typed against the dollar, whatever the base.
  */
 export default function CurrenciesStep({ draft, update, problem }: StepProps) {
   const t = useTranslations('onboarding.currencies');

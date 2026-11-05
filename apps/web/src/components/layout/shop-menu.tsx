@@ -20,8 +20,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AccountSettingsDialog } from "@/features/auth/account-settings-dialog";
 import { SignOutEverywhereDialog } from "@/features/auth/sign-out-everywhere-dialog";
 import { useStartNewShop } from "@/features/onboarding/setup-wizard";
+import { CAN_ADD_SHOPS } from "@/lib/api";
 import { useMyWorkspaces } from "@/features/workspaces/queries";
 import { Link } from "@/i18n/navigation";
 
@@ -52,6 +54,7 @@ export function ShopMenu({
   )?.role;
   // Outside the menu, which goes away when it closes: the dialog must stay.
   const [everywhereOpen, setEverywhereOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <>
@@ -117,24 +120,30 @@ export function ShopMenu({
 
         <DropdownMenuSeparator className="my-1" /> */}
 
+        {/* Shops beyond the main one: the demo only, until they're in the database. */}
+        {CAN_ADD_SHOPS ? (
+          <>
+            <DropdownMenuSeparator className="my-1" />
+
+            <DropdownMenuItem
+              className="text-muted-foreground h-9 gap-2.5"
+              onClick={startNewShop}
+            >
+              <span className="border-border flex size-6 items-center justify-center rounded-md border border-dashed">
+                <PlusIcon className="size-3.5" />
+              </span>
+              {t("shell.createShop")}
+            </DropdownMenuItem>
+          </>
+        ) : null}
+
         <DropdownMenuSeparator className="my-1" />
 
-        <DropdownMenuItem
-          className="text-muted-foreground h-9 gap-2.5"
-          onClick={startNewShop}
-        >
-          <span className="border-border flex size-6 items-center justify-center rounded-md border border-dashed">
-            <PlusIcon className="size-3.5" />
-          </span>
-          {t("shell.createShop")}
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator className="my-1" />
-
-        <AccountItems onSignOutEverywhere={() => setEverywhereOpen(true)} />
+        <AccountItems onAccountSettings={() => setSettingsOpen(true)} onSignOutEverywhere={() => setEverywhereOpen(true)} />
       </DropdownMenuContent>
     </DropdownMenu>
     <SignOutEverywhereDialog open={everywhereOpen} onOpenChange={setEverywhereOpen} />
+    <AccountSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </>
   );
 }

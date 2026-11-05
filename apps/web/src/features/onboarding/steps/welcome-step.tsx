@@ -63,6 +63,8 @@ export default function WelcomeStep({ draft, update }: StepProps) {
         </label>
         <input id={inputId} type="file" accept="image/jpeg,image/png,image/webp" onChange={pick} className="sr-only" />
       </div>
+      {/* Optional: "Let's start" goes on without one. */}
+      {draft.avatar ? null : <p className="text-muted-foreground -mt-4 mb-4 text-xs">{t('photoOptional')}</p>}
       <StepHeader title={firstName ? t('titleNamed', { name: firstName }) : t('title')} hint={t('hint')} />
     </div>
   );

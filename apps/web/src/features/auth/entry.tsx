@@ -26,10 +26,11 @@ const listClassName = [
   '**:data-[slot=tabs-tab]:data-[focus-visible=true]:outline-primary/60',
   '**:data-[slot=tabs-tab]:data-[selected=true]:font-semibold',
   '**:data-[slot=tabs-tab]:data-[selected=true]:text-primary-foreground',
+  // The selected tab is filled itself: HeroUI's sliding indicator could stop
+  // half way (over the other tab, opening on Log in), hiding both labels.
+  '**:data-[slot=tabs-tab]:data-[selected=true]:bg-primary',
   '**:data-[slot=tabs-tab]:shadow-none',
-  '**:data-[slot=tabs-indicator]:rounded-lg',
-  '**:data-[slot=tabs-indicator]:bg-primary',
-  '**:data-[slot=tabs-indicator]:shadow-none',
+  '**:data-[slot=tabs-indicator]:hidden',
 ].join(' ');
 
 // Both forms stay mounted so switching tabs keeps what was typed; the inactive

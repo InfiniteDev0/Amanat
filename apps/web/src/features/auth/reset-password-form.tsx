@@ -56,7 +56,7 @@ export function ResetPasswordForm() {
           onError: () => form.setValue('password', ''),
           onSuccess: async () => {
             gooeyToast.success(t('passwordChanged'));
-            router.replace(await destinationFor(user, queryClient));
+            router.replace(await destinationFor(queryClient));
           },
         },
       ),

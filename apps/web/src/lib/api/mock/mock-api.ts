@@ -3,6 +3,7 @@ import {
   ApiError,
   type BookFilter,
   type BookRow,
+  boardRatesFromUsd,
   businessDate,
   can,
   completeProfileSchema,
@@ -37,6 +38,7 @@ import {
   isCurrencyCode,
   LedgerError,
   onboardingSchema,
+  type OnboardingProgress,
   type LedgerSource,
   profileSchema,
   ratedCurrencies,
@@ -77,6 +79,8 @@ import { DEMO_PASSWORD } from './seed';
 
 const newId = () => crypto.randomUUID();
 const nowIso = () => new Date().toISOString();
+/** Where the demo keeps a person's setup progress (localStorage, + ':' + their id). */
+const PROGRESS_KEY = 'sarrif-onboarding-progress';
 
 /** A little delay, so loading states get exercised like on a real network. */
 const latency = () => new Promise((resolve) => setTimeout(resolve, 120 + Math.random() * 180));
@@ -663,6 +667,26 @@ export const mockApi: SarrifApi = {
   },
 
   onboarding: {
+    // Kept in this browser only, per person (the real backend keeps it on the profile).
+    async progress() {
+      const user = signedIn(getDb());
+      try {
+        const saved = JSON.parse(window.localStorage.getItem(`${PROGRESS_KEY}:${user.id}`) ?? 'null') as OnboardingProgress | null;
+        return saved && typeof saved.step === 'number' && saved.data ? saved : null;
+      } catch {
+        return null;
+      }
+    },
+
+    async saveProgress(progress) {
+      const user = signedIn(getDb());
+      try {
+        window.localStorage.setItem(`${PROGRESS_KEY}:${user.id}`, JSON.stringify(progress));
+      } catch {
+        // Storage blocked: setup still works, it just won't resume.
+      }
+    },
+
     async complete(input) {
       await latency();
       const db = getDb();
@@ -671,8 +695,10 @@ export const mockApi: SarrifApi = {
       const now = nowIso();
 
       // Everything is built first and saved once at the end: all or nothing,
-      // like the database transaction the real backend will use.
-      Object.assign(user, profile);
+      // like the database transaction the real backend uses.
+      const { name, language, avatar, phone, acceptTerms } = profile;
+      Object.assign(user, { name, language, phone }, avatar === undefined ? {} : { avatar });
+      if (acceptTerms && user.termsAcceptedAt === null) user.termsAcceptedAt = now;
       const workspace: Workspace = {
         id: newId(),
         ...shop,
@@ -687,11 +713,18 @@ export const mockApi: SarrifApi = {
       for (const account of accounts) {
         db.accounts.push({ id: newId(), workspaceId: workspace.id, ...account, archived: false, createdAt: now });
       }
+      // Typed as dollar quotes ("1 USD = 129 KSh"); the board is per 1 base unit, one rate (buy = sell).
       const today = businessDate(workspace.timeZone);
-      for (const pair of rates) {
-        db.rates.push({ id: newId(), workspaceId: workspace.id, date: today, ...pair, setBy: user.id, setAt: now });
+      const quotes = Object.fromEntries(rates.map((quote) => [quote.currency, quote.perUsd]));
+      for (const [currency, rate] of Object.entries(boardRatesFromUsd(shop.baseCurrency, shop.currencies, quotes)) as [CurrencyCode, string][]) {
+        db.rates.push({ id: newId(), workspaceId: workspace.id, date: today, currency, buy: rate, sell: rate, setBy: user.id, setAt: now });
       }
       saveDb();
+      try {
+        window.localStorage.removeItem(`${PROGRESS_KEY}:${user.id}`);
+      } catch {
+        // nothing to clear
+      }
       return { user, workspace };
     },
   },

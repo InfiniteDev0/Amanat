@@ -1,6 +1,6 @@
 'use client';
 
-import { type CompleteProfileInput, type OnboardingInput, parseAmount, type WorkspaceMembership } from '@sarrif/core';
+import { type OnboardingInput, parseAmount, type WorkspaceMembership } from '@sarrif/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
@@ -13,15 +13,16 @@ import { deviceTimeZone } from '@/lib/device-time-zone';
 import { queryKeys } from '@/lib/query/keys';
 import { promiseToast } from '@/lib/promise-toast';
 
-import { clearDraft, type OnboardingDraft, ratedOf } from './draft';
-import { clearSignupCurrencies } from './signup-currencies';
+import { clearDraft, type OnboardingDraft, quotedOf } from './draft';
 import { useAccountName } from './use-account-name';
 
 /**
- * The wizard's write: first the account (phone, the terms for Google
- * sign-ups, name and language), then the draft as an OnboardingInput in a
- * single call (all or nothing). Then straight into the new shop, in the
- * language they picked. Phase 1g makes it one database transaction.
+ * Open my shop: the draft as one OnboardingInput, saved in ONE call (one
+ * database transaction on the real backend: the profile with the phone and
+ * the terms, the main shop, its accounts and opening amounts, today's
+ * rates). All or nothing; a double click gets the same shop. Then straight
+ * into the new shop, in the language they picked. If it fails, they stay on
+ * the review with a translated error and can try again.
  */
 export function useCompleteOnboarding() {
   const queryClient = useQueryClient();
@@ -31,20 +32,16 @@ export function useCompleteOnboarding() {
   const message = useMessage();
 
   const mutation = useMutation({
-    mutationFn: async ({ profile, input }: { profile: CompleteProfileInput; input: OnboardingInput }) => {
-      await api.auth.completeProfile(profile);
-      await api.auth.updateProfile(input.profile);
-      return api.onboarding.complete(input);
-    },
+    mutationFn: (input: OnboardingInput) => api.onboarding.complete(input),
     onSuccess: ({ user, workspace }) => {
       queryClient.setQueryData(queryKeys.session, user);
       queryClient.setQueryData<WorkspaceMembership[]>(queryKeys.workspaces, (list = []) => [
-        ...list,
+        ...list.filter((m) => m.workspace.id !== workspace.id),
         { workspace, role: 'owner' },
       ]);
+      queryClient.setQueryData(queryKeys.onboardingProgress, null);
       setLastWorkspaceId(workspace.id);
       clearDraft();
-      clearSignupCurrencies();
       router.replace(`/w/${workspace.id}`, { locale: user.language });
     },
   });
@@ -52,7 +49,14 @@ export function useCompleteOnboarding() {
   /** Saves the draft; `onDone` runs once the shop exists (closes an optional wizard). */
   const complete = (draft: OnboardingDraft, onDone?: () => void) => {
     const input: OnboardingInput = {
-      profile: { name: draft.name.trim(), language: draft.language, avatar: draft.avatar },
+      profile: {
+        name: draft.name.trim(),
+        language: draft.language,
+        avatar: draft.avatar,
+        phone: toE164(draft.phone) ?? '',
+        // Google sign-ups agree here; everyone else did on Sign up.
+        acceptTerms: draft.termsNeeded ? true : undefined,
+      },
       shop: {
         name: draft.shopName.trim(),
         location: draft.location.trim(),
@@ -70,15 +74,14 @@ export function useCompleteOnboarding() {
           provider: account.provider,
           openingBalance: account.opening.trim() ? (parseAmount(account.opening, account.currency) ?? 0) : 0,
         })),
-      rates: ratedOf(draft).flatMap((currency) => {
-        const pair = draft.rates[currency];
-        return pair?.buy.trim() && pair.sell.trim() ? [{ currency, buy: pair.buy.trim(), sell: pair.sell.trim() }] : [];
+      // "1 USD = 129 KSh", as typed; skipped ones are left out.
+      rates: quotedOf(draft).flatMap((currency) => {
+        const perUsd = draft.rates[currency]?.trim();
+        return perUsd ? [{ currency, perUsd }] : [];
       }),
     };
     // One expanded toast follows the save: "Setting up your shop…" → "Ezary shop is ready".
-    const phone = toE164(draft.phone) ?? '';
-    const profile: CompleteProfileInput = { phone, acceptTerms: draft.termsNeeded ? true : undefined };
-    promiseToast(mutation.mutateAsync({ profile, input }), {
+    promiseToast(mutation.mutateAsync(input), {
       loading: t('saving'),
       success: ({ workspace }) => t('saved', { shop: workspace.name }),
       error: (error) => message(errorKey(error)),

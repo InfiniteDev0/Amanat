@@ -37,7 +37,7 @@ export function CheckEmail({ email, fromLogIn = false }: { email: string; fromLo
   // Confirmed in another tab (the link opens one): carry on into the app from here too.
   const session = useSession({ watch: true });
   useEffect(() => {
-    if (session.data) void destinationFor(session.data, queryClient).then((path) => router.replace(path));
+    if (session.data) void destinationFor(queryClient).then((path) => router.replace(path));
   }, [session.data, queryClient, router]);
   const { online, run } = useSubmitGuard();
   const [cooldown, setCooldown] = useState(fromLogIn ? 0 : RESEND_COOLDOWN_S);

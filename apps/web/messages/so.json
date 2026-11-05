@@ -91,7 +91,8 @@
     "wrongEmail": "Iimayl khaldan?",
     "useDifferentEmail": "Isticmaal iimayl kale",
     "alreadyRegistered": "Horey ayaad akoon u leedahay",
-    "alreadyRegisteredDescription": "Ku gal furahaaga."
+    "alreadyRegisteredDescription": "Ku gal furahaaga.",
+    "lastUsed": "Ugu dambeysay"
   },
   "nav": {
     "home": "Hoyga",
@@ -202,7 +203,10 @@
     "tooManyAttempts": "Isku day aad u badan. Isku day mar kale 5 daqiiqo kadib.",
     "tooManyEmails": "Iimaylo aad u badan ayaa la diray. Isku day goor dambe.",
     "serviceDown": "Adeeggu hadda ma shaqeynayo. Fadlan isku day wax yar kadib.",
-    "signUpFailed": "Wax baa khaldamay. Isku day mar kale."
+    "signUpFailed": "Wax baa khaldamay. Isku day mar kale.",
+    "notYet": "Weli lama heli karo. Dhawaan ayay imanaysaa.",
+    "setupRefused": "Dukaanka lama kaydin karo. Hubi jawaabahaaga oo isku day mar kale.",
+    "rateNeedsDollar": "Marka hore deji sicirka doollarka."
   },
   "recordTypes": {
     "exchange": "Sarrif",
@@ -245,7 +249,8 @@
       "changePhoto": "Beddel sawirka",
       "photoAlt": "Sawirkaaga",
       "photoFailed": "Sawirkaas lama akhrin karo. Isku day mid kale.",
-      "removePhoto": "Ka saar sawirka"
+      "removePhoto": "Ka saar sawirka",
+      "photoOptional": "Sawirku waa ikhtiyaari."
     },
     "profile": {
       "title": "Adiga",
@@ -253,8 +258,8 @@
       "name": "Magacaaga"
     },
     "shop": {
-      "title": "Dukaankaaga",
-      "hint": "Magaca ay shaqaalahaagu iyo beddelaha dukaanku muujinayaan.",
+      "title": "Dukaankaaga ugu weyn",
+      "hint": "Dukaankaaga dhexe. Dukaanno kale waad ku dari kartaa hadhow.",
       "name": "Magaca dukaanka",
       "location": "Goobta (ikhtiyaari)"
     },
@@ -284,11 +289,13 @@
         "cash": "Lacag caddaan",
         "mobile_money": "Lacag mobil",
         "bank": "Bangi"
-      }
+      },
+      "countFirst": "Marka hore tiri khaanadahaaga. Tirooyinkani waxay bilaabayaan buugaagtaada.",
+      "totals": "Wadarta lacag kasta"
     },
     "rates": {
       "title": "Sicirka maanta",
-      "hint": "Qiimaha suuqa ee 1 {base} maanta. Haraag kasta waa lagu qiimeeyaa.",
+      "hint": "Sicirka suuqa maanta: inta lacag kasta ah ee lagu helo 1 doollar.",
       "onlyBase": "Dukaankaagu wuxuu ka ganacsadaa {currency} oo keliya, sidaa darteed sicir loo baahan yahay ma jiro.",
       "buy": "Waan iibsanaa",
       "sell": "Waan iibinaa",
@@ -298,7 +305,7 @@
       "credit": "Sicirka suuqa: {source}, la cusboonaysiiyay {updated}. Tilmaan keliya.",
       "marketColumn": "Suuqa",
       "todaysRate": "Sicirka maanta",
-      "rateFor": "Sicirka maanta: 1 {base} oo {currency} ah"
+      "rateFor": "Sicirka maanta: 1 USD oo {currency} ah"
     },
     "review": {
       "title": "Waa kan dukaankaaga",
@@ -309,7 +316,15 @@
       "owner": "Milkiilaha",
       "noLocation": "Goob lama sheegin",
       "currencies": "Lacagaha",
-      "phone": "Telefoon"
+      "phone": "Telefoon",
+      "edit": "Wax ka beddel",
+      "editShop": "Wax ka beddel dukaanka",
+      "editProfile": "Wax ka beddel xogtaada",
+      "editCurrencies": "Wax ka beddel lacagaha",
+      "editAccounts": "Wax ka beddel xisaabaadka",
+      "editRates": "Wax ka beddel sicirrada",
+      "you": "Adiga",
+      "trade": "Waxa aad ka ganacsato"
     },
     "preview": {
       "shopName": "Dukaankaaga"
@@ -319,7 +334,13 @@
     "saved": "{shop} waa diyaar",
     "savedDescription": "Waa kan dashboard-kaagu.",
     "saveFailedDescription": "Waxba lama kaydin. Isku day mar kale.",
-    "close": "Xir"
+    "close": "Xir",
+    "confirm": {
+      "title": "Lacagaha bilowgu ma saxsan yihiin?",
+      "description": "Tirooyinkani waxay bilaabayaan buugaagtaada. Hadhow, isbeddel kasta waxaa loo diiwaangelinayaa hagaajin.",
+      "back": "Dib u eeg",
+      "yes": "Haa, fur dukaankayga"
+    }
   },
   "shell": {
     "shops": "Dukaamada",
@@ -939,5 +960,15 @@
     "placeholder": "Raadi",
     "shortcut": "Ctrl K",
     "shortcutMac": "⌘K"
+  },
+  "me": {
+    "menu": "Dejinta akoonka",
+    "title": "Dejinta akoonka",
+    "save": "Kaydi",
+    "saving": "Waa la kaydinayaa…",
+    "saved": "Waa la kaydiyay",
+    "password": "Furaha sirta",
+    "changePassword": "Beddel furaha sirta",
+    "googleOnly": "Waxaad ku gashaa Google, markaa halkan ma jiro fure sir ah oo la beddelo."
   }
 }

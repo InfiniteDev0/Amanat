@@ -1,11 +1,12 @@
 'use client';
 
 import { ACCOUNT_TYPES, type AccountType, type CurrencyCode, profileSchema } from '@sarrif/core';
-import { Banknote, Check, Landmark, type LucideIcon, Plus, Smartphone, X } from 'lucide-react';
+import { Banknote, Check, Landmark, type LucideIcon, Plus, Smartphone, TriangleAlert, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useState } from 'react';
 
 import { Flag } from '@/components/flag';
+import { MoneyText } from '@/components/money-text';
 import { Button } from '@/components/ui/button';
 import { FieldAlert } from '@/components/ui/field-alert';
 import { currencyFlag } from '@/lib/currency-flag';
@@ -13,7 +14,7 @@ import { useMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 import type { StepProps } from '.';
-import { type DraftAccount, updateAccount } from '../draft';
+import { type DraftAccount, openingTotals, updateAccount } from '../draft';
 import { useAccountName } from '../use-account-name';
 import { StepHeader } from './step-header';
 
@@ -30,6 +31,12 @@ export default function AccountsStep({ draft, update, problem }: StepProps) {
     <div>
       <StepHeader title={t('title')} hint={t('hint')} />
 
+      {/* The starting line of the books: every balance and profit after depends on it. */}
+      <p role="note" className="bg-field mb-4 flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-sm leading-snug">
+        <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-amber-500" />
+        {t('countFirst')}
+      </p>
+
       <div className="relative">
         <div className="text-muted-foreground mb-2 flex justify-between px-1 text-xs">
           <span>{t('account')}</span>
@@ -44,6 +51,28 @@ export default function AccountsStep({ draft, update, problem }: StepProps) {
       </div>
 
       <AddAccount currencies={draft.currencies} base={draft.baseCurrency} update={update} />
+      <OpeningTotals accounts={draft.accounts} />
+    </div>
+  );
+}
+
+/** What the accounts kept add up to, per currency, so the drawers can be checked against it. */
+export function OpeningTotals({ accounts }: { accounts: DraftAccount[] }) {
+  const t = useTranslations('onboarding.accounts');
+  const totals = openingTotals(accounts);
+  if (totals.length === 0) return null;
+  return (
+    <div className="mt-5 flex flex-col gap-1.5 border-t pt-4 text-sm">
+      <p className="text-muted-foreground text-xs">{t('totals')}</p>
+      {totals.map((money) => (
+        <div key={money.currency} className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2 font-medium">
+            <Flag code={currencyFlag(money.currency)} />
+            {money.currency}
+          </span>
+          <MoneyText money={money} className="font-semibold" />
+        </div>
+      ))}
     </div>
   );
 }

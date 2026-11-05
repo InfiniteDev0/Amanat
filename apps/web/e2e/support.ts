@@ -99,22 +99,25 @@ export async function expectInApp(page: Page) {
 /** The session cookie local Supabase sets (sb-<host>-auth-token, maybe split into .0, .1…). */
 export const AUTH_COOKIE = /^sb-127-auth-token(\.\d+)?$/;
 
-/** The demo data's shop ids, in order (the first is the one joinDemoShop joins). */
-export async function demoShopIds(page: Page): Promise<string[]> {
-  return page.evaluate(() => JSON.parse(localStorage.getItem('sarrif-mock-db') ?? 'null').workspaces.map((w: { id: string }) => w.id));
-}
-
 /**
- * Makes the signed-in user a member of the demo data's first shop (the rest
- * of the app is still the in-browser mock), so they land in a shop, not the
- * setup wizard. Returns the shop's id.
+ * A finished setup for this user, straight in the database (the admin API,
+ * as complete_onboarding would leave it): a workspace, its main shop with one
+ * account, and the profile marked done. Returns the shop's id.
  */
-export async function joinDemoShop(page: Page, userId: string): Promise<string> {
-  return page.evaluate((id) => {
-    const db = JSON.parse(localStorage.getItem('sarrif-mock-db') ?? 'null');
-    const shop = db.workspaces[0].id as string;
-    db.members.push({ id: crypto.randomUUID(), workspaceId: shop, userId: id, role: 'owner', joinedAt: new Date().toISOString() });
-    localStorage.setItem('sarrif-mock-db', JSON.stringify(db));
-    return shop;
-  }, userId);
+export async function makeShop(userId: string, name = 'Eastleigh'): Promise<string> {
+  const { data: workspace, error } = await admin
+    .from('workspaces')
+    .insert({ owner_id: userId, name, base_currency: 'USD', currencies: ['USD', 'KES'], time_zone: 'Africa/Nairobi' })
+    .select('id')
+    .single();
+  if (error || !workspace) throw error ?? new Error('no workspace');
+  const { data: shop, error: shopError } = await admin
+    .from('shops')
+    .insert({ workspace_id: workspace.id, name, is_main: true })
+    .select('id')
+    .single();
+  if (shopError || !shop) throw shopError ?? new Error('no shop');
+  await admin.from('accounts').insert({ shop_id: shop.id, name: 'Cash USD', type: 'cash', currency: 'USD', opening_amount: 100000 });
+  await admin.from('profiles').update({ phone: '+254712345678', onboarding_completed_at: new Date().toISOString() }).eq('id', userId);
+  return shop.id as string;
 }

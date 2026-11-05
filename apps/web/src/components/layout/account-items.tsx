@@ -1,7 +1,7 @@
 'use client';
 
 import { LANGUAGES } from '@sarrif/core';
-import { GlobeIcon, LogOutIcon, MonitorSmartphoneIcon, MoonIcon, SunIcon, SunMoonIcon } from 'lucide-react';
+import { GlobeIcon, LogOutIcon, MonitorSmartphoneIcon, MoonIcon, SunIcon, SunMoonIcon, UserRoundCogIcon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { Flag } from '@/components/flag';
@@ -24,11 +24,17 @@ const SUB_MENU_CLASS = 'border-border bg-popover w-fit min-w-48 border shadow-no
 
 /**
  * Your own settings, at the bottom of the shop menu (there's no separate
- * account menu): language, theme, sign out, and sign out of all devices (its
- * "Are you sure?" dialog lives outside the menu: onSignOutEverywhere opens it).
- * Goes inside a DropdownMenuContent.
+ * account menu): account settings, language, theme, sign out, and sign out
+ * of all devices. Their dialogs live outside the menu (onAccountSettings,
+ * onSignOutEverywhere open them). Goes inside a DropdownMenuContent.
  */
-export function AccountItems({ onSignOutEverywhere }: { onSignOutEverywhere: () => void }) {
+export function AccountItems({
+  onAccountSettings,
+  onSignOutEverywhere,
+}: {
+  onAccountSettings: () => void;
+  onSignOutEverywhere: () => void;
+}) {
   const t = useTranslations();
   const locale = useLocale();
   const { theme, setTheme } = useTheme();
@@ -37,6 +43,10 @@ export function AccountItems({ onSignOutEverywhere }: { onSignOutEverywhere: () 
 
   return (
     <>
+      <DropdownMenuItem className="h-9 gap-2.5" onClick={onAccountSettings}>
+        <UserRoundCogIcon />
+        {t('me.menu')}
+      </DropdownMenuItem>
       <DropdownMenuGroup>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="h-9 gap-2.5">

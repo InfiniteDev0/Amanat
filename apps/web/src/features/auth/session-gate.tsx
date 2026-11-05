@@ -1,12 +1,11 @@
 'use client';
 
-import { appReturnPath, needsProfile } from '@sarrif/core';
+import { appReturnPath } from '@sarrif/core';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useEffect } from 'react';
 
 import { Loader } from '@/components/motion/loader';
 import { Button } from '@/components/ui/button';
-import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useMinimumWait } from '@/lib/use-minimum-wait';
 
@@ -18,15 +17,14 @@ const LOADING_MIN_MS = 2500;
 
 /**
  * Lets only signed-in people through. Signed out → the auth page. Someone
- * without a shop yet is let in: the setup wizard asks for the shop, and for
- * the phone (and the terms, for Google sign-ups) in its first step. Someone
- * in a shop (invited) with no phone or terms yet → Complete your profile.
+ * whose setup isn't finished is let in: the setup wizard opens over the page
+ * and asks for the shop, the phone (and the terms, for Google sign-ups).
  *
  * Signed out while on a page (the session ended, or another tab signed out):
  * the auth page gets ?next=<that page>, and logging in comes back to it.
  *
- * Today this runs in the browser against the mock. With real auth, proxy.ts
- * redirects on the server first and this stays as the second line.
+ * With real auth, proxy.ts redirects on the server first (core's routing
+ * table) and this stays as the second line; with the demo it's the only one.
  */
 export function SessionGate({ children }: { children: ReactNode }) {
   const t = useTranslations('common');
@@ -36,19 +34,13 @@ export function SessionGate({ children }: { children: ReactNode }) {
   const user = session.data;
   const waited = useMinimumWait(LOADING_MIN_MS);
 
-  // Only an incomplete profile needs the shop list, to tell the wizard's case from an invite.
-  const incomplete = user ? needsProfile(user) : false;
-  const workspaces = useMyWorkspaces({ enabled: incomplete });
-  const invited = incomplete && workspaces.isSuccess && workspaces.data.length > 0;
-  const deciding = incomplete && workspaces.isPending;
-
   useEffect(() => {
     if (session.isPending || session.isError) return;
     if (!user) {
       const here = isLeaving() ? null : appReturnPath(`${pathname}${window.location.search}`);
       router.replace(here ? `/?next=${encodeURIComponent(here)}` : '/');
-    } else if (invited) router.replace('/complete-profile');
-  }, [session.isPending, session.isError, user, invited, router, pathname]);
+    }
+  }, [session.isPending, session.isError, user, router, pathname]);
 
   // The back button after signing out can bring this page back from the
   // browser's memory (bfcache): ask again who's signed in before showing it.
@@ -70,7 +62,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
       </Splash>
     );
   }
-  if (!user || invited || deciding || !waited) {
+  if (!user || !waited) {
     return <LoadingScreen />;
   }
   return children;

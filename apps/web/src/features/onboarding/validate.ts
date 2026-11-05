@@ -1,8 +1,8 @@
-import { parseAmount, profileSchema, ratePairSchema } from '@sarrif/core';
+import { parseAmount, profileSchema, usdQuoteSchema } from '@sarrif/core';
 
 import { toE164 } from '@/features/auth/schemas';
 
-import { type OnboardingDraft, ratedOf } from './draft';
+import { type OnboardingDraft, quotedOf } from './draft';
 
 /** The first thing wrong on a step: which field, and a `validation.*` key. */
 export interface StepProblem {
@@ -54,19 +54,13 @@ export function validateAccounts(draft: OnboardingDraft): StepProblem | null {
   return null;
 }
 
-/** Every rated currency needs both rates, buy not above sell (core's rule). */
+/** Every quoted currency needs its "1 USD = …" rate, a positive number (core's rule). Skip leaves them all out. */
 export function validateRates(draft: OnboardingDraft): StepProblem | null {
-  for (const currency of ratedOf(draft)) {
-    const pair = draft.rates[currency] ?? { buy: '', sell: '' };
-    for (const side of ['buy', 'sell'] as const) {
-      if (!pair[side].trim()) return { field: `${side}-${currency}`, message: 'validation.rateRequired' };
-    }
-    const result = ratePairSchema.safeParse({ currency, buy: pair.buy.trim(), sell: pair.sell.trim() });
-    if (!result.success) {
-      const issue = result.error.issues[0];
-      const side = issue?.path[0] === 'sell' ? 'sell' : 'buy';
-      return { field: `${side}-${currency}`, message: issue?.message ?? 'validation.rate' };
-    }
+  for (const currency of quotedOf(draft)) {
+    const perUsd = draft.rates[currency]?.trim() ?? '';
+    if (!perUsd) return { field: `rate-${currency}`, message: 'validation.rateRequired' };
+    const result = usdQuoteSchema.safeParse({ currency, perUsd });
+    if (!result.success) return { field: `rate-${currency}`, message: result.error.issues[0]?.message ?? 'validation.rate' };
   }
   return null;
 }

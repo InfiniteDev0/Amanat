@@ -1,98 +1,62 @@
 'use client';
 
-import { useFormatter, useTranslations } from 'next-intl';
+import { QUOTE_CURRENCY } from '@sarrif/core';
+import { useTranslations } from 'next-intl';
 
 import { Flag } from '@/components/flag';
 import { FieldAlert } from '@/components/ui/field-alert';
-import { formatMarket } from '@/features/rates/format-market';
-import { useMarketRates } from '@/features/rates/queries';
 import { currencyFlag } from '@/lib/currency-flag';
 
 import type { StepProps } from '.';
-import { type DraftRate, ratedOf } from '../draft';
+import { quotedOf } from '../draft';
 import { StepHeader } from './step-header';
 
 /**
- * Today's rate for each currency, one number, as "1 base = … currency" (Build
- * Plan v2: every balance is valued at it; saved as buy = sell, see core's
- * rates.ts). Can be skipped; Home then reminds them in the morning.
- *
- * Each currency shows today's market rate as a guide (mid-market, from a
- * public feed); the shop's own buy and sell stay theirs to type.
+ * Today's rate for each currency, the way the market says it, whatever the
+ * base: "1 USD = [ 129 ] KSh", "1 USD = [ 4,000 ] SOS" (core's quotes.ts).
+ * The base currency is only for totals. One number per currency for now
+ * (whether the shop sets one price or two is still the client's to answer).
+ * Can be skipped; Home then reminds them in the morning.
  */
-
 export default function RatesStep({ draft, update, problem }: StepProps) {
   const t = useTranslations('onboarding.rates');
-  const base = draft.baseCurrency;
-  const rated = ratedOf(draft);
-  const market = useMarketRates(rated.length ? base : null);
-  const format = useFormatter();
+  const quoted = quotedOf(draft);
 
-  // One rate: buy and sell are kept equal.
-  const set = (currency: string, value: string) =>
-    update((d) => ({ ...d, rates: { ...d.rates, [currency]: { buy: value, sell: value } satisfies DraftRate } }));
+  const set = (currency: string, value: string) => update((d) => ({ ...d, rates: { ...d.rates, [currency]: value } }));
 
-  if (!base || rated.length === 0) {
+  if (quoted.length === 0) {
     return (
       <div>
-        <StepHeader title={t('title')} hint={t('onlyBase', { currency: base ?? '' })} />
+        <StepHeader title={t('title')} hint={t('onlyBase', { currency: draft.currencies[0] ?? '' })} />
       </div>
     );
   }
 
   return (
     <div>
-      <StepHeader title={t('title')} hint={t('hint', { base })} />
-      {/* Currency · Market (read-only guide) · We buy · We sell */}
-      <div className="text-muted-foreground mb-2 grid grid-cols-[6rem_1fr_1fr] gap-2 px-1 text-xs">
-        <span dir="ltr" className="text-start">
-          1 {base} =
-        </span>
-        <span className="text-center">{t('marketColumn')}</span>
-        <span className="text-center">{t('todaysRate')}</span>
-      </div>
+      <StepHeader title={t('title')} hint={t('hint')} />
       <ul className="flex flex-col gap-2">
-        {rated.map((currency) => {
-          const pair = draft.rates[currency] ?? { buy: '', sell: '' };
-          const marketRate = market.data?.rates[currency];
-          return (
-            <li key={currency} className="grid grid-cols-[6rem_1fr_1fr] items-center gap-2">
-              <span className="bg-field flex h-11 items-center gap-2 rounded-xl px-3 text-sm font-medium">
-                <Flag code={currencyFlag(currency)} />
-                {currency}
-              </span>
-              <span
-                title={t('marketFor', { base, currency })}
-                className="bg-field/50 text-muted-foreground flex h-11 items-center justify-center rounded-xl px-2 text-sm"
-              >
-                <bdi dir="ltr" className="tabular-nums">
-                  {marketRate ? formatMarket(marketRate) : '–'}
-                </bdi>
-              </span>
-              <div className="relative">
-                <input
-                  value={pair.buy}
-                  onChange={(event) => set(currency, event.target.value)}
-                  inputMode="decimal"
-                  dir="ltr"
-                  placeholder="0.00"
-                  aria-label={t('rateFor', { base, currency })}
-                  className="bg-field focus-visible:bg-field-focus placeholder:text-muted-foreground h-11 w-full rounded-xl px-3 text-end text-sm tabular-nums outline-none"
-                />
-                <FieldAlert>{problem?.field === `buy-${currency}` || problem?.field === `sell-${currency}` ? problem.text : null}</FieldAlert>
-              </div>
-            </li>
-          );
-        })}
+        {quoted.map((currency) => (
+          <li key={currency} dir="ltr" className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2">
+            <span className="flex h-11 items-center gap-2 px-1 text-sm font-medium">
+              <Flag code={currencyFlag(QUOTE_CURRENCY)} />1 {QUOTE_CURRENCY} =
+            </span>
+            <input
+              value={draft.rates[currency] ?? ''}
+              onChange={(event) => set(currency, event.target.value)}
+              inputMode="decimal"
+              placeholder="0.00"
+              aria-label={t('rateFor', { currency })}
+              className="bg-field focus-visible:bg-field-focus placeholder:text-muted-foreground h-11 w-full rounded-xl px-3 text-end text-sm tabular-nums outline-none"
+            />
+            <span className="flex h-11 w-20 items-center gap-2 text-sm font-medium">
+              <Flag code={currencyFlag(currency)} />
+              {currency}
+            </span>
+            <FieldAlert>{problem?.field === `rate-${currency}` ? problem.text : null}</FieldAlert>
+          </li>
+        ))}
       </ul>
-      {market.data ? (
-        <p className="text-muted-foreground mt-3 text-center text-xs">
-          {t('credit', {
-            source: market.data.source,
-            updated: format.dateTime(new Date(market.data.updatedAt), { dateStyle: 'medium', timeStyle: 'short' }),
-          })}
-        </p>
-      ) : null}
     </div>
   );
 }

@@ -1,21 +1,27 @@
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
 
-import { AUTH_COOKIE, demoShopIds, expectInApp, fillLogIn, joinDemoShop, logInButton, makeUser, removeTestUsers } from './support';
+import { AUTH_COOKIE, expectInApp, fillLogIn, logInButton, makeShop, makeUser, removeTestUsers } from './support';
 
 // Phase 1c: server-side sessions (the wristband). The door is proxy.ts, the
 // hallway the server layouts (lib/auth/server.ts); these check both.
 
 test.afterAll(removeTestUsers);
 
-/** Logs a fresh account in and puts it in the demo data's first shop. */
-async function signedInWithShop(page: Page, options?: { complete?: boolean }) {
-  const user = await makeUser(undefined, options);
+/** A fresh account with its main shop (setup finished), logged in. */
+async function signedInWithShop(page: Page) {
+  const user = await makeUser();
+  const shop = await makeShop(user.id);
   await page.goto('/en');
   await fillLogIn(page, user.email);
   await logInButton(page).click();
   await expectInApp(page);
-  const shop = await joinDemoShop(page, user.id);
   return { user, shop };
+}
+
+/** Someone else's shop. */
+async function strangersShop() {
+  const stranger = await makeUser();
+  return makeShop(stranger.id, 'Garissa');
 }
 
 async function authCookies(context: BrowserContext) {
@@ -63,7 +69,7 @@ test('signed in, the auth page sends you into your shop', async ({ page }) => {
 
 test('someone else\'s shop in the last-shop cookie: you land in your own', async ({ page, context }) => {
   const { shop } = await signedInWithShop(page);
-  const other = (await demoShopIds(page)).find((id) => id !== shop)!;
+  const other = await strangersShop();
   await context.addCookies([{ name: 'amanat_last_workspace', value: other, url: 'http://localhost:3000' }]);
   await page.goto('/en');
   await expect(page).toHaveURL(new RegExp(`/en/w/${shop}$`));
@@ -98,7 +104,6 @@ test('sign out of all devices: the other device is signed out on its next click'
   await fillLogIn(phone, user.email);
   await logInButton(phone).click();
   await expectInApp(phone);
-  await joinDemoShop(phone, user.id);
   await phone.goto(`/en/w/${shop}`);
   await expect(phone).toHaveURL(new RegExp(`/en/w/${shop}`));
 
@@ -114,11 +119,16 @@ test('sign out of all devices: the other device is signed out on its next click'
   await phoneContext.close();
 });
 
-test('no phone or terms yet (a Google sign-up): no shop page opens, even by typing its URL', async ({ page }) => {
-  const { shop } = await signedInWithShop(page, { complete: false });
+test('setup not finished (a first Google sign-in): no shop page opens, even by typing its URL', async ({ page }) => {
+  const shop = await strangersShop();
+  const user = await makeUser(undefined, { complete: false });
+  await page.goto('/en');
+  await fillLogIn(page, user.email);
+  await logInButton(page).click();
+  await expect(page).toHaveURL(/\/en\/all-shops$/);
   for (const path of [`/en/w/${shop}`, `/en/w/${shop}/settings`, `/en/w/${shop}/team`]) {
     await page.goto(path);
-    await expect(page).toHaveURL(/\/en\/complete-profile$/);
+    await expect(page).toHaveURL(/\/en\/all-shops$/);
   }
 });
 
@@ -131,16 +141,16 @@ test('?next=https://evil.com is ignored: into your shop', async ({ page }) => {
 
 test('"who am I" never comes from browser storage', async ({ page, context }) => {
   const { shop } = await signedInWithShop(page);
-  const other = (await demoShopIds(page)).find((id) => id !== shop)!;
+  const other = await strangersShop();
   // Claim to be the demo owner (who is in every demo shop) in the demo data.
   await page.evaluate(() => {
     const db = JSON.parse(localStorage.getItem('sarrif-mock-db') ?? 'null');
     db.sessionUserId = 'user-owner';
     localStorage.setItem('sarrif-mock-db', JSON.stringify(db));
   });
-  // Still yourself: the owner's other shop isn't yours.
+  // Still yourself: someone else's shop isn't yours, so you land in your own.
   await page.goto(`/en/w/${other}`);
-  await expect(page.getByText("You don't have access to this shop.")).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/en/w/${shop}$`));
 
   // Signed out, the claim gets you nothing: the server sends you to log in.
   await context.clearCookies();

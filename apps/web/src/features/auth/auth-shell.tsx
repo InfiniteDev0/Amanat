@@ -37,7 +37,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
 }
 
 /** Auth pages for someone already signed in: they're not sent on into the app from here. */
-const SESSION_PAGES = ['/reset-password', '/complete-profile'];
+const SESSION_PAGES = ['/reset-password'];
 
 function Frame({ children }: { children: ReactNode }) {
   const t = useTranslations();
@@ -49,7 +49,7 @@ function Frame({ children }: { children: ReactNode }) {
   const onStep = pathname !== '/';
   const [started, setStarted] = useState(false);
   const showForm = started || onStep;
-  // These two need the session and handle it themselves.
+  // This one needs the session and handles it itself.
   const keepsSession = SESSION_PAGES.some((page) => pathname.startsWith(page));
 
   // Already signed in when the page opened: skip straight into the app. Only
@@ -59,7 +59,7 @@ function Frame({ children }: { children: ReactNode }) {
     if (session.isPending || firstSession.current !== null || keepsSession) return;
     firstSession.current = Boolean(session.data);
     if (session.data) {
-      void destinationFor(session.data, queryClient).then((path) => router.replace(path));
+      void destinationFor(queryClient).then((path) => router.replace(path));
     }
   }, [session.isPending, session.data, queryClient, router, keepsSession]);
 

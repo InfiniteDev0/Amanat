@@ -1,4 +1,4 @@
-import { appReturnPath } from '@sarrif/core';
+import { routeFor } from '@sarrif/core';
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
@@ -13,19 +13,16 @@ import { SUPABASE_CONFIGURED, supabasePublishableKey, supabaseUrl } from './lib/
 // 2. The Supabase session cookie is checked with Supabase (getUser, so a
 //    tampered cookie or a session signed out on every device counts as
 //    signed out) and quietly renewed; renewed cookies go out on the response.
-// 3. Locked by default: signed out on any page but the auth pages → the auth
-//    page with ?next=<that page>. Signed in on an auth page → into the app.
+// 3. Where the request belongs, from the routing table in core (routing.ts):
+//    signed out → the auth page with ?next=<that page>; setup not finished →
+//    All shops, where the setup wizard opens; signed in on an auth page →
+//    into the app.
 //
 // The (app) layout checks again on the server (lib/auth/server.ts), and
 // SessionGate once more in the browser. With no Supabase project (the demo
 // sign-in, never production: next.config.ts) only the browser checks.
 
 const intl = createMiddleware(routing);
-
-/** Pages anyone may open, signed in or not (paths without the language). */
-const PUBLIC_PAGES = ['/', '/check-email', '/forgot-password', '/reset-password', '/link-expired', '/terms'];
-/** Of those, the ones a signed-in person is sent on from, into the app. */
-const AUTH_ENTRY_PAGES = ['/', '/check-email', '/forgot-password', '/link-expired'];
 
 function splitLocale(pathname: string): { locale: string; page: string } | null {
   const [, first = '', ...rest] = pathname.split('/');
@@ -67,34 +64,30 @@ export default async function proxy(request: NextRequest) {
   });
   // Nothing may run between creating the client and this call (it's what renews the session).
   const { data } = await supabase.auth.getUser();
-  const signedIn = Boolean(data.user);
+  const user = data.user;
 
-  /** A redirect that keeps any renewed session cookies. */
-  const goTo = (path: string) => {
-    const redirect = NextResponse.redirect(new URL(path, request.url));
-    for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
-    return redirect;
-  };
+  // Setup finished = the main shop exists (set in the same transaction). The
+  // phone and the terms are part of setup, so an unfinished account never
+  // reaches a shop page, even by typing its URL.
+  let onboarded = false;
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('onboarding_completed_at').eq('id', user.id).single();
+    onboarded = Boolean(profile?.onboarding_completed_at);
+  }
 
   const { locale, page } = where;
-  if (!signedIn && !PUBLIC_PAGES.includes(page)) {
-    const here = appReturnPath(`${page}${request.nextUrl.search}`);
-    return goTo(here ? `/${locale}?next=${encodeURIComponent(here)}` : `/${locale}`);
-  }
-  if (signedIn && AUTH_ENTRY_PAGES.includes(page)) {
-    // Back to the page they wanted, if it's ours; else All shops, which opens their last shop.
-    const back = appReturnPath(request.nextUrl.searchParams.get('next'));
-    return goTo(`/${locale}${back ?? '/all-shops'}`);
-  }
-  // A shop's pages need a phone and the terms (Google sign-ups have neither
-  // at first): checked here, before anything is sent, so typing a URL can't
-  // skip Complete your profile. Someone with no shop gives both in the setup
-  // wizard on All shops. The shop layout checks again (lib/auth/server.ts).
-  if (signedIn && page.startsWith('/w/')) {
-    const { data: profile } = await supabase.from('profiles').select('phone, terms_accepted_at').eq('id', data.user!.id).single();
-    if (!profile?.phone || !profile.terms_accepted_at) return goTo(`/${locale}/complete-profile`);
-  }
-  return response;
+  const target = routeFor(page, { signedIn: Boolean(user), emailConfirmed: Boolean(user?.email_confirmed_at), onboarded }, request.nextUrl.search);
+  if (!target) return response;
+
+  // A redirect that keeps any renewed session cookies.
+  const redirect = NextResponse.redirect(new URL(withLocale(locale, target), request.url));
+  for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
+  return redirect;
+}
+
+/** A path from the routing table ('/', '/?next=…', '/w/…') under the language. */
+function withLocale(locale: string, path: string): string {
+  return path === '/' || path.startsWith('/?') ? `/${locale}${path.slice(1)}` : `/${locale}${path}`;
 }
 
 export const config = {

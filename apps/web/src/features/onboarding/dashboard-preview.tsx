@@ -2,11 +2,13 @@
 
 import {
   type Account,
+  boardRatesFromUsd,
   businessDate,
+  type CurrencyCode,
   type DailyRate,
   daySummary,
   parseAmount,
-  ratePairSchema,
+  usdQuoteSchema,
   type Workspace,
 } from '@sarrif/core';
 import { useTranslations } from 'next-intl';
@@ -18,7 +20,7 @@ import { PreviewSummaryContext } from '@/features/home/queries';
 import { WorkspaceProvider } from '@/features/workspaces/workspace-context';
 import { deviceTimeZone } from '@/lib/device-time-zone';
 
-import { type OnboardingDraft, ratedOf } from './draft';
+import { type OnboardingDraft, quotedOf } from './draft';
 import { useAccountName } from './use-account-name';
 
 const PREVIEW_ID = 'preview';
@@ -66,12 +68,16 @@ export function DashboardPreview({ draft }: { draft: OnboardingDraft }) {
         archived: false,
         createdAt: '',
       }));
-    // Only rates that would pass the real check, so a half-typed one doesn't count.
-    const rates: DailyRate[] = ratedOf(draft).flatMap((currency) => {
-      const pair = draft.rates[currency];
-      if (!pair || !ratePairSchema.safeParse({ currency, buy: pair.buy, sell: pair.sell }).success) return [];
-      return [{ id: currency, workspaceId: PREVIEW_ID, currency, date, buy: pair.buy.trim(), sell: pair.sell.trim(), setBy: '', setAt: '' }];
-    });
+    // Only quotes that would pass the real check, so a half-typed one doesn't count; then per 1 base unit, as the board reads.
+    const quotes = Object.fromEntries(
+      quotedOf(draft).flatMap((currency) => {
+        const perUsd = draft.rates[currency]?.trim() ?? '';
+        return usdQuoteSchema.safeParse({ currency, perUsd }).success ? [[currency, perUsd]] : [];
+      }),
+    );
+    const rates: DailyRate[] = (Object.entries(boardRatesFromUsd(base, workspace.currencies, quotes)) as [CurrencyCode, string][]).map(
+      ([currency, rate]) => ({ id: currency, workspaceId: PREVIEW_ID, currency, date, buy: rate, sell: rate, setBy: '', setAt: '' }),
+    );
     return {
       workspace,
       summary: daySummary({ workspace, date, accounts, entries: [], rates, exchanges: [], expenses: [], amanats: [], debts: [], debtPayments: [] }),

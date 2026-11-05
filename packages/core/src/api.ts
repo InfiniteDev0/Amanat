@@ -98,6 +98,12 @@ export interface WorkspaceMembership {
   role: Role;
 }
 
+/** The setup wizard's place and answers, saved between steps (the answers are the wizard's own draft). */
+export interface OnboardingProgress {
+  step: number;
+  data: Record<string, unknown>;
+}
+
 /**
  * After Sign up: in straight away (no email check, as in the demo), "check
  * your email", or the address already has a confirmed account (`exists`: the
@@ -254,9 +260,14 @@ export interface SarrifApi {
   };
 
   onboarding: {
+    /** Where this person's setup stands: the step and the answers saved so far, or null. */
+    progress(): Promise<OnboardingProgress | null>;
+    /** Saves the step reached and the answers so far, after every step, so setup resumes anywhere. */
+    saveProgress(progress: OnboardingProgress): Promise<void>;
     /**
-     * Saves the first-run setup at once: profile, shop (caller = Owner),
-     * accounts and today's rates. All or nothing.
+     * Saves the first-run setup at once: profile, main shop (caller = Owner),
+     * accounts and today's rates. All or nothing; calling it again returns
+     * the same shop.
      */
     complete(input: OnboardingInput): Promise<{ user: User; workspace: Workspace }>;
   };

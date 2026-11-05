@@ -12,10 +12,11 @@ describe('suggestedAccounts', () => {
 
 describe('onboardingSchema', () => {
   const setup = {
-    profile: { name: 'Amina', language: 'so' },
-    shop: { name: 'Eastleigh', baseCurrency: 'USD', currencies: ['USD', 'KES'] },
+    profile: { name: 'Amina', language: 'so', phone: '+254712345678' },
+    shop: { name: 'Eastleigh', baseCurrency: 'KES', currencies: ['KES', 'USD'] },
     accounts: [{ name: 'Cash USD', type: 'cash', currency: 'USD', openingBalance: 100000 }],
-    rates: [{ currency: 'KES', buy: '129.2', sell: '129.8' }],
+    // The market's direction even though the base is KSh: 1 USD = 129 KSh.
+    rates: [{ currency: 'KES', perUsd: '129' }],
   } as const;
 
   it('accepts a complete setup, and rates can be skipped', () => {
@@ -30,8 +31,17 @@ describe('onboardingSchema', () => {
   it('rejects an account or a rate in a currency the shop does not trade', () => {
     const euroAccount = { ...setup, accounts: [{ ...setup.accounts[0], currency: 'EUR' }] };
     expect(onboardingSchema.safeParse(euroAccount).error?.issues[0]?.path).toEqual(['accounts', 0, 'currency']);
-    // The base currency has no rate: it's what the others are priced in.
-    const baseRate = { ...setup, rates: [{ currency: 'USD', buy: '1', sell: '1' }] };
-    expect(onboardingSchema.safeParse(baseRate).error?.issues[0]?.path).toEqual(['rates', 0, 'currency']);
+    // The dollar has no rate: it's what the others are quoted in.
+    const dollarRate = { ...setup, rates: [{ currency: 'USD', perUsd: '1' }] };
+    expect(onboardingSchema.safeParse(dollarRate).error?.issues[0]?.path).toEqual(['rates', 0, 'currency']);
+    const notTraded = { ...setup, rates: [{ currency: 'SOS', perUsd: '4000' }] };
+    expect(onboardingSchema.safeParse(notTraded).error?.issues[0]?.path).toEqual(['rates', 0, 'currency']);
+  });
+
+  it('needs the phone; the terms only when given', () => {
+    const noPhone = { ...setup, profile: { name: 'Amina', language: 'so' } };
+    expect(onboardingSchema.safeParse(noPhone).success).toBe(false);
+    const terms = { ...setup, profile: { ...setup.profile, acceptTerms: true } };
+    expect(onboardingSchema.safeParse(terms).success).toBe(true);
   });
 });

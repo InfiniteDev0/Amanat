@@ -14,14 +14,16 @@ import {
   type User,
 } from '@sarrif/core';
 import type { AuthError, PostgrestError, User as AuthUser } from '@supabase/supabase-js';
-import type { ZodType } from 'zod';
 
 import { reportError } from '@/lib/report-error';
 import { createClient } from '@/lib/supabase/client';
 
-// Sign-in against Supabase Auth (Phase 1b): email + password, or Google. The
-// rest of the app still runs on the in-browser mock, which is told who signed
-// in (`MockSession`) so the shops it holds belong to the real account.
+import { databaseError as anyDatabaseError, formError, parse, withTimeout } from './common';
+
+// Sign-in against Supabase Auth (Phase 1b): email + password, or Google.
+// Shops, accounts and rates are in the database too (shops.ts, 1d); the rest
+// still runs on the in-browser mock, which is told who signed in
+// (`MockSession`).
 //
 // The profile (name, phone, language, terms) is the `profiles` row, which RLS
 // lets each person read and change for themselves only
@@ -45,9 +47,6 @@ interface ProfileRow {
 
 const PROFILE_COLUMNS = 'first_name, phone, language, terms_accepted_at, created_at';
 
-/** Past this, a request counts as lost: "No connection. Try again." */
-const TIMEOUT_MS = 15_000;
-
 /**
  * Where email links land (sign-up confirmation, password reset). The email
  * templates add the one-time token to this URL (supabase/templates), so the
@@ -62,31 +61,6 @@ function callbackUrl(next: string): string {
   return `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`;
 }
 
-function parse<T>(schema: ZodType<T>, input: unknown): T {
-  const result = schema.safeParse(input);
-  if (!result.success) {
-    const fields: Record<string, string> = {};
-    for (const issue of result.error.issues) fields[issue.path.join('.')] ??= issue.message;
-    throw new ApiError('invalid', 'errors.invalid', fields);
-  }
-  return result.data;
-}
-
-const formError = (code: ConstructorParameters<typeof ApiError>[0], key: string) => new ApiError(code, key, { form: key });
-
-/** Stops waiting after TIMEOUT_MS. The request may still finish; the person can simply try again. */
-async function withTimeout<T>(work: Promise<T>): Promise<T> {
-  if (typeof navigator !== 'undefined' && !navigator.onLine) throw formError('unavailable', 'errors.offline');
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(formError('unavailable', 'errors.timeout')), TIMEOUT_MS);
-  });
-  try {
-    return await Promise.race([work, timeout]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
 /**
  * Supabase's errors as ours. A wrong password and an unknown email are both
@@ -128,11 +102,10 @@ function authError(error: AuthError, during: string): ApiError {
   return formError('invalid', 'errors.unknown');
 }
 
+/** The profile's only check a person can trip: a phone that isn't E.164. */
 function databaseError(error: PostgrestError, during: string): ApiError {
   if (error.code === '23514') return new ApiError('invalid', 'validation.phone', { phone: 'validation.phone' });
-  if (error.code === '42501' || error.code === 'PGRST301') return new ApiError('unauthenticated');
-  reportError(error, { during, code: error.code });
-  return formError('unavailable', 'errors.serviceDown');
+  return anyDatabaseError(error, during);
 }
 
 export function supabaseAuth(mock: MockSession): SarrifApi['auth'] {
@@ -169,6 +142,8 @@ export function supabaseAuth(mock: MockSession): SarrifApi['auth'] {
       language: data.language,
       createdAt: data.created_at,
       termsAcceptedAt: data.terms_accepted_at,
+      // Signed up with email + password (Google-only accounts have just the google identity).
+      hasPassword: (authUser.app_metadata?.providers as string[] | undefined)?.includes('email') ?? authUser.app_metadata?.provider === 'email',
     };
   }
 

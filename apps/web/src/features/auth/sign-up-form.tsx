@@ -90,7 +90,7 @@ export function SignUpForm() {
               router.push(`/check-email?email=${encodeURIComponent(email)}`);
               return;
             }
-            router.replace(await homePathFor(result.user, queryClient));
+            router.replace(await homePathFor(queryClient));
           },
         },
       ),

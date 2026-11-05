@@ -2,24 +2,29 @@
 
 import { Loader } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 import type { Locale } from '@/i18n/routing';
 import { formErrorKey, useMessage } from '@/lib/api/errors';
 import { useOnline } from '@/lib/use-online';
 
 import { FormError } from './form-error';
+import { lastSignInMethod } from './last-sign-in';
 import { useGoogleSignIn } from './queries';
 import { returnPath } from './return-path';
 
 /** If the browser hasn't left for Google by then, the button comes back. */
 const LEAVE_TIMEOUT_MS = 15_000;
 
+/** The cookie only changes by signing in, which leaves this page: nothing to listen to. */
+const noSubscription = () => () => undefined;
+
 /**
  * "or", then Continue with Google. Google's page comes back to
  * /api/auth/callback, which signs the person in, or brings them back here
  * with a calm message (cancelled, or couldn't finish). A first-time Google
- * user is then asked for their phone and the terms.
+ * user is then asked for their phone and the terms in the setup wizard.
+ * "Last used" shows when this browser last signed in with Google.
  *
  * Never an endless spinner: it stops if the browser didn't leave, and when
  * the back button returns from Google's page (the page comes back from the
@@ -34,6 +39,12 @@ export function GoogleButton() {
   const { reset, isSuccess } = google;
   // Stays busy after success: the browser is on its way to Google.
   const busy = google.isPending || isSuccess;
+  // The server renders without it (false), the browser reads its cookie: no mismatch.
+  const lastUsed = useSyncExternalStore(
+    noSubscription,
+    () => lastSignInMethod() === 'google',
+    () => false,
+  );
 
   useEffect(() => {
     const onShow = (event: PageTransitionEvent) => {
@@ -62,10 +73,16 @@ export function GoogleButton() {
           if (!busy) google.mutate({ language: locale, next: returnPath() ?? undefined });
         }}
         disabled={busy || !online}
-        className="bg-field hover:bg-field-focus flex h-11 w-full items-center justify-center gap-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60"
+        className="bg-field hover:bg-field-focus relative flex h-11 w-full items-center justify-center gap-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60"
       >
         {busy ? <Loader className="size-4 animate-spin" /> : <GoogleMark />}
         {t('google')}
+        {/* How this browser signed in last time (features/auth/last-sign-in.ts). */}
+        {lastUsed ? (
+          <span className="bg-primary text-primary-foreground absolute end-3 rounded-md px-2 py-0.5 text-[11px] font-semibold">
+            {t('lastUsed')}
+          </span>
+        ) : null}
       </button>
       <FormError>{google.error ? message(formErrorKey(google.error)) : null}</FormError>
     </div>

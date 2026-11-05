@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { colourFor, ShopBadge } from '@/components/shop-badge';
 import { useStartNewShop } from '@/features/onboarding/setup-wizard';
+import { CAN_ADD_SHOPS } from '@/lib/api';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { Link } from '@/i18n/navigation';
@@ -32,14 +33,16 @@ export function YourShops() {
           <StoreIcon className="size-4" />
           {t('yourShops')}
         </h2>
-        {/* Opens the setup wizard. White on black in dark mode, black on white in light. */}
-        <button
-          type="button"
-          onClick={startNewShop}
-          className="bg-foreground text-background flex h-9 items-center rounded-lg px-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
-        >
-          {t('addShop')}
-        </button>
+        {/* Opens the setup wizard (the demo only, until more shops are in the database). White on black in dark mode, black on white in light. */}
+        {CAN_ADD_SHOPS ? (
+          <button
+            type="button"
+            onClick={startNewShop}
+            className="bg-foreground text-background flex h-9 items-center rounded-lg px-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
+          >
+            {t('addShop')}
+          </button>
+        ) : null}
       </div>
       {/* Up to five a row, sharing the width: two shops get half each, three a
           third each… a sixth starts the next row. */}

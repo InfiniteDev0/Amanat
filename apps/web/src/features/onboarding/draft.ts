@@ -1,4 +1,15 @@
-import { type AccountType, type CurrencyCode, isCurrencyCode, type Language, suggestedAccounts } from '@sarrif/core';
+import {
+  type AccountType,
+  addTo,
+  type CurrencyCode,
+  isCurrencyCode,
+  type Language,
+  type Money,
+  parseAmount,
+  quotedCurrencies,
+  suggestedAccounts,
+  totalsToList,
+} from '@sarrif/core';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 import { DEFAULT_COUNTRY } from '@/features/auth/countries';
@@ -23,11 +34,6 @@ export interface DraftAccount {
   custom: boolean;
 }
 
-export interface DraftRate {
-  buy: string;
-  sell: string;
-}
-
 export interface OnboardingDraft {
   /** Whose draft this is: a different person in the same tab starts fresh. */
   userId: string;
@@ -35,7 +41,7 @@ export interface OnboardingDraft {
   name: string;
   /** Small square JPEG data URL, or null for initials. */
   avatar: string | null;
-  /** Contact data, asked for here rather than on Sign up. Prefilled when they have one. */
+  /** Contact data. Prefilled when they have one. */
   phone: PhoneInput;
   /** Google sign-ups haven't agreed to the terms yet: the first step asks (set from the user, never stored as theirs). */
   termsNeeded: boolean;
@@ -46,7 +52,8 @@ export interface OnboardingDraft {
   currencies: CurrencyCode[];
   baseCurrency: CurrencyCode | null;
   accounts: DraftAccount[];
-  rates: Partial<Record<CurrencyCode, DraftRate>>;
+  /** Today's rates as typed, the market's way: "1 USD = [129] KSh" (units per 1 USD). */
+  rates: Partial<Record<CurrencyCode, string>>;
 }
 
 export function initialDraft({
@@ -56,7 +63,6 @@ export function initialDraft({
   phone,
   termsNeeded,
   language,
-  currencies,
 }: {
   userId: string;
   name: string;
@@ -65,9 +71,8 @@ export function initialDraft({
   phone: string;
   termsNeeded: boolean;
   language: Language;
-  currencies: CurrencyCode[];
 }): OnboardingDraft {
-  const empty: OnboardingDraft = {
+  return {
     userId,
     step: 0,
     name,
@@ -83,7 +88,6 @@ export function initialDraft({
     accounts: [],
     rates: {},
   };
-  return withCurrencies(empty, currencies);
 }
 
 /** A saved E.164 phone back into the field's country + number; empty starts on the default country. */
@@ -92,9 +96,9 @@ export function phoneInputOf(phone: string): PhoneInput {
   return parsed?.country ? { country: parsed.country, number: parsed.nationalNumber } : { country: DEFAULT_COUNTRY, number: '' };
 }
 
-/** The currencies a shop prices against its base: the ones that need a rate. */
-export function ratedOf(draft: Pick<OnboardingDraft, 'currencies' | 'baseCurrency'>): CurrencyCode[] {
-  return draft.currencies.filter((code) => code !== draft.baseCurrency);
+/** The currencies that get a rate box: every traded one but the dollar ("1 USD = … KSh"). */
+export function quotedOf(draft: Pick<OnboardingDraft, 'currencies'>): CurrencyCode[] {
+  return quotedCurrencies(draft.currencies);
 }
 
 /**
@@ -117,40 +121,78 @@ export function withCurrencies(draft: OnboardingDraft, currencies: CurrencyCode[
       },
   );
   const custom = draft.accounts.filter((account) => account.custom && traded(account));
-  return withBase({ ...draft, currencies, baseCurrency, accounts: [...suggested, ...custom] }, baseCurrency);
+  const quoted = quotedCurrencies(currencies);
+  const rates = Object.fromEntries(
+    Object.entries(draft.rates).filter(([code]) => quoted.includes(code as CurrencyCode)),
+  ) as OnboardingDraft['rates'];
+  return { ...draft, currencies, baseCurrency, accounts: [...suggested, ...custom], rates };
 }
 
-/** A new base currency; its own rate goes, since it's what the others are priced in. */
+/** A new base currency: only for totals, so the rates stay as typed. */
 export function withBase(draft: OnboardingDraft, baseCurrency: CurrencyCode | null): OnboardingDraft {
-  const rated = ratedOf({ currencies: draft.currencies, baseCurrency });
-  const rates = Object.fromEntries(
-    Object.entries(draft.rates).filter(([code]) => rated.includes(code as CurrencyCode)),
-  ) as OnboardingDraft['rates'];
-  return { ...draft, baseCurrency, rates };
+  return { ...draft, baseCurrency };
 }
 
 export function updateAccount(draft: OnboardingDraft, key: string, patch: Partial<DraftAccount>): OnboardingDraft {
   return { ...draft, accounts: draft.accounts.map((account) => (account.key === key ? { ...account, ...patch } : account)) };
 }
 
-// ── Storage ─────────────────────────────────────────────────────────────────
+/** The kept accounts' opening amounts added up per currency (what isn't a number yet counts as 0). */
+export function openingTotals(accounts: readonly DraftAccount[]): Money[] {
+  const totals = new Map<CurrencyCode, number>();
+  for (const account of accounts) {
+    if (!account.on) continue;
+    addTo(totals, { amount: parseAmount(account.opening || '0', account.currency) ?? 0, currency: account.currency });
+  }
+  return totalsToList(totals);
+}
+
+/**
+ * A saved draft (this tab's, or the one kept on the profile) back into a
+ * draft, or null when it isn't this person's or isn't one. Anything missing
+ * or of another shape (an older version of the wizard) starts empty.
+ */
+export function restoreDraft(saved: unknown, userId: string): OnboardingDraft | null {
+  if (!saved || typeof saved !== 'object') return null;
+  const draft = saved as Partial<OnboardingDraft>;
+  if (draft.userId !== userId || !Array.isArray(draft.currencies)) return null;
+  const currencies = draft.currencies.filter(isCurrencyCode);
+  const rates = Object.fromEntries(
+    Object.entries(draft.rates ?? {}).filter(([code, value]) => isCurrencyCode(code) && typeof value === 'string'),
+  ) as OnboardingDraft['rates'];
+  return {
+    userId,
+    step: typeof draft.step === 'number' ? draft.step : 0,
+    name: draft.name ?? '',
+    avatar: draft.avatar ?? null,
+    phone: draft.phone ?? phoneInputOf(''),
+    termsNeeded: false,
+    acceptTerms: draft.acceptTerms ?? false,
+    language: draft.language ?? 'so',
+    shopName: draft.shopName ?? '',
+    location: draft.location ?? '',
+    currencies,
+    baseCurrency: draft.baseCurrency && currencies.includes(draft.baseCurrency) ? draft.baseCurrency : (currencies[0] ?? null),
+    accounts: Array.isArray(draft.accounts) ? draft.accounts.filter((account) => currencies.includes(account.currency)) : [],
+    rates,
+  };
+}
+
+/** What's kept on the profile between steps: the draft without the photo (too big; it stays in this tab). */
+export function progressOf(draft: OnboardingDraft): { step: number; data: Record<string, unknown> } {
+  const { avatar: _photo, termsNeeded: _owed, ...data } = draft;
+  return { step: draft.step, data };
+}
+
+// ── This tab's copy ─────────────────────────────────────────────────────────
 // sessionStorage: survives a refresh and the language switch (which reloads
-// the page in the new locale), and goes away with the tab.
+// the page in the new locale) at once, before the profile's copy is read.
 
 const KEY = 'sarrif-onboarding-draft';
 
 export function loadDraft(userId: string): OnboardingDraft | null {
   try {
-    const saved = JSON.parse(window.sessionStorage.getItem(KEY) ?? 'null') as OnboardingDraft | null;
-    if (!saved || saved.userId !== userId || !Array.isArray(saved.currencies)) return null;
-    return {
-      ...saved,
-      avatar: saved.avatar ?? null,
-      // Drafts saved before the phone moved here have none.
-      phone: saved.phone ?? phoneInputOf(''),
-      acceptTerms: saved.acceptTerms ?? false,
-      currencies: saved.currencies.filter(isCurrencyCode),
-    };
+    return restoreDraft(JSON.parse(window.sessionStorage.getItem(KEY) ?? 'null'), userId);
   } catch {
     return null;
   }
@@ -160,7 +202,7 @@ export function saveDraft(draft: OnboardingDraft) {
   try {
     window.sessionStorage.setItem(KEY, JSON.stringify(draft));
   } catch {
-    // Storage blocked: the wizard still works, it just won't survive a reload.
+    // Storage blocked: the profile's copy still lets it resume.
   }
 }
 

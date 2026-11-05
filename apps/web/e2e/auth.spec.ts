@@ -4,9 +4,9 @@ import {
   expectInApp,
   fillLogIn,
   forget,
-  joinDemoShop,
   linkFromEmail,
   logInButton,
+  makeShop,
   makeUser,
   openTab,
   PASSWORD,
@@ -100,7 +100,7 @@ test('the session ends on a page: log in again and land back on it', async ({ pa
   await logInButton(page).click();
   await expectInApp(page);
 
-  const shop = await joinDemoShop(page, user.id);
+  const shop = await makeShop(user.id);
   await page.goto(`/en/w/${shop}/profit`);
   await expect(page).toHaveURL(new RegExp(`/en/w/${shop}/profit`));
 
@@ -137,7 +137,7 @@ test('signed out in one tab: the other tab signs out too', async ({ context }) =
   await fillLogIn(first, user.email);
   await logInButton(first).click();
   await expectInApp(first);
-  const shop = await joinDemoShop(first, user.id);
+  const shop = await makeShop(user.id);
   await first.goto(`/en/w/${shop}`);
 
   const second = await context.newPage();

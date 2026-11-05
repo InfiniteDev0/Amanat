@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { CURRENCY_CODES } from './currencies';
 import { EXCHANGE_SIDES, SALLAM_SIDES } from './deals';
 import { ACCOUNT_TYPES, EXPENSE_CATEGORIES, LANGUAGES, ROLES } from './entities';
+import { QUOTE_CURRENCY, quotedCurrencies } from './quotes';
 
 // What the API accepts, checked the same way in the browser (instant form
 // feedback) and on the server (the real gate). Amounts arrive as minor units:
@@ -174,17 +175,28 @@ export const setRatesSchema = z.object({
 });
 
 /**
+ * One rate the way the market says it: "1 USD = 129 KSh" (quotes.ts). Never
+ * the dollar itself: it's what the others are quoted in.
+ */
+export const usdQuoteSchema = z.object({
+  currency: currency.refine((code) => code !== QUOTE_CURRENCY, 'validation.currencies'),
+  perUsd: rate,
+});
+
+/**
  * The whole first-run setup, saved in one go (one transaction on the real
- * backend), so a failure never leaves half a shop behind: the profile, the
- * shop (the caller becomes its Owner), its accounts and, unless skipped,
- * today's rates. Today's date comes from the shop's time zone on the server.
+ * backend), so a failure never leaves half a shop behind: the profile (with
+ * the phone, and the terms for Google sign-ups), the main shop (the caller
+ * becomes its Owner), its accounts and opening amounts and, unless skipped,
+ * today's rates as dollar quotes. Today's date comes from the shop's time
+ * zone on the server.
  */
 export const onboardingSchema = z
   .object({
-    profile: profileSchema,
+    profile: profileSchema.extend(completeProfileSchema.shape),
     shop: createWorkspaceSchema,
-    accounts: z.array(createAccountSchema).min(1, 'validation.accounts'),
-    rates: z.array(ratePairSchema).default([]),
+    accounts: z.array(createAccountSchema).min(1, 'validation.accounts').max(50),
+    rates: z.array(usdQuoteSchema).default([]),
   })
   .superRefine(({ shop, accounts, rates }, ctx) => {
     accounts.forEach((account, index) => {
@@ -192,9 +204,9 @@ export const onboardingSchema = z
         ctx.addIssue({ code: 'custom', path: ['accounts', index, 'currency'], message: 'validation.currencies' });
       }
     });
-    const rated = shop.currencies.filter((code) => code !== shop.baseCurrency);
-    rates.forEach((pair, index) => {
-      if (!rated.includes(pair.currency)) {
+    const quoted = quotedCurrencies(shop.currencies);
+    rates.forEach((quote, index) => {
+      if (!quoted.includes(quote.currency)) {
         ctx.addIssue({ code: 'custom', path: ['rates', index, 'currency'], message: 'validation.currencies' });
       }
     });
@@ -359,6 +371,7 @@ export type UpdateAccountInput = z.input<typeof updateAccountSchema>;
 export type SetRatesInput = z.input<typeof setRatesSchema>;
 export type CreateClientInput = z.input<typeof createClientSchema>;
 export type OnboardingInput = z.input<typeof onboardingSchema>;
+export type UsdQuoteInput = z.input<typeof usdQuoteSchema>;
 export type CreateExchangeInput = z.input<typeof createExchangeSchema>;
 export type CreateDealInput = z.input<typeof createDealSchema>;
 export type CreateExpenseInput = z.input<typeof createExpenseSchema>;
