@@ -997,7 +997,8 @@
     "saved": "Saved",
     "password": "Password",
     "changePassword": "Change password",
-    "googleOnly": "You sign in with Google, so there is no password to change here."
+    "googleOnly": "You sign in with Google, so there is no password to change here.",
+    "short": "Settings"
   },
   "shop": {
     "back": "Home",

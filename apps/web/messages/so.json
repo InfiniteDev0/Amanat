@@ -997,7 +997,8 @@
     "saved": "Waa la kaydiyay",
     "password": "Furaha sirta",
     "changePassword": "Beddel furaha sirta",
-    "googleOnly": "Waxaad ku gashaa Google, markaa halkan ma jiro fure sir ah oo la beddelo."
+    "googleOnly": "Waxaad ku gashaa Google, markaa halkan ma jiro fure sir ah oo la beddelo.",
+    "short": "Dejinta"
   },
   "shop": {
     "back": "Bogga hore",
