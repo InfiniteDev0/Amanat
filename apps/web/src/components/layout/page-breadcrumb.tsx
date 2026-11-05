@@ -18,7 +18,7 @@ export function PageBreadcrumb({ shop }: { shop?: { id: string; name: string } }
 
   return (
     <Breadcrumb className="min-w-0">
-      <BreadcrumbList className="flex-nowrap text-[15px]">
+      <BreadcrumbList className="flex-nowrap text-sm">
         <BreadcrumbItem>
           {shop ? (
             <BreadcrumbLink render={<Link href="/home" />}>{t('nav.home')}</BreadcrumbLink>

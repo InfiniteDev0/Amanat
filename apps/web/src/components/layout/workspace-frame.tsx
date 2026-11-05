@@ -50,9 +50,9 @@ export function AppFrame({ title, workspaceId, children }: { title: ReactNode; w
           } as CSSProperties
         }
       >
-        {/* Below the top bar (h-14), not over it. The card's own padding (p-2,
+        {/* Below the top bar (h-11), not over it. The card's own padding (p-2,
             "inset") is the gap to the screen's edges and to the main panel. */}
-        <AppSidebar variant="inset" dir={dir} workspaceId={workspaceId} className="top-14 bottom-0 h-auto pt-0" />
+        <AppSidebar variant="inset" dir={dir} workspaceId={workspaceId} className="top-11 bottom-0 h-auto pt-0" />
         <SidebarInset className="border-border mt-0! min-h-0 overflow-hidden rounded-lg! border">
           <div className="scrollbar-pill flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">{children}</div>
         </SidebarInset>

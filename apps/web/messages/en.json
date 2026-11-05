@@ -362,7 +362,8 @@
     "dayClosed": "Closed",
     "dateRange": "Date range",
     "accountMenu": "Your account",
-    "plan": "Plan"
+    "plan": "Plan",
+    "you": "You"
   },
   "theme": {
     "label": "Theme",

@@ -32,7 +32,8 @@ export function AccountItems({
   onAccountSettings,
   onSignOutEverywhere,
 }: {
-  onAccountSettings: () => void;
+  /** Left out: no Account settings row (it lives in the name menu). */
+  onAccountSettings?: () => void;
   onSignOutEverywhere: () => void;
 }) {
   const t = useTranslations();
@@ -43,10 +44,12 @@ export function AccountItems({
 
   return (
     <>
-      <DropdownMenuItem className="h-9 gap-2.5" onClick={onAccountSettings}>
-        <UserRoundCogIcon />
-        {t('me.menu')}
-      </DropdownMenuItem>
+      {onAccountSettings ? (
+        <DropdownMenuItem className="h-9 gap-2.5" onClick={onAccountSettings}>
+          <UserRoundCogIcon />
+          {t('me.menu')}
+        </DropdownMenuItem>
+      ) : null}
       <DropdownMenuGroup>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="h-9 gap-2.5">
