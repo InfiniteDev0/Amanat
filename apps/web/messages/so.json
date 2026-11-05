@@ -530,6 +530,18 @@
       "cancel": "Jooji",
       "saving": "Dukaanka waa la samaynayaa…",
       "created": "{shop} waa diyaar"
+    },
+    "openShop": "Fur dukaanka",
+    "hideShops": "Qari lacagta",
+    "showShops": "Muuji lacagta",
+    "actions": {
+      "viewAll": "Dhammaan",
+      "all": "Dhammaan falalka",
+      "reports": "Warbixinno",
+      "team": "Kooxda",
+      "profit": "Faa'iido",
+      "amanatList": "Amaanadaha",
+      "settings": "Dejinta"
     }
   },
   "rates": {

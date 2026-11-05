@@ -1,18 +1,20 @@
 'use client';
 
 import { addTo, type CurrencyCode, type Money, totalsToList, type Workspace, type WorkspaceMembership } from '@sarrif/core';
-import { EllipsisIcon, PlusIcon, StarIcon, StoreIcon, Trash2Icon } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { EllipsisIcon, EyeIcon, EyeOffIcon, PlusIcon, StarIcon, Trash2Icon } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 
 import { MoneyText } from '@/components/money-text';
-import { colourFor, ShopBadge } from '@/components/shop-badge';
+import { colourFor } from '@/components/shop-badge';
 import { Button } from '@/components/ui/button';
+import { Carousel, type CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRemoveShop, useSetMainShop } from '@/features/workspaces/queries';
 import { Link } from '@/i18n/navigation';
+import { directionOf } from '@/i18n/routing';
 import { errorKey, useMessage } from '@/lib/api/errors';
 import { promiseToast } from '@/lib/promise-toast';
 import { cn } from '@/lib/utils';
@@ -20,50 +22,109 @@ import { cn } from '@/lib/utils';
 import { NewShopDialog } from './new-shop-dialog';
 import { useDaySummary } from './queries';
 
-const MAX_PER_ROW = 4;
+/** Where the eye's choice is kept on this device: customers stand at the counter. */
+const HIDE_KEY = 'amanat.hide.shops';
+
+function readHidden(): boolean {
+  try {
+    return localStorage.getItem(HIDE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeHidden(hidden: boolean) {
+  try {
+    localStorage.setItem(HIDE_KEY, hidden ? '1' : '0');
+  } catch {
+    // Storage blocked: it still hides, just not after a reload.
+  }
+}
 
 /**
- * Your shops, one card each: a band in the shop's colour, ★ Main on the main
- * shop, its name, and what's in it per currency (its accounts' balances; with
- * nothing recorded yet, the opening amounts). A card opens the shop's page.
- * Its ⋯ menu: Set as main, and Delete for any shop but the main one. "+ New
- * shop" adds another.
+ * Your shops as cards, like M-Pesa's balance cards: swipe from one to the
+ * next (the main shop first), one dot per card underneath, and a last card
+ * to add a shop. Each card: ★ on the main shop, its name, the eye, its money
+ * per currency (dollars first; the opening amounts while nothing is
+ * recorded), and Open shop. The eye hides every shop's money and stays that
+ * way, even after closing the app, until it's tapped again.
+ *
+ * `onShown` says which shop is on screen: Home's quick actions record into it.
  */
-export function YourShops({ shops, main }: { shops: WorkspaceMembership[]; main: Workspace }) {
+export function YourShops({ shops, main, onShown }: { shops: WorkspaceMembership[]; main: Workspace; onShown: (shopId: string) => void }) {
   const t = useTranslations('home');
+  const dir = directionOf(useLocale());
+  const [api, setApi] = useState<CarouselApi>();
+  const [selected, setSelected] = useState(0);
+  const [hidden, setHidden] = useState(readHidden);
   const [adding, setAdding] = useState(false);
   const [asking, setAsking] = useState<{ kind: 'main' | 'delete'; shop: Workspace } | null>(null);
+  const cards = shops.length + 1;
+
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => {
+      const index = api.selectedScrollSnap();
+      setSelected(index);
+      const shop = shops[index];
+      if (shop) onShown(shop.workspace.id);
+    };
+    onSelect();
+    api.on('select', onSelect);
+    api.on('reInit', onSelect);
+    return () => {
+      api.off('select', onSelect);
+      api.off('reInit', onSelect);
+    };
+  }, [api, shops, onShown]);
+
+  const toggleHidden = () => {
+    writeHidden(!hidden);
+    setHidden(!hidden);
+  };
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-          <StoreIcon className="size-4" />
-          {t('yourShops')}
-        </h2>
-        {/* White on black in dark mode, black on white in light. */}
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="bg-foreground text-background flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
-        >
-          <PlusIcon className="size-4" />
-          {t('newShop.button')}
-        </button>
-      </div>
+    <section aria-label={t('yourShops')} className="flex flex-col gap-4">
+      <Carousel setApi={setApi} opts={{ align: 'start', direction: dir }}>
+        <CarouselContent className="-ms-3">
+          {shops.map(({ workspace }) => (
+            <CarouselItem key={workspace.id} className="basis-[88%] ps-3 sm:basis-[60%] lg:basis-[46%]">
+              <ShopCard
+                shop={workspace}
+                hidden={hidden}
+                onToggleHidden={toggleHidden}
+                onSetMain={() => setAsking({ kind: 'main', shop: workspace })}
+                onDelete={() => setAsking({ kind: 'delete', shop: workspace })}
+              />
+            </CarouselItem>
+          ))}
+          <CarouselItem className="basis-[88%] ps-3 sm:basis-[60%] lg:basis-[46%]">
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="border-border text-muted-foreground hover:text-foreground hover:bg-foreground/3 flex h-full min-h-52 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed transition-colors"
+            >
+              <span className="bg-foreground/5 flex size-12 items-center justify-center rounded-full">
+                <PlusIcon className="size-6" />
+              </span>
+              <span className="text-sm font-semibold">{t('newShop.button')}</span>
+            </button>
+          </CarouselItem>
+        </CarouselContent>
+      </Carousel>
 
-      <ul className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(Math.max(shops.length, 2), MAX_PER_ROW)}, minmax(0, 1fr))` }}>
-        {shops.map(({ workspace }) => (
-          <li key={workspace.id} className="relative min-w-0">
-            <ShopCard shop={workspace} />
-            <ShopCardMenu
-              shop={workspace}
-              onSetMain={() => setAsking({ kind: 'main', shop: workspace })}
-              onDelete={() => setAsking({ kind: 'delete', shop: workspace })}
-            />
-          </li>
+      <div className="flex justify-center gap-1.5">
+        {Array.from({ length: cards }, (_, index) => (
+          <button
+            key={index}
+            type="button"
+            aria-label={index < shops.length ? shops[index]!.workspace.name : t('newShop.button')}
+            aria-current={index === selected ? 'true' : undefined}
+            onClick={() => api?.scrollTo(index)}
+            className={cn('h-1.5 rounded-full transition-all', index === selected ? 'bg-primary w-6' : 'bg-foreground/20 w-1.5')}
+          />
         ))}
-      </ul>
+      </div>
 
       <NewShopDialog open={adding} onOpenChange={setAdding} main={main} />
       <ConfirmShopChange asking={asking} main={main} onClose={() => setAsking(null)} />
@@ -71,46 +132,80 @@ export function YourShops({ shops, main }: { shops: WorkspaceMembership[]; main:
   );
 }
 
-function ShopCard({ shop }: { shop: Workspace }) {
+function ShopCard({
+  shop,
+  hidden,
+  onToggleHidden,
+  onSetMain,
+  onDelete,
+}: {
+  shop: Workspace;
+  hidden: boolean;
+  onToggleHidden: () => void;
+  onSetMain: () => void;
+  onDelete: () => void;
+}) {
   const t = useTranslations('home');
   return (
-    <Link
-      href={`/w/${shop.id}`}
-      className="bg-foreground/5 hover:bg-foreground/8 flex h-44 w-full flex-col overflow-hidden rounded-2xl transition-colors"
-    >
-      <span className={cn('h-12 shrink-0 opacity-30', colourFor(shop.id))} />
-      <ShopBadge id={shop.id} name={shop.name} className="ms-4 -mt-4 size-8 rounded-lg text-sm" />
-      <span className="flex flex-col gap-1 px-4 pt-3">
-        {shop.isMain ? (
-          <span className="flex items-center gap-1 text-xs font-semibold text-amber-500">
-            <StarIcon className="size-3.5 fill-current" />
-            {t('main')}
-          </span>
-        ) : null}
-        <span className="truncate text-[15px] leading-snug font-medium">{shop.name}</span>
-        <ShopTotals shopId={shop.id} />
-      </span>
-    </Link>
+    <div className="bg-card relative flex h-full min-h-52 flex-col gap-4 overflow-hidden rounded-2xl p-5 ps-6">
+      {/* The shop's colour down the leading edge, like M-Pesa's green. */}
+      <span aria-hidden className={cn('absolute inset-y-3 start-0 w-1 rounded-e-full', colourFor(shop.id))} />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          {shop.isMain ? (
+            <span className="flex items-center gap-1 text-xs font-semibold text-amber-500">
+              <StarIcon className="size-3.5 fill-current" />
+              {t('main')}
+            </span>
+          ) : null}
+          <span className="truncate text-sm font-semibold">{shop.name}</span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={onToggleHidden}
+            aria-label={hidden ? t('showShops') : t('hideShops')}
+            aria-pressed={hidden}
+            className="text-muted-foreground hover:text-foreground hover:bg-foreground/5 flex size-8 items-center justify-center rounded-lg transition-colors [&_svg]:size-5"
+          >
+            {hidden ? <EyeIcon /> : <EyeOffIcon />}
+          </button>
+          <ShopCardMenu shop={shop} onSetMain={onSetMain} onDelete={onDelete} />
+        </div>
+      </div>
+
+      <ShopTotals shopId={shop.id} hidden={hidden} />
+
+      <Link
+        href={`/w/${shop.id}`}
+        className="border-primary/50 hover:bg-primary/10 mt-auto flex h-11 items-center justify-center rounded-xl border text-sm font-semibold transition-colors"
+      >
+        {t('openShop')}
+      </Link>
+    </div>
   );
 }
 
-/** "$ 50,000 · KSh 400,000": what the shop's accounts hold, per currency. */
-function ShopTotals({ shopId }: { shopId: string }) {
+/** What the shop's accounts hold, one currency a line, dollars first. */
+function ShopTotals({ shopId, hidden }: { shopId: string; hidden: boolean }) {
   const summary = useDaySummary(shopId).data;
-  if (!summary) return <Skeleton className="h-4 w-32" />;
+  if (!summary) {
+    return (
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-5 w-32" />
+      </div>
+    );
+  }
   const totals = new Map<CurrencyCode, number>();
   for (const { account, balance } of summary.accounts) addTo(totals, { amount: balance, currency: account.currency });
-  // Dollars first, like the market says it: "$ 50,000 · KSh 400,000".
   const list: Money[] = totalsToList(totals).sort((a, b) => Number(b.currency === 'USD') - Number(a.currency === 'USD'));
   return (
-    <span className="text-muted-foreground flex flex-wrap items-center gap-x-1.5 text-sm">
+    <div aria-hidden={hidden} className={cn('flex flex-col gap-1 transition-[filter]', hidden && 'pointer-events-none blur-md select-none')}>
       {list.map((money, index) => (
-        <span key={money.currency} className="flex items-center gap-1.5">
-          {index > 0 ? <span aria-hidden>·</span> : null}
-          <MoneyText money={money} />
-        </span>
+        <MoneyText key={money.currency} money={money} className={index === 0 ? 'text-2xl font-semibold' : 'text-muted-foreground text-base font-medium'} />
       ))}
-    </span>
+    </div>
   );
 }
 
@@ -122,7 +217,7 @@ function ShopCardMenu({ shop, onSetMain, onDelete }: { shop: Workspace; onSetMai
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label={t('shopMenu', { shop: shop.name })}
-        className="bg-background/60 hover:bg-background absolute end-3 top-3 flex size-8 items-center justify-center rounded-lg backdrop-blur-sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
+        className="text-muted-foreground hover:text-foreground hover:bg-foreground/5 flex size-8 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
       >
         <EllipsisIcon className="size-4" />
       </DropdownMenuTrigger>
@@ -166,20 +261,13 @@ function ConfirmShopChange({ asking, main, onClose }: { asking: { kind: 'main' |
           <>
             <DialogHeader>
               <DialogTitle>{asking.kind === 'main' ? t('setMainTitle', { shop: shop.name }) : t('deleteTitle', { shop: shop.name })}</DialogTitle>
-              <DialogDescription>
-                {asking.kind === 'main' ? t('setMainBody', { old: main.name }) : t('deleteBody')}
-              </DialogDescription>
+              <DialogDescription>{asking.kind === 'main' ? t('setMainBody', { old: main.name }) : t('deleteBody')}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={onClose} className="h-11 rounded-xl">
                 {t('newShop.cancel')}
               </Button>
-              <Button
-                type="button"
-                variant={asking.kind === 'delete' ? 'destructive' : 'default'}
-                onClick={confirm}
-                className="h-11 rounded-xl font-semibold"
-              >
+              <Button type="button" variant={asking.kind === 'delete' ? 'destructive' : 'default'} onClick={confirm} className="h-11 rounded-xl font-semibold">
                 {asking.kind === 'main' ? t('setMain') : t('deleteShop')}
               </Button>
             </DialogFooter>

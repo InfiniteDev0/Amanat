@@ -530,6 +530,18 @@
       "cancel": "Cancel",
       "saving": "Creating the shop…",
       "created": "{shop} is ready"
+    },
+    "openShop": "Open shop",
+    "hideShops": "Hide the money",
+    "showShops": "Show the money",
+    "actions": {
+      "viewAll": "View all",
+      "all": "All actions",
+      "reports": "Reports",
+      "team": "Team",
+      "profit": "Profit",
+      "amanatList": "Amanat held",
+      "settings": "Settings"
     }
   },
   "rates": {

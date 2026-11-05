@@ -1,16 +1,15 @@
 'use client';
 
-import { ActivityIcon, ArrowLeftIcon, ArrowLeftRightIcon, ChartNoAxesColumnIcon, HandCoinsIcon, StarIcon, TrendingUpIcon } from 'lucide-react';
+import { ActivityIcon, ArrowLeftRightIcon, ChartNoAxesColumnIcon, HandCoinsIcon, StarIcon, TrendingUpIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useState } from 'react';
 
 import { AccountDialog } from '@/features/accounts/account-dialog';
 import { AccountCards } from '@/features/home/account-cards';
 import { useDaySummary } from '@/features/home/queries';
-import { ShopActions } from '@/features/home/shop-actions';
+import { QuickActionsGrid } from '@/features/home/quick-actions-grid';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
-import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -24,7 +23,8 @@ const TABS = [
 type Tab = (typeof TABS)[number]['id'];
 
 /**
- * One shop's page (/w/<id>): back to Home, its name (★ on the main shop),
+ * One shop's page (/w/<id>): its name (★ on the main shop; the way back is
+ * the top bar's breadcrumb),
  * its drawers as cards (each account's balance; a card opens it), the
  * everyday actions recording into this shop, Close day, then the tabs:
  * Recent activity, Exchange, Profit, Amanat, Reports. Nothing is recorded in
@@ -40,21 +40,19 @@ export function ShopScreen() {
   const isMain = shops.find((m) => m.workspace.id === workspace.id)?.workspace.isMain ?? workspace.isMain;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pt-8 pb-16">
-      <header className="flex flex-col gap-3">
-        <Link href="/home" className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors">
-          <ArrowLeftIcon className="size-4 rtl:rotate-180" />
-          {t('back')}
-        </Link>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold">
-          {workspace.name}
-          {isMain ? <StarIcon aria-label={t('main')} className="size-5 fill-amber-500 text-amber-500" /> : null}
-        </h1>
-      </header>
-
-      <AccountCards date={undefined} onOpen={setAccountId} />
-
-      {shops.length ? <ShopActions shops={shops} defaultShopId={workspace.id} closeDay /> : null}
+    <div className="flex w-full flex-col gap-8 px-6 pt-8 pb-16">
+      {/* Top: the shop and its drawers on the left, its quick actions on the
+          right (stacked on a phone). The way back is the top bar's breadcrumb. */}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <h1 className="flex items-center gap-2 text-2xl font-semibold">
+            {workspace.name}
+            {isMain ? <StarIcon aria-label={t('main')} className="size-5 fill-amber-500 text-amber-500" /> : null}
+          </h1>
+          <AccountCards date={undefined} onOpen={setAccountId} />
+        </div>
+        {shops.length ? <QuickActionsGrid shops={shops} shopId={workspace.id} /> : null}
+      </div>
 
       <section className="flex flex-col gap-4">
         <div role="tablist" aria-label={t('tabsLabel')} className="border-border flex gap-1 overflow-x-auto border-b">

@@ -530,6 +530,18 @@
       "cancel": "إلغاء",
       "saving": "جارٍ إنشاء المتجر…",
       "created": "{shop} جاهز"
+    },
+    "openShop": "فتح المتجر",
+    "hideShops": "إخفاء المال",
+    "showShops": "إظهار المال",
+    "actions": {
+      "viewAll": "عرض الكل",
+      "all": "كل الإجراءات",
+      "reports": "التقارير",
+      "team": "الفريق",
+      "profit": "الربح",
+      "amanatList": "الأمانات",
+      "settings": "الإعدادات"
     }
   },
   "rates": {

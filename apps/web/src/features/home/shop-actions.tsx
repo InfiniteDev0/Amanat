@@ -16,44 +16,37 @@ import { cn } from '@/lib/utils';
 
 import { useDaySummary } from './queries';
 
-type Action = 'exchange' | 'sallam' | 'move' | 'amanat' | 'expense';
+/** The everyday jobs that open a form. */
+export type ShopAction = 'exchange' | 'sallam' | 'move' | 'amanat' | 'expense';
 
-const ACTIONS: { id: Action; icon: ReactNode }[] = [
-  { id: 'exchange', icon: <ArrowLeftRightIcon /> },
-  { id: 'sallam', icon: <SmartphoneIcon /> },
-  { id: 'move', icon: <ArrowDownUpIcon /> },
-  { id: 'amanat', icon: <HandCoinsIcon /> },
-  { id: 'expense', icon: <ReceiptIcon /> },
-];
+export const ACTION_ICONS: Record<ShopAction, ReactNode> = {
+  exchange: <ArrowLeftRightIcon />,
+  sallam: <SmartphoneIcon />,
+  move: <ArrowDownUpIcon />,
+  amanat: <HandCoinsIcon />,
+  expense: <ReceiptIcon />,
+};
+
+export const SHOP_ACTIONS: ShopAction[] = ['exchange', 'sallam', 'move', 'amanat', 'expense'];
 
 const BUTTON =
   'bg-card hover:bg-card/70 focus-visible:ring-ring/50 flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors outline-none focus-visible:ring-3 disabled:opacity-50 disabled:hover:bg-card [&_svg]:size-4';
 
 /**
- * The everyday jobs, one tap away: Exchange, Sallam, Move, Amanat, Expense.
- * Each opens its form for a shop: `defaultShopId` (the main shop on Home,
- * this shop on its page), with a picker on top of the form in case it's
- * meant for another. Until the ledger is in the database, a real shop's
- * Save is off ("Coming in the next update"). On a shop's page, Close day sits
- * at the end (off until it's built for real shops).
+ * A shop's page: the everyday jobs in a row (Exchange, Sallam, Move, Amanat,
+ * Expense), recording into this shop, and Close day at the end (off until
+ * it's built for real shops).
  */
 export function ShopActions({ shops, defaultShopId, closeDay = false }: { shops: WorkspaceMembership[]; defaultShopId: string; closeDay?: boolean }) {
   const t = useTranslations('home');
-  const [action, setAction] = useState<Action | null>(null);
-  const [shopId, setShopId] = useState(defaultShopId);
-  const membership = shops.find((m) => m.workspace.id === shopId) ?? shops.find((m) => m.workspace.id === defaultShopId);
-
-  const open = (next: Action) => {
-    setShopId(defaultShopId);
-    setAction(next);
-  };
+  const [action, setAction] = useState<ShopAction | null>(null);
 
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        {ACTIONS.map(({ id, icon }) => (
-          <button key={id} type="button" onClick={() => open(id)} className={BUTTON}>
-            {icon}
+        {SHOP_ACTIONS.map((id) => (
+          <button key={id} type="button" onClick={() => setAction(id)} className={BUTTON}>
+            {ACTION_ICONS[id]}
             {t(`quick.${id}`)}
           </button>
         ))}
@@ -64,17 +57,45 @@ export function ShopActions({ shops, defaultShopId, closeDay = false }: { shops:
           </button>
         ) : null}
       </div>
-
-      {action && membership ? (
-        <ActionFor
-          key={membership.workspace.id}
-          membership={membership}
-          action={action}
-          onClose={() => setAction(null)}
-          picker={shops.length > 1 ? <ShopPicker shops={shops} value={membership.workspace.id} onChange={setShopId} /> : null}
-        />
-      ) : null}
+      <ActionHost shops={shops} action={action} shopId={defaultShopId} onClose={() => setAction(null)} />
     </>
+  );
+}
+
+/**
+ * Opens `action`'s form for a shop (`shopId`: the shop on screen), its name
+ * on top of the form so it can't be the wrong one; with more than one shop
+ * it can be switched there. Until the ledger is in the database, a real
+ * shop's Save is off ("Coming in the next update").
+ */
+export function ActionHost({
+  shops,
+  action,
+  shopId,
+  onClose,
+}: {
+  shops: WorkspaceMembership[];
+  action: ShopAction | null;
+  shopId: string;
+  onClose: () => void;
+}) {
+  // Switched in the form; back to the shop on screen every time a form opens.
+  const [picked, setPicked] = useState<{ for: ShopAction | null; id: string } | null>(null);
+  const chosen = picked && picked.for === action ? picked.id : shopId;
+  const membership = shops.find((m) => m.workspace.id === chosen) ?? shops.find((m) => m.workspace.id === shopId);
+  if (!action || !membership) return null;
+
+  return (
+    <ActionFor
+      key={membership.workspace.id}
+      membership={membership}
+      action={action}
+      onClose={() => {
+        setPicked(null);
+        onClose();
+      }}
+      picker={<ShopPicker shops={shops} value={membership.workspace.id} onChange={(id) => setPicked({ for: action, id })} />}
+    />
   );
 }
 
@@ -86,7 +107,7 @@ function ActionFor({
   picker,
 }: {
   membership: WorkspaceMembership;
-  action: Action;
+  action: ShopAction;
   onClose: () => void;
   picker: ReactNode;
 }) {
@@ -116,7 +137,7 @@ function ActionFor({
   );
 }
 
-/** Which shop the form records into: the main one first, ★ on it. */
+/** Which shop the form records into, on top of the form: the shop on screen is picked, ★ on the main one. */
 function ShopPicker({ shops, value, onChange }: { shops: WorkspaceMembership[]; value: string; onChange: (id: string) => void }) {
   const t = useTranslations('home');
   return (
