@@ -10,6 +10,7 @@ import {
   midRate,
   type SarrifApi,
   setRatesSchema,
+  updateAccountSchema,
   updateWorkspaceSchema,
   type User,
   usdQuotesFromBoard,
@@ -311,12 +312,22 @@ export function supabaseShops(auth: SarrifApi['auth']): Pick<SarrifApi, 'onboard
 
     accounts: {
       list: accountsOf,
-      // New accounts and corrections (recorded adjustments, never a quiet edit) come later.
+      // New accounts come with the rest of managing accounts (2c).
       async create() {
         throw notYet();
       },
-      async update() {
-        throw notYet();
+      /**
+       * The opening amount, as a recorded adjustment (set_opening_amount:
+       * who, when, from what to what, in the same transaction), never a
+       * quiet edit.
+       */
+      async update(shopId, accountId, input) {
+        const { openingBalance } = parse(updateAccountSchema, input);
+        const { error } = await withTimeout(supabase().rpc('set_opening_amount', { account: accountId, amount: openingBalance }));
+        if (error) throw databaseError(error, 'setOpeningAmount');
+        const account = (await accountsOf(shopId)).find((a) => a.id === accountId);
+        if (!account) throw new ApiError('not_found');
+        return account;
       },
     },
 
