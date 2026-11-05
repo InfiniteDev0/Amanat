@@ -25,11 +25,12 @@ const TYPE_ICON: Record<AccountType, LucideIcon> = { cash: Banknote, mobile_mone
  * suggestions (cash per currency, M-Pesa for shillings) can be switched off
  * or renamed; anything else can be added. Balance = opening + entries.
  */
-export default function AccountsStep({ draft, update, problem }: StepProps) {
+export default function AccountsStep({ draft, update, problem, bare = false }: StepProps & { bare?: boolean }) {
   const t = useTranslations('onboarding.accounts');
   return (
     <div>
-      <StepHeader title={t('title')} hint={t('hint')} />
+      {/* Bare: inside another form (+ New shop), which gives its own heading. */}
+      {bare ? null : <StepHeader title={t('title')} hint={t('hint')} />}
 
       {/* The starting line of the books: every balance and profit after depends on it. */}
       <p role="note" className="bg-field mb-4 flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-sm leading-snug">

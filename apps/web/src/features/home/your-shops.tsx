@@ -46,8 +46,8 @@ function writeHidden(hidden: boolean) {
 
 /**
  * Your shops as cards, like M-Pesa's balance cards: swipe from one to the
- * next (the main shop first), one dot per card underneath, and a last card
- * to add a shop. Each card: ★ on the main shop, its name, the eye, each
+ * next (the main shop first), one dot per shop underneath; "+ New shop" is a
+ * plain button above them. Each card: ★ on the main shop, its name, the eye, each
  * account with its balance (two to a row), and Open shop. The eye hides every shop's money and stays that
  * way, even after closing the app, until it's tapped again.
  *
@@ -61,7 +61,6 @@ export function YourShops({ shops, main, onShown }: { shops: WorkspaceMembership
   const [hidden, setHidden] = useState(readHidden);
   const [adding, setAdding] = useState(false);
   const [asking, setAsking] = useState<{ kind: 'main' | 'delete'; shop: Workspace } | null>(null);
-  const cards = shops.length + 1;
 
   useEffect(() => {
     if (!api) return;
@@ -86,7 +85,22 @@ export function YourShops({ shops, main, onShown }: { shops: WorkspaceMembership
   };
 
   return (
-    <section aria-label={t('yourShops')} className="flex flex-col gap-4">
+    <section aria-labelledby="your-shops" className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-4">
+        <h2 id="your-shops" className="text-muted-foreground text-sm font-medium">
+          {t('yourShops')}
+        </h2>
+        {/* A plain button: White on black in dark mode, black on white in light. */}
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="bg-foreground text-background flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
+        >
+          <PlusIcon className="size-4" />
+          {t('newShop.button')}
+        </button>
+      </div>
+
       <Carousel setApi={setApi} opts={{ align: 'start', direction: dir }}>
         <CarouselContent className="-ms-3">
           {shops.map(({ workspace }) => (
@@ -100,33 +114,23 @@ export function YourShops({ shops, main, onShown }: { shops: WorkspaceMembership
               />
             </CarouselItem>
           ))}
-          <CarouselItem className="basis-[88%] ps-3 sm:basis-[60%] lg:basis-[46%]">
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              className="border-border text-muted-foreground hover:text-foreground hover:bg-foreground/3 flex h-full min-h-52 w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors"
-            >
-              <span className="bg-foreground/5 flex size-12 items-center justify-center rounded-full">
-                <PlusIcon className="size-6" />
-              </span>
-              <span className="text-sm font-semibold">{t('newShop.button')}</span>
-            </button>
-          </CarouselItem>
         </CarouselContent>
       </Carousel>
 
-      <div className="flex justify-center gap-1.5">
-        {Array.from({ length: cards }, (_, index) => (
-          <button
-            key={index}
-            type="button"
-            aria-label={index < shops.length ? shops[index]!.workspace.name : t('newShop.button')}
-            aria-current={index === selected ? 'true' : undefined}
-            onClick={() => api?.scrollTo(index)}
-            className={cn('h-1.5 rounded-full transition-all', index === selected ? 'bg-primary w-6' : 'bg-foreground/20 w-1.5')}
-          />
-        ))}
-      </div>
+      {shops.length > 1 ? (
+        <div className="flex justify-center gap-1.5">
+          {shops.map(({ workspace }, index) => (
+            <button
+              key={workspace.id}
+              type="button"
+              aria-label={t('goToShop', { shop: workspace.name })}
+              aria-current={index === selected ? 'true' : undefined}
+              onClick={() => api?.scrollTo(index)}
+              className={cn('h-1.5 rounded-full transition-all', index === selected ? 'bg-primary w-6' : 'bg-foreground/20 w-1.5')}
+            />
+          ))}
+        </div>
+      ) : null}
 
       <NewShopDialog open={adding} onOpenChange={setAdding} main={main} />
       <ConfirmShopChange asking={asking} main={main} onClose={() => setAsking(null)} />

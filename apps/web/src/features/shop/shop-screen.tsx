@@ -51,7 +51,7 @@ export function ShopScreen() {
           </h1>
           <AccountCards date={undefined} onOpen={setAccountId} columns={2} />
         </div>
-        {shops.length ? <QuickActionsGrid shops={shops} shopId={workspace.id} /> : null}
+        {shops.length ? <QuickActionsGrid shops={shops} shopId={workspace.id} compact /> : null}
       </div>
 
       <section className="flex flex-col gap-4">

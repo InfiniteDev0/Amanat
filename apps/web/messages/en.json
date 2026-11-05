@@ -529,7 +529,10 @@
       "create": "Create shop",
       "cancel": "Cancel",
       "saving": "Creating the shop…",
-      "created": "{shop} is ready"
+      "created": "{shop} is ready",
+      "shopSection": "The shop",
+      "shopSectionHint": "Its name, and where it is.",
+      "accountsSection": "Accounts and opening amounts"
     },
     "openShop": "Open shop",
     "hideShops": "Hide the money",
@@ -541,8 +544,15 @@
       "team": "Team",
       "profit": "Profit",
       "amanatList": "Amanat held",
-      "settings": "Settings"
-    }
+      "settings": "Settings",
+      "reportsHint": "Days and totals",
+      "teamHint": "Who works here",
+      "less": "Show less",
+      "profitHint": "Sallam and Exchange",
+      "amanatListHint": "Money kept for customers",
+      "settingsHint": "The shop's details"
+    },
+    "goToShop": "Go to {shop}"
   },
   "rates": {
     "title": "Today's rates",

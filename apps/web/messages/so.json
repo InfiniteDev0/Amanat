@@ -529,7 +529,10 @@
       "create": "Samee dukaanka",
       "cancel": "Jooji",
       "saving": "Dukaanka waa la samaynayaa…",
-      "created": "{shop} waa diyaar"
+      "created": "{shop} waa diyaar",
+      "shopSection": "Dukaanka",
+      "shopSectionHint": "Magaciisa iyo meesha uu ku yaal.",
+      "accountsSection": "Xisaabaadka iyo lacagaha bilowga"
     },
     "openShop": "Fur dukaanka",
     "hideShops": "Qari lacagta",
@@ -541,8 +544,15 @@
       "team": "Kooxda",
       "profit": "Faa'iido",
       "amanatList": "Amaanadaha",
-      "settings": "Dejinta"
-    }
+      "settings": "Dejinta",
+      "reportsHint": "Maalmaha iyo wadarta",
+      "teamHint": "Cidda halkan ka shaqaysa",
+      "less": "Yaree",
+      "profitHint": "Sallam iyo Sarrif",
+      "amanatListHint": "Lacagta macaamiisha loo hayo",
+      "settingsHint": "Xogta dukaanka"
+    },
+    "goToShop": "U gudub {shop}"
   },
   "rates": {
     "title": "Sicirrada maanta",

@@ -529,7 +529,10 @@
       "create": "إنشاء المتجر",
       "cancel": "إلغاء",
       "saving": "جارٍ إنشاء المتجر…",
-      "created": "{shop} جاهز"
+      "created": "{shop} جاهز",
+      "shopSection": "المتجر",
+      "shopSectionHint": "اسمه ومكانه.",
+      "accountsSection": "الحسابات والمبالغ الافتتاحية"
     },
     "openShop": "فتح المتجر",
     "hideShops": "إخفاء المال",
@@ -541,8 +544,15 @@
       "team": "الفريق",
       "profit": "الربح",
       "amanatList": "الأمانات",
-      "settings": "الإعدادات"
-    }
+      "settings": "الإعدادات",
+      "reportsHint": "الأيام والمجاميع",
+      "teamHint": "من يعمل هنا",
+      "less": "عرض أقل",
+      "profitHint": "السلام والصرف",
+      "amanatListHint": "المال المحفوظ للعملاء",
+      "settingsHint": "بيانات المتجر"
+    },
+    "goToShop": "انتقل إلى {shop}"
   },
   "rates": {
     "title": "أسعار اليوم",
