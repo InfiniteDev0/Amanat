@@ -5,7 +5,7 @@ export type NavKey = 'home' | 'profit' | 'amanat' | 'reports' | 'settings' | 'tr
 
 export interface NavItem {
   key: NavKey;
-  /** '' is the shop's Home. */
+  /** '' is Home (/home, all your shops); the rest are relative to the shop. */
   path: string;
   /** An SVG in public/, used as a mask (lib/mask.ts). */
   icon: string;
@@ -29,7 +29,7 @@ export const NAV_FOOT: NavItem[] = [
 ];
 
 export function hrefFor(workspaceId: string, item: Pick<NavItem, 'path'>) {
-  return `/w/${workspaceId}${item.path}`;
+  return item.path === '' ? '/home' : `/w/${workspaceId}${item.path}`;
 }
 
 /** Home only on itself; any other page also on its sub-pages (/clients/abc). */

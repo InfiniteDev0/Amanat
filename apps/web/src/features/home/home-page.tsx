@@ -28,7 +28,7 @@ export function HomePage() {
 
   return (
     <WorkspaceProvider workspace={main.workspace} role={main.role}>
-      <AppFrame title={<PageBreadcrumb />}>
+      <AppFrame title={<PageBreadcrumb />} workspaceId={main.workspace.id}>
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 pt-12 pb-16">
           <header className="flex justify-center">
             <Greeting />
