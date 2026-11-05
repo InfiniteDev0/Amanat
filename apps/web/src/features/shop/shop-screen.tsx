@@ -49,7 +49,7 @@ export function ShopScreen() {
             {workspace.name}
             {isMain ? <StarIcon aria-label={t('main')} className="size-5 fill-amber-500 text-amber-500" /> : null}
           </h1>
-          <AccountCards date={undefined} onOpen={setAccountId} />
+          <AccountCards date={undefined} onOpen={setAccountId} columns={2} />
         </div>
         {shops.length ? <QuickActionsGrid shops={shops} shopId={workspace.id} /> : null}
       </div>

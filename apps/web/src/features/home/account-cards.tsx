@@ -1,7 +1,7 @@
 'use client';
 
 import { sharesInBase, withReferenceRates } from '@sarrif/core';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 import { Flag } from '@/components/flag';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,21 +24,23 @@ const STRIPES = { backgroundImage: 'repeating-linear-gradient(135deg, rgb(255 25
  * Home's money position for one day. A striped bar on top splits the total
  * across the accounts, each valued in the base currency at the day's mid
  * rate (the market rate stands in for a rate not set yet). Under it one card
- * per account, base currency first and cash first within a currency: its colour, its currency's flag and its name, its balance in
- * its own currency and its share of the total. With nothing to value yet the
- * bar is a plain track and the shares are left off. A card opens that
- * account's dialog (balance, move).
+ * per account, base currency first and cash first within a currency: its
+ * colour, its currency's flag and its name, and its balance in its own
+ * currency (the share is shown by the bar only). With nothing to value yet
+ * the bar is a plain track. A card opens that account's dialog (balance, move).
  */
 export function AccountCards({
   date,
   onOpen,
+  columns = 4,
 }: {
   date: string | undefined;
+  /** Cards to a row on wide screens: 4 across the page, 2 beside the shop page's quick actions. */
+  columns?: 2 | 4;
   /** A card was clicked: open that account's dialog. */
   onOpen: (accountId: string) => void;
 }) {
   const t = useTranslations('home');
-  const locale = useLocale();
   const { workspace } = useWorkspace();
   const summary = useDaySummary(workspace.id, date);
   const label = useAccountLabel();
@@ -48,7 +50,7 @@ export function AccountCards({
     return (
       <section className="flex flex-col gap-3">
         <Skeleton className="h-2.5 w-full rounded-full" />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className={cn('grid grid-cols-1 gap-3 sm:grid-cols-2', columns === 4 && 'xl:grid-cols-4')}>
           {Array.from({ length: 4 }, (_, index) => (
             <Skeleton key={index} className="h-20 rounded-xl" />
           ))}
@@ -65,7 +67,6 @@ export function AccountCards({
       a.account.currency.localeCompare(b.account.currency) ||
       Number(a.account.type !== 'cash') - Number(b.account.type !== 'cash'),
   );
-  const percent = new Intl.NumberFormat(`${locale}-u-nu-latn`, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const shares = sharesInBase(
     withReferenceRates(board, market),
     accounts.map(({ account, balance }) => ({ amount: balance, currency: account.currency })),
@@ -85,8 +86,8 @@ export function AccountCards({
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {rows.map(({ account, balance, colour, share }) => (
+      <div className={cn('grid grid-cols-1 gap-3 sm:grid-cols-2', columns === 4 && 'xl:grid-cols-4')}>
+        {rows.map(({ account, balance, colour }) => (
           <button
             key={account.id}
             type="button"
@@ -99,14 +100,9 @@ export function AccountCards({
               <Flag code={currencyFlag(account.currency)} className="h-3 shrink-0" />
               <span className="truncate">{label(account)}</span>
             </span>
-            <span className="flex items-center justify-between gap-2">
-              <SplitAmount amount={balance} currency={account.currency} className="truncate text-lg font-semibold" />
-              {share !== null ? (
-                <bdi dir="ltr" className="bg-foreground/5 text-muted-foreground shrink-0 rounded-md px-1.5 py-0.5 text-xs tabular-nums">
-                  {percent.format(share)}
-                </bdi>
-              ) : null}
-            </span>
+            {/* The share of the total is the bar's job; the card is just the money. */}
+            <SplitAmount amount={balance} currency={account.currency} className="truncate text-lg font-semibold" />
+
           </button>
         ))}
       </div>
