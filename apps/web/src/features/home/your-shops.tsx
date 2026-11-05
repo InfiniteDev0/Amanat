@@ -1,12 +1,12 @@
 'use client';
 
 import type { Workspace, WorkspaceMembership } from '@sarrif/core';
-import { EllipsisIcon, EyeIcon, EyeOffIcon, PlusIcon, StarIcon, Trash2Icon } from 'lucide-react';
+import { ArrowRightIcon, EllipsisIcon, EyeIcon, EyeOffIcon, PlusIcon, StarIcon, Trash2Icon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
-import { MoneyText } from '@/components/money-text';
-import { colourFor } from '@/components/shop-badge';
+import { Flag } from '@/components/flag';
+import { ShopBadge } from '@/components/shop-badge';
 import { Button } from '@/components/ui/button';
 import { Carousel, type CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAccountLabel } from '@/features/accounts/account-label';
 import { useRemoveShop, useSetMainShop } from '@/features/workspaces/queries';
+import { currencyFlag } from '@/lib/currency-flag';
 import { Link } from '@/i18n/navigation';
 import { directionOf } from '@/i18n/routing';
 import { errorKey, useMessage } from '@/lib/api/errors';
@@ -22,6 +23,7 @@ import { cn } from '@/lib/utils';
 
 import { NewShopDialog } from './new-shop-dialog';
 import { useDaySummary } from './queries';
+import { SplitAmount } from './split-amount';
 
 /** Where the eye's choice is kept on this device: customers stand at the counter. */
 const HIDE_KEY = 'amanat.hide.shops';
@@ -147,20 +149,19 @@ function ShopCard({
 }) {
   const t = useTranslations('home');
   return (
-    <div className="bg-card relative flex h-full min-h-52 flex-col gap-4 overflow-hidden rounded-xl p-5 ps-6">
-      {/* The shop's colour down the leading edge, like M-Pesa's green. */}
-      <span aria-hidden className={cn('absolute inset-y-3 start-0 w-1 rounded-e-full', colourFor(shop.id))} />
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
+    <div className="bg-card flex h-full flex-col gap-4 rounded-xl p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <ShopBadge id={shop.id} name={shop.name} className="size-8 rounded-lg text-sm" />
+          <span className="truncate text-[15px] font-semibold">{shop.name}</span>
           {shop.isMain ? (
-            <span className="flex items-center gap-1 text-xs font-semibold text-amber-500">
-              <StarIcon className="size-3.5 fill-current" />
+            <span className="flex shrink-0 items-center gap-1 rounded-md bg-amber-500/10 px-1.5 py-0.5 text-xs font-semibold text-amber-500">
+              <StarIcon className="size-3 fill-current" />
               {t('main')}
             </span>
           ) : null}
-          <span className="truncate text-sm font-semibold">{shop.name}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-0.5">
           <button
             type="button"
             onClick={onToggleHidden}
@@ -178,9 +179,10 @@ function ShopCard({
 
       <Link
         href={`/w/${shop.id}`}
-        className="border-primary/50 hover:bg-primary/10 mt-auto flex h-11 items-center justify-center rounded-lg border text-sm font-semibold transition-colors"
+        className="bg-foreground/5 hover:bg-foreground/10 mt-auto flex h-10 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold transition-colors"
       >
         {t('openShop')}
+        <ArrowRightIcon className="size-4 rtl:rotate-180" />
       </Link>
     </div>
   );
@@ -192,9 +194,9 @@ function ShopTotals({ shopId, hidden }: { shopId: string; hidden: boolean }) {
   const label = useAccountLabel();
   if (!summary) {
     return (
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-7 w-40" />
-        <Skeleton className="h-5 w-32" />
+      <div className="grid grid-cols-2 gap-2">
+        <Skeleton className="h-16 rounded-lg" />
+        <Skeleton className="h-16 rounded-lg" />
       </div>
     );
   }
@@ -206,11 +208,18 @@ function ShopTotals({ shopId, hidden }: { shopId: string; hidden: boolean }) {
       Number(a.account.type !== 'cash') - Number(b.account.type !== 'cash'),
   );
   return (
-    <div aria-hidden={hidden} className={cn('grid grid-cols-2 gap-x-4 gap-y-3 transition-[filter]', hidden && 'pointer-events-none blur-md select-none')}>
+    <div className="grid grid-cols-2 gap-2">
       {accounts.map(({ account, balance }) => (
-        <div key={account.id} className="flex min-w-0 flex-col">
-          <span className="text-muted-foreground truncate text-xs">{label(account)}</span>
-          <MoneyText money={{ amount: balance, currency: account.currency }} className="truncate text-lg font-semibold" />
+        <div key={account.id} className="bg-foreground/4 flex min-w-0 flex-col gap-1.5 rounded-lg px-3 py-2.5">
+          <span className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-xs">
+            <Flag code={currencyFlag(account.currency)} className="h-2.5 shrink-0" />
+            <span className="truncate">{label(account)}</span>
+          </span>
+          <SplitAmount
+            amount={balance}
+            currency={account.currency}
+            className={cn('truncate text-base font-semibold transition-[filter]', hidden && 'pointer-events-none blur-md select-none')}
+          />
         </div>
       ))}
     </div>
