@@ -8,6 +8,8 @@ export const routing = defineRouting({
   locales: ['en', 'so', 'ar'],
   defaultLocale: 'so',
   localeDetection: false,
+  // The language picked last time, for a year (proxy.ts reads it back).
+  localeCookie: { maxAge: 60 * 60 * 24 * 365 },
 });
 
 export type Locale = (typeof routing.locales)[number];

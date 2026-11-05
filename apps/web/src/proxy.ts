@@ -33,7 +33,23 @@ function splitLocale(pathname: string): { locale: string; page: string } | null 
   return { locale: first, page: `/${rest.join('/')}`.replace(/\/+$/, '') || '/' };
 }
 
+/** The language picked last time (next-intl's cookie), if it's one of ours. */
+function savedLocale(request: NextRequest): string | null {
+  const saved = request.cookies.get('NEXT_LOCALE')?.value;
+  return saved && routing.locales.includes(saved as (typeof routing.locales)[number]) ? saved : null;
+}
+
 export default async function proxy(request: NextRequest) {
+  // With detection off next-intl doesn't read its own cookie either, so a bare
+  // address (localhost:3000, /w/…) would always open in Somali. The language
+  // picked last time wins; a new visitor still gets Somali.
+  const saved = savedLocale(request);
+  if (saved && !splitLocale(request.nextUrl.pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${saved}${url.pathname === '/' ? '' : url.pathname}`;
+    return NextResponse.redirect(url);
+  }
+
   const response = intl(request);
   // The language is being added to the URL: the next request comes back here.
   if (!SUPABASE_CONFIGURED || response.headers.has('location')) return response;
