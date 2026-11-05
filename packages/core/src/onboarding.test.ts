@@ -4,9 +4,13 @@ import { suggestedAccounts } from './onboarding';
 import { onboardingSchema } from './schemas';
 
 describe('suggestedAccounts', () => {
-  it('suggests cash for each currency and M-Pesa for shillings', () => {
-    expect(suggestedAccounts(['USD', 'KES']).map((a) => a.key)).toEqual(['cash-USD', 'cash-KES', 'mobile-KES']);
-    expect(suggestedAccounts(['USD', 'SOS']).every((a) => a.type === 'cash')).toBe(true);
+  it('suggests the four places: $ Cash, $ Sallam, KSh Cash, M-Pesa', () => {
+    expect(suggestedAccounts(['USD', 'KES']).map((a) => a.key)).toEqual(['cash-USD', 'sallam-USD', 'cash-KES', 'mobile-KES']);
+    expect(suggestedAccounts(['USD']).find((a) => a.key === 'sallam-USD')).toMatchObject({ type: 'bank', provider: 'Sallam' });
+  });
+
+  it('suggests cash for any other currency', () => {
+    expect(suggestedAccounts(['SOS', 'ETB']).every((a) => a.type === 'cash')).toBe(true);
   });
 });
 

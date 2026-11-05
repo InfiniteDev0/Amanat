@@ -1,10 +1,11 @@
 import type { CurrencyCode } from './currencies';
 import type { AccountType } from './entities';
 
-// First-run setup rules shared by the wizard and the backend. The spec:
-// "Add accounts with opening balances (suggested: Cash for each currency,
-// M-Pesa KES)". Names are left to the UI so they come out in the user's
-// language; `key` identifies a suggestion across re-renders and edits.
+// First-run setup rules shared by the wizard and the backend. The client's
+// shop has four places for money (Build Plan v4): $ Cash, $ Sallam, KSh Cash
+// and M-Pesa, so those are suggested, with cash for any other currency.
+// Names are left to the UI so they come out in the user's language; `key`
+// identifies a suggestion across re-renders and edits.
 
 export interface SuggestedAccount {
   key: string;
@@ -14,17 +15,17 @@ export interface SuggestedAccount {
   provider: string | null;
 }
 
-/** Mobile-money wallets worth suggesting per currency. Only M-Pesa is in the spec so far. */
-const MOBILE_MONEY: Partial<Record<CurrencyCode, string>> = {
-  KES: 'M-Pesa',
+/** Besides cash, the place each currency is usually kept: Sallam for dollars, M-Pesa for shillings. */
+const OTHER_PLACE: Partial<Record<CurrencyCode, { type: AccountType; provider: string; key: string }>> = {
+  USD: { type: 'bank', provider: 'Sallam', key: 'sallam' },
+  KES: { type: 'mobile_money', provider: 'M-Pesa', key: 'mobile' },
 };
 
-/** Cash for each traded currency, then the known mobile-money wallet for each. */
+/** Per traded currency, in order: its cash, then its usual other place ($ Cash, $ Sallam, KSh Cash, M-Pesa). */
 export function suggestedAccounts(currencies: readonly CurrencyCode[]): SuggestedAccount[] {
-  const cash = currencies.map((currency) => ({ key: `cash-${currency}`, type: 'cash' as const, currency, provider: null }));
-  const mobile = currencies.flatMap((currency) => {
-    const provider = MOBILE_MONEY[currency];
-    return provider ? [{ key: `mobile-${currency}`, type: 'mobile_money' as const, currency, provider }] : [];
+  return currencies.flatMap((currency) => {
+    const cash: SuggestedAccount = { key: `cash-${currency}`, type: 'cash', currency, provider: null };
+    const other = OTHER_PLACE[currency];
+    return other ? [cash, { key: `${other.key}-${currency}`, type: other.type, currency, provider: other.provider }] : [cash];
   });
-  return [...cash, ...mobile];
 }
