@@ -206,6 +206,7 @@ function Profit() {
             {locked ? <LockIcon className="text-muted-foreground size-5 self-center" aria-label={t('closed')} /> : null}
           </h1>
         </div>
+        {/* + Sallam and + Exchange are off with the lists below (Phase 3).
         {editable ? (
           <div className="flex gap-2">
             <Button type="button" disabled onClick={() => setSheet({ type: 'sallam', editing: null })} className="h-9 rounded-lg px-3 text-sm font-semibold">
@@ -217,7 +218,7 @@ function Profit() {
               {t('addExchange')}
             </Button>
           </div>
-        ) : null}
+        ) : null} */}
       </header>
 
       {/* The Exchange and Sallam lists are off: the money engine is being
