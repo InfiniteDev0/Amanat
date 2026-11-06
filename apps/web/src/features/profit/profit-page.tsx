@@ -220,8 +220,8 @@ function Profit() {
         ) : null}
       </header>
 
-      {/* Side by side on a wide screen, one under the other on a phone. Fills the
-          rest of the page; each list scrolls in its own box. */}
+      {/* The Exchange and Sallam lists are off: the money engine is being
+          redesigned (Phase 3). They come back with the block below.
       <div className="grid min-h-0 flex-1 gap-8 lg:grid-cols-[1fr_auto_1fr]">
         <Section title={t('exchange')} count={rows.data ? exchange.length : undefined} subtotalLabel={t('exchangeProfit')} subtotal={addUp(exchange.map((row) => row.profit))}>
           {list(exchange)}
@@ -229,9 +229,8 @@ function Profit() {
 
         <div aria-hidden className="bg-border hidden w-px self-stretch lg:block" />
 
-        {/* Sallam: left blank for now (its rows are kept, just not shown); the column keeps its space. */}
         <div aria-hidden />
-      </div>
+      </div> */}
 
 
       {todays.data ? (

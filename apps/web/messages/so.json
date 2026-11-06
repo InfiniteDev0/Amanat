@@ -1004,7 +1004,23 @@
     "openingHelp": "Inta xisaab kastaa haysay markaad Sarrif bilowday. Haraaga oo dhan halkan ayuu ka yimaadaa.",
     "openingSaved": "Lacagta bilowga {account} waa la kaydiyay",
     "rates": "Sicirka maanta, 2-dii toddobaad ee la soo dhaafay",
-    "noRate": "Lama dhigin"
+    "noRate": "Lama dhigin",
+    "title": "Dejinta",
+    "tabs": {
+      "shop": "Dukaanka",
+      "accounts": "Xisaabaadka",
+      "rates": "Sicirrada",
+      "appearance": "Muuqaalka",
+      "account": "Akoonka"
+    },
+    "nameHint": "Waxa shaqaalahaaga iyo liiska dukaannadu muujiyaan.",
+    "locationHint": "Waddada ama aagga.",
+    "closingTimeHint": "Waa lagu xasuusinayaa haddii maalinta aan la xirin waqtigaas.",
+    "openingHint": "Inta ay haysay markaad bilowday.",
+    "openingFor": "Lacagta bilowga ee {account}",
+    "themeHint": "Iftiin ama mugdi, qalabkan.",
+    "languageHint": "Luqadda app-ka ee adiga.",
+    "signOutHint": "Dukaannadaada waa la kaydiyay. Wax walba halkan ayay joogaan markaad soo noqoto."
   },
   "search": {
     "placeholder": "Raadi",

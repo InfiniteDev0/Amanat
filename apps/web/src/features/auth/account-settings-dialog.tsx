@@ -56,7 +56,7 @@ export function AccountSettingsDialog({ open, onOpenChange }: { open: boolean; o
   );
 }
 
-function ProfileSection({ name, phone, language, onSaved }: { name: string; phone: string; language: Language; onSaved: () => void }) {
+export function ProfileSection({ name, phone, language, onSaved }: { name: string; phone: string; language: Language; onSaved: () => void }) {
   const t = useTranslations();
   const message = useMessage();
   const { switchTo } = useSwitchLocale();
@@ -145,7 +145,7 @@ function ProfileSection({ name, phone, language, onSaved }: { name: string; phon
   );
 }
 
-function PasswordSection() {
+export function PasswordSection() {
   const t = useTranslations();
   const message = useMessage();
   const setNewPassword = useSetNewPassword();

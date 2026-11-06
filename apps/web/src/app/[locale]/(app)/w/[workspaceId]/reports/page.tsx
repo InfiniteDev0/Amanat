@@ -1,6 +1,8 @@
-import { ReportsPage } from '@/features/reports/reports-page';
+// import { ReportsPage } from '@/features/reports/reports-page';
 
-/** Reports: a day, a week or a month, added up, day by day. */
+// Reports: blank while the money engine is redesigned (Phase 3). The old
+// page comes back with the import and the line below.
 export default function Page() {
-  return <ReportsPage />;
+  // return <ReportsPage />;
+  return null;
 }

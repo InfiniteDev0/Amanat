@@ -1,48 +1,76 @@
 'use client';
 
-import { type Account, addDays, fromMinor, parseAmount } from '@sarrif/core';
+import { type Account, addDays, fromMinor, LANGUAGES, parseAmount } from '@sarrif/core';
 import { gooeyToast } from 'goey-toast';
+import { LogOutIcon } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { type FormEvent, type ReactNode, useState } from 'react';
 
+import { Flag } from '@/components/flag';
+import { LOCALE_FLAG, useSwitchLocale } from '@/components/locale-switcher';
 import { Button } from '@/components/ui/button';
+import { useAccountLabel } from '@/features/accounts/account-label';
 import { useAccounts, useUpdateAccount } from '@/features/accounts/queries';
-import { AmountBox, withCommas } from '@/features/profit/fields';
-import { useAccountShort } from '@/features/profit/money-text';
+import { PasswordSection, ProfileSection } from '@/features/auth/account-settings-dialog';
+import { useSession } from '@/features/auth/queries';
+import { useSignOutAndLeave } from '@/features/auth/use-sign-out-and-leave';
 import { formatMarket } from '@/features/rates/format-market';
 import { useRatesForDays } from '@/features/rates/queries';
+import { isTheme } from '@/features/theme/theme';
+import { useTheme } from '@/features/theme/use-theme';
 import { useShopDay } from '@/features/workspaces/shop-day';
 import { useUpdateWorkspace } from '@/features/workspaces/queries';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { formErrorKey, useMessage } from '@/lib/api/errors';
+import { currencyFlag } from '@/lib/currency-flag';
+import { cn } from '@/lib/utils';
 
-const INPUT = 'bg-field focus-visible:bg-field-focus placeholder:text-muted-foreground h-14 w-full rounded-xl px-4 text-lg outline-none disabled:opacity-60';
+// Settings like Milo's: a plain title, a row of tabs with an underline that
+// travels to the one picked, and settings that read left to right: what it
+// is (and a line under it), then what it's set to.
 
-function Section({ title, help, children }: { title: string; help?: string; children: ReactNode }) {
+const INPUT = 'bg-field focus-visible:bg-field-focus placeholder:text-muted-foreground h-10 w-full rounded-lg px-3 text-sm outline-none disabled:opacity-60 sm:w-72';
+
+/** One setting: its name and a hint on the left, its control on the right (stacked on a phone). */
+function Row({ label, hint, children }: { label: ReactNode; hint?: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="bg-[linear-gradient(to_right,#38ef7d,#11998e)] bg-clip-text text-base font-semibold text-transparent">{title}</h2>
-        {help ? <p className="text-muted-foreground text-base">{help}</p> : null}
+    <div className="border-foreground/8 flex flex-col gap-3 border-t py-5 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <span className="text-sm font-medium">{label}</span>
+        {hint ? <span className="text-muted-foreground text-xs">{hint}</span> : null}
       </div>
-      {children}
-    </section>
+      <div className="flex shrink-0 items-center gap-2">{children}</div>
+    </div>
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+/** A choice of a few, in one track (theme, language). */
+function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: { value: T; label: ReactNode }[]; onChange: (value: T) => void; label: string }) {
   return (
-    <label className="flex flex-col gap-2">
-      <span className="text-lg font-semibold">{label}</span>
-      {children}
-    </label>
+    <div role="group" aria-label={label} className="bg-foreground/5 flex flex-wrap gap-0.5 rounded-lg p-1">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          aria-pressed={value === option.value}
+          className={cn(
+            'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors',
+            value === option.value ? 'bg-card text-foreground shadow-[0_1px_2px_rgb(0_0_0/0.12)]' : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
-const asText = (amount: number, currency: string) => withCommas(fromMinor(amount, currency as Account['currency']).toString());
+const asText = (amount: number, currency: Account['currency']) => (amount ? fromMinor(amount, currency).toString() : '');
 
 /** The shop: name, where it is, when the day should be closed, and what counts as a large row. */
-function ShopForm() {
+function ShopTab() {
   const t = useTranslations('settings');
   const message = useMessage();
   const { workspace, can } = useWorkspace();
@@ -65,39 +93,48 @@ function ShopForm() {
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-5">
-      <Field label={t('name')}>
-        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} disabled={!owner} className={INPUT} />
-      </Field>
-      <Field label={t('location')}>
-        <input value={location} onChange={(e) => setLocation(e.target.value)} maxLength={120} disabled={!owner} placeholder={t('locationPlaceholder')} className={INPUT} />
-      </Field>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field label={t('closingTime')}>
-          <input type="time" dir="ltr" value={closingTime} onChange={(e) => setClosingTime(e.target.value)} disabled={!owner} className={`${INPUT} tabular-nums`} />
-        </Field>
-        <div className="flex flex-col gap-2">
-          <span className="text-lg font-semibold">{t('largeRow')}</span>
-          <AmountBox label={t('largeRow')} currency={workspace.baseCurrency} value={limit} onChange={owner ? setLimit : () => undefined} />
+    <form onSubmit={submit}>
+      <Row label={t('name')} hint={t('nameHint')}>
+        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} disabled={!owner} aria-label={t('name')} className={INPUT} />
+      </Row>
+      <Row label={t('location')} hint={t('locationHint')}>
+        <input value={location} onChange={(e) => setLocation(e.target.value)} maxLength={120} disabled={!owner} placeholder={t('locationPlaceholder')} aria-label={t('location')} className={INPUT} />
+      </Row>
+      <Row label={t('closingTime')} hint={t('closingTimeHint')}>
+        <input type="time" dir="ltr" value={closingTime} onChange={(e) => setClosingTime(e.target.value)} disabled={!owner} aria-label={t('closingTime')} className={cn(INPUT, 'tabular-nums sm:w-40')} />
+      </Row>
+      <Row label={t('largeRow')} hint={t('largeRowHelp')}>
+        <div className="relative">
+          <input
+            value={limit}
+            onChange={(e) => setLimit(e.target.value)}
+            inputMode="decimal"
+            dir="ltr"
+            disabled={!owner}
+            aria-label={t('largeRow')}
+            className={cn(INPUT, 'pe-14 text-end tabular-nums sm:w-48')}
+          />
+          <span className="text-muted-foreground pointer-events-none absolute inset-y-0 end-3 flex items-center text-xs font-medium">{workspace.baseCurrency}</span>
         </div>
+      </Row>
+      <div className="border-foreground/8 flex justify-end border-t pt-5">
+        {owner ? (
+          <Button type="submit" disabled={!ready} className="h-10 rounded-lg px-5 font-semibold">
+            {t('save')}
+          </Button>
+        ) : (
+          <p className="text-muted-foreground text-sm">{t('ownersOnly')}</p>
+        )}
       </div>
-      <p className="text-muted-foreground -mt-2 text-sm">{t('largeRowHelp')}</p>
-      {owner ? (
-        <Button type="submit" disabled={!ready} className="h-14 rounded-xl text-lg font-bold sm:w-60">
-          {t('save')}
-        </Button>
-      ) : (
-        <p className="text-muted-foreground text-base">{t('ownersOnly')}</p>
-      )}
     </form>
   );
 }
 
-/** One account's opening amount, saved on its own. */
+/** One account's opening amount: changing it is recorded (who, when, from and to). */
 function OpeningRow({ account }: { account: Account }) {
   const t = useTranslations('settings');
   const message = useMessage();
-  const short = useAccountShort();
+  const label = useAccountLabel();
   const { workspace, can } = useWorkspace();
   const update = useUpdateAccount(workspace.id);
   const [text, setText] = useState(asText(account.openingBalance, account.currency));
@@ -108,28 +145,63 @@ function OpeningRow({ account }: { account: Account }) {
   const save = () => {
     if (amount === null) return;
     update.mutateAsync({ accountId: account.id, input: { openingBalance: amount } }).then(
-      () => gooeyToast.success(t('openingSaved', { account: short(account) })),
+      () => gooeyToast.success(t('openingSaved', { account: label(account) })),
       (error) => gooeyToast.error(message(formErrorKey(error))),
     );
   };
 
   return (
-    <li className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <span className="text-lg font-bold sm:w-32">{short(account)}</span>
-      <div className="flex-1">
-        <AmountBox label={short(account)} currency={account.currency} value={text} onChange={owner ? setText : () => undefined} />
+    <Row
+      label={
+        <span className="flex items-center gap-2">
+          <Flag code={currencyFlag(account.currency)} className="h-3" />
+          {label(account)}
+        </span>
+      }
+      hint={t('openingHint')}
+    >
+      <div className="relative">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          inputMode="decimal"
+          dir="ltr"
+          placeholder="0"
+          disabled={!owner}
+          aria-label={t('openingFor', { account: label(account) })}
+          className={cn(INPUT, 'pe-14 text-end tabular-nums sm:w-48')}
+        />
+        <span className="text-muted-foreground pointer-events-none absolute inset-y-0 end-3 flex items-center text-xs font-medium">{account.currency}</span>
       </div>
       {owner ? (
-        <Button type="button" variant="outline" onClick={save} disabled={!changed || update.isPending} className="h-14 rounded-xl px-6 text-base font-bold">
+        <Button type="button" variant="outline" onClick={save} disabled={!changed || update.isPending} className="h-10 rounded-lg px-4">
           {t('save')}
         </Button>
       ) : null}
-    </li>
+    </Row>
+  );
+}
+
+function AccountsTab() {
+  const t = useTranslations('settings');
+  const { workspace } = useWorkspace();
+  const accounts = useAccounts(workspace.id).data?.filter((a) => !a.archived) ?? [];
+  // Dollars first, cash before the rest within a currency: the usual order of the four.
+  const ordered = [...accounts].sort(
+    (a, b) => Number(b.currency === 'USD') - Number(a.currency === 'USD') || a.currency.localeCompare(b.currency) || Number(a.type !== 'cash') - Number(b.type !== 'cash'),
+  );
+  return (
+    <div>
+      <p className="text-muted-foreground mb-5 text-sm">{t('openingHelp')}</p>
+      {ordered.map((account) => (
+        <OpeningRow key={`${account.id}:${account.openingBalance}`} account={account} />
+      ))}
+    </div>
   );
 }
 
 /** Today's rate over the last two weeks, newest first. */
-function RatesHistory() {
+function RatesTab() {
   const t = useTranslations('settings');
   const locale = useLocale();
   const { workspace } = useWorkspace();
@@ -137,51 +209,135 @@ function RatesHistory() {
   const days = Array.from({ length: 14 }, (_, i) => addDays(today, -i));
   const results = useRatesForDays(workspace.id, days);
   return (
-    <ul className="divide-border/60 flex flex-col divide-y">
+    <div>
+      <p className="text-muted-foreground mb-5 text-sm">{t('rates')}</p>
       {days.map((date, index) => {
         const rate = results[index]?.data?.find((r) => r.currency === 'KES')?.buy;
         const loading = !results[index]?.data;
         return (
-          <li key={date} className="flex items-baseline justify-between gap-4 py-2.5 text-base">
-            <span>{new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${date}T12:00:00Z`))}</span>
-            <span dir="ltr" className={rate ? 'font-semibold tabular-nums' : 'text-muted-foreground'}>
+          <Row key={date} label={new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${date}T12:00:00Z`))}>
+            <span dir="ltr" className={rate ? 'text-sm font-semibold tabular-nums' : 'text-muted-foreground text-sm'}>
               {loading ? '…' : rate ? formatMarket(rate) : t('noRate')}
             </span>
-          </li>
+          </Row>
         );
       })}
-    </ul>
+    </div>
   );
 }
 
+/** How the app looks for you: theme and language. */
+function AppearanceTab() {
+  const t = useTranslations();
+  const { theme, setTheme } = useTheme();
+  const locale = useLocale();
+  const { switchTo } = useSwitchLocale();
+  return (
+    <div>
+      <Row label={t('theme.label')} hint={t('settings.themeHint')}>
+        <Segmented
+          label={t('theme.label')}
+          value={theme}
+          onChange={(value) => {
+            if (isTheme(value)) setTheme(value);
+          }}
+          options={[
+            { value: 'light', label: t('theme.light') },
+            { value: 'dark', label: t('theme.dark') },
+          ]}
+        />
+      </Row>
+      <Row label={t('language.label')} hint={t('settings.languageHint')}>
+        <Segmented
+          label={t('language.label')}
+          value={locale}
+          onChange={switchTo}
+          options={LANGUAGES.map((code) => ({
+            value: code,
+            label: (
+              <>
+                <Flag code={LOCALE_FLAG[code]} />
+                {t(`language.${code}`)}
+              </>
+            ),
+          }))}
+        />
+      </Row>
+    </div>
+  );
+}
+
+/** You: name, phone, language, password; and signing out. */
+function AccountTab() {
+  const t = useTranslations();
+  const user = useSession().data;
+  const signOut = useSignOutAndLeave();
+  if (!user) return null;
+  return (
+    <div className="flex max-w-xl flex-col gap-8">
+      <ProfileSection name={user.name} phone={user.phone} language={user.language} onSaved={() => undefined} />
+      {user.hasPassword === false ? (
+        <p className="bg-field text-muted-foreground rounded-lg px-4 py-3 text-sm">{t('me.googleOnly')}</p>
+      ) : (
+        <PasswordSection />
+      )}
+      <section className="border-foreground/8 flex flex-col gap-3 border-t pt-6">
+        <div>
+          <h3 className="text-sm font-semibold">{t('common.signOut')}</h3>
+          <p className="text-muted-foreground mt-0.5 text-xs">{t('settings.signOutHint')}</p>
+        </div>
+        <Button type="button" variant="outline" onClick={() => signOut()} className="h-10 w-fit gap-2 rounded-lg px-4">
+          <LogOutIcon className="size-4" />
+          {t('common.signOut')}
+        </Button>
+      </section>
+    </div>
+  );
+}
+
+const TABS = ['shop', 'accounts', 'rates', 'appearance', 'account'] as const;
+type Tab = (typeof TABS)[number];
+
 /**
- * Settings (Build Plan v4, 7.8), from the shop menu: the shop's name and
- * place, closing time and large-row limit; each account's opening amount;
- * today's rate over the last two weeks. Only Owners change them. Language,
- * theme and profile are in the shop menu.
+ * Settings: the shop (name, place, closing time, large-row limit), its
+ * accounts' opening amounts, the last two weeks' rates, how the app looks
+ * (theme, language), and your account. Only Owners change the shop's.
  */
 export function SettingsPage() {
   const t = useTranslations('settings');
   const { workspace } = useWorkspace();
-  const accounts = useAccounts(workspace.id).data?.filter((a) => !a.archived) ?? [];
-  // USD first, cash before the rest: the usual order of the four accounts.
-  const ordered = [...accounts].sort((a, b) => (a.currency === b.currency ? (a.type === 'cash' ? -1 : 1) : a.currency === 'USD' ? -1 : 1));
+  const [tab, setTab] = useState<Tab>('shop');
+
   return (
-    <div className="flex w-full max-w-3xl flex-col gap-10 p-4 lg:p-6">
-      <Section title={t('shop')}>
-        {/* Fresh fields when the shop changes. */}
-        <ShopForm key={workspace.id} />
-      </Section>
-      <Section title={t('opening')} help={t('openingHelp')}>
-        <ul className="flex flex-col gap-4">
-          {ordered.map((account) => (
-            <OpeningRow key={`${account.id}:${account.openingBalance}`} account={account} />
-          ))}
-        </ul>
-      </Section>
-      <Section title={t('rates')}>
-        <RatesHistory />
-      </Section>
+    <div className="flex h-full w-full flex-col px-6 pt-6 lg:px-10">
+      <h1 className="shrink-0 pb-5 text-2xl font-semibold">{t('title')}</h1>
+
+      <div role="tablist" aria-label={t('title')} className="border-foreground/10 flex shrink-0 items-center gap-7 overflow-x-auto border-b">
+        {TABS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={tab === id}
+            onClick={() => setTab(id)}
+            className={cn('relative shrink-0 pb-3 text-sm transition-colors', tab === id ? 'text-foreground' : 'text-foreground/45 hover:text-foreground/75')}
+          >
+            {t(`tabs.${id}`)}
+            {/* layoutId: the underline travels to the tab picked instead of blinking. */}
+            {tab === id ? (
+              <motion.span layoutId="settings-underline" transition={{ type: 'spring', stiffness: 420, damping: 34 }} className="bg-foreground absolute inset-x-0 -bottom-px h-0.5 rounded-full" />
+            ) : null}
+          </button>
+        ))}
+      </div>
+
+      <div role="tabpanel" className="scrollbar-pill min-h-0 max-w-3xl flex-1 overflow-y-auto overscroll-contain py-6 pb-10">
+        {tab === 'shop' ? <ShopTab key={workspace.id} /> : null}
+        {tab === 'accounts' ? <AccountsTab /> : null}
+        {tab === 'rates' ? <RatesTab /> : null}
+        {tab === 'appearance' ? <AppearanceTab /> : null}
+        {tab === 'account' ? <AccountTab /> : null}
+      </div>
     </div>
   );
 }

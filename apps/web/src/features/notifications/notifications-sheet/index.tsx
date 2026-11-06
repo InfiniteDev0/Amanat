@@ -124,8 +124,8 @@ export function NotificationsButton({ className }: { className?: string }) {
                   type="button"
                   aria-label={unread.length > 0 ? t('buttonUnread', { count: unread.length }) : t('button')}
                   className={cn(
-                    // No fill, like the activity log beside it: just the icon, full strength on hover.
-                    'text-foreground/80 hover:text-foreground relative flex size-8 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30',
+                    // Like Milo's bar icons: just the grey icon, a soft square only under the pointer; its name in the tooltip.
+                    'text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground relative flex size-7 items-center justify-center rounded-md transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30 dark:hover:bg-white/10',
                     className,
                   )}
                 />
@@ -133,14 +133,16 @@ export function NotificationsButton({ className }: { className?: string }) {
             />
           }
         >
-          <BellRingIcon className="size-[18px]" />
+          <BellRingIcon className="size-4" />
           {unread.length > 0 ? (
             <span className="ring-background absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white tabular-nums ring-2">
               {unread.length > 99 ? '99+' : unread.length}
             </span>
           ) : null}
         </SheetTrigger>
-        <TooltipContent side="bottom">{t('button')}</TooltipContent>
+        <TooltipContent side="bottom" sideOffset={8}>
+          {t('button')}
+        </TooltipContent>
       </Tooltip>
 
       <SheetContent

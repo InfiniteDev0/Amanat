@@ -1004,7 +1004,23 @@
     "openingHelp": "What each account held when you started with Sarrif. Every balance follows from it.",
     "openingSaved": "{account} opening amount saved",
     "rates": "Today’s rate, last 2 weeks",
-    "noRate": "Not set"
+    "noRate": "Not set",
+    "title": "Settings",
+    "tabs": {
+      "shop": "Shop",
+      "accounts": "Accounts",
+      "rates": "Rates",
+      "appearance": "Appearance",
+      "account": "Account"
+    },
+    "nameHint": "What your staff and the shop list show.",
+    "locationHint": "The street or area.",
+    "closingTimeHint": "You get a reminder if the day isn't closed by then.",
+    "openingHint": "What it held when you started.",
+    "openingFor": "Opening amount of {account}",
+    "themeHint": "Light or dark, on this device.",
+    "languageHint": "The app's language for you.",
+    "signOutHint": "Your shops are saved. Everything is here when you come back."
   },
   "search": {
     "placeholder": "Search",
