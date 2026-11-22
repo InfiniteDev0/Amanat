@@ -36,7 +36,13 @@ function MemberCount({ shopId }: { shopId: string }) {
   const team = useTeam(shopId).data;
   // Until the team is in the database the list comes back empty: there's you.
   const count = Math.max(1, team?.members.length ?? 1);
-  return <>{t('planMembers', { count })}</>;
+  const invited = team?.invitations.length ?? 0;
+  return (
+    <>
+      {t('planMembers', { count })}
+      {invited > 0 ? ` · ${t('invited', { count: invited })}` : null}
+    </>
+  );
 }
 
 export function ShopSwitcher() {

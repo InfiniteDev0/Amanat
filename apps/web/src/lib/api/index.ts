@@ -8,6 +8,7 @@ import { supabaseAuth } from './supabase/auth';
 import { supabaseDeals } from './supabase/deals';
 import { notYetAreas } from './supabase/not-yet';
 import { supabaseShops } from './supabase/shops';
+import { supabaseTeam } from './supabase/team';
 
 // The one backend the UI talks to. Screens never import the mock, Supabase
 // or fetch directly: they use the hooks in features/*/queries.ts, which call
@@ -30,7 +31,7 @@ function realApi(): SarrifApi {
   const shops = supabaseShops(auth);
   const { onboarding, workspaces, accounts, rates, summary } = shops;
   // Amanat is in the database too (the local one for now, migration 20261122100000).
-  return { ...mockApi, ...notYetAreas(shops), ...supabaseAmanat(auth), ...supabaseDeals(auth, shops), onboarding, workspaces, accounts, rates, summary, auth };
+  return { ...mockApi, ...notYetAreas(shops), ...supabaseAmanat(auth), ...supabaseDeals(auth, shops), ...supabaseTeam(auth), onboarding, workspaces, accounts, rates, summary, auth };
 }
 
 export const api: SarrifApi = SUPABASE_CONFIGURED ? realApi() : mockApi;
@@ -48,6 +49,7 @@ export const CAN_HOLD_AMANAT = true;
 export const CAN_SAVE_EXCHANGE = true;
 
 /** Whether people can be invited yet: the demo can; a real shop with team roles (1e). */
-export const CAN_INVITE = !SUPABASE_CONFIGURED;
+// Invitations are in the database too (migration 20261122150000); joining from one comes next.
+export const CAN_INVITE = true;
 
 export { CASHIER_EMAIL, DEMO_EMAIL, DEMO_PASSWORD } from './mock/seed';

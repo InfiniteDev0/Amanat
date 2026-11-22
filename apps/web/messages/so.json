@@ -1120,7 +1120,8 @@
     "lastOwnerError": "Milkiilaha keliya ee dukaanka lama beddeli karo lamana saari karo.",
     "title": "Dadka",
     "summary": "{count, plural, one {# qof} other {# qof}} ku jira {shop}. Taabo xaqa qofka si aad u beddesho.",
-    "inviteSoon": "Martiqaadka dadka wuxuu imanayaa cusboonaysiinta xigta."
+    "inviteSoon": "Martiqaadka dadka wuxuu imanayaa cusboonaysiinta xigta.",
+    "alreadyInvited": "Lambarkaas horay ayaa loo martiqaaday."
   },
   "settings": {
     "shop": "Dukaanka",
@@ -1622,6 +1623,7 @@
     "main": "Ugu weyn",
     "newShop": "Dukaan cusub",
     "logOut": "Ka bax",
-    "someShops": "{count} dukaan"
+    "someShops": "{count} dukaan",
+    "invited": "{count} la martiqaaday"
   }
 }
