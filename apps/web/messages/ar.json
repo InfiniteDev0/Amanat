@@ -1454,6 +1454,12 @@
       "change_role_member": "تم تغيير الصلاحية",
       "remove_member_member": "تمت إزالة شخص",
       "update_shop_workspace": "تم تغيير إعدادات المحل",
+      "create_shop": "أُضيف محل",
+      "delete_shop": "حُذف محل",
+      "edit_amanat": "عُدّلت الأمانة",
+      "delete_amanat": "نُقلت الأمانة إلى المهملات",
+      "restore_amanat": "استُعيدت الأمانة",
+      "delete_amanatGone": "حُذفت الأمانة نهائيًا",
       "other": "تم إجراء تغيير"
     },
     "by": "بواسطة",

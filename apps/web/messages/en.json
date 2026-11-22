@@ -1454,6 +1454,12 @@
       "change_role_member": "Right changed",
       "remove_member_member": "Someone removed",
       "update_shop_workspace": "Shop settings changed",
+      "create_shop": "Shop added",
+      "delete_shop": "Shop deleted",
+      "edit_amanat": "Amanat changed",
+      "delete_amanat": "Amanat moved to Trash",
+      "restore_amanat": "Amanat brought back",
+      "delete_amanatGone": "Amanat deleted for good",
       "other": "Change made"
     },
     "by": "By",

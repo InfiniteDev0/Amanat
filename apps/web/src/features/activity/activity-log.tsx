@@ -81,7 +81,10 @@ const TONES = {
 function subjectOf({ activity }: ActivityRow): string {
   const record = (activity.after ?? activity.before) as Record<string, unknown> | null;
   if (activity.recordType === 'exchange') return record && !Array.isArray(record) && record.currencyIn === record.currencyOut ? 'sallam' : 'exchange';
-  if (activity.recordType === 'amanat') return record && !Array.isArray(record) && record.type === 'withdrawal' ? 'amanatBack' : 'amanat';
+  if (activity.recordType === 'amanat') {
+    if (record && !Array.isArray(record) && record.forever === true) return 'amanatGone';
+    return record && !Array.isArray(record) && record.type === 'withdrawal' ? 'amanatBack' : 'amanat';
+  }
   return activity.recordType;
 }
 
@@ -102,6 +105,9 @@ const SUBJECTS: Record<string, ActionMeta> = {
   expense: { icon: ReceiptIcon, tone: 'yellow', link: 'profit', view: 'expenses' },
   amanat: { icon: HandCoinsIcon, tone: 'amber', link: 'amanat', view: 'amanat' },
   amanatBack: { icon: HandCoinsIcon, tone: 'amber', link: 'amanat', view: 'amanat' },
+  amanatGone: { icon: HandCoinsIcon, tone: 'amber', view: 'amanat' },
+  // A shop added or deleted: no button (a deleted one has no page).
+  shop: { icon: StoreIcon, tone: 'neutral', view: 'people' },
   transfer: { icon: ArrowUpDownIcon, tone: 'violet', view: 'moves' },
   rates: { icon: TrendingUpIcon, tone: 'teal', link: 'settings', view: 'day' },
   day: { icon: LockIcon, tone: 'violet', link: 'profit', view: 'day' },

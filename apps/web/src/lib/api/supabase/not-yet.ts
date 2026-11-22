@@ -48,6 +48,7 @@ export function notYetAreas(
         return report({ from, to, exchanges: [], expenses: [], closings: [], accounts, boardFor: () => today });
       },
     },
+    // The activity log is in the database now: supabase/activity.ts.
     activity: { list: async () => [] },
     // One owner until 1e brings the team.
     team: { list: async () => ({ members: [], invitations: [] }), invite: refuse, cancelInvite: refuse, setRole: refuse, remove: refuse },

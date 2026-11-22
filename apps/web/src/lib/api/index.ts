@@ -3,6 +3,7 @@ import type { SarrifApi } from '@sarrif/core';
 import { SUPABASE_CONFIGURED } from '@/lib/supabase/env';
 
 import { mockApi, mockSession } from './mock/mock-api';
+import { supabaseActivity } from './supabase/activity';
 import { supabaseAmanat } from './supabase/amanat';
 import { supabaseAuth } from './supabase/auth';
 import { supabaseDeals } from './supabase/deals';
@@ -30,8 +31,8 @@ function realApi(): SarrifApi {
   const auth = supabaseAuth(mockSession);
   const shops = supabaseShops(auth);
   const { onboarding, workspaces, accounts, rates, summary } = shops;
-  // Amanat is in the database too (the local one for now, migration 20261122100000).
-  return { ...mockApi, ...notYetAreas(shops), ...supabaseAmanat(auth), ...supabaseDeals(auth, shops), ...supabaseTeam(auth), onboarding, workspaces, accounts, rates, summary, auth };
+  // Amanat is in the database too (the local one for now, migration 20261122100000), and the activity log (20261123100000).
+  return { ...mockApi, ...notYetAreas(shops), ...supabaseAmanat(auth), ...supabaseDeals(auth, shops), ...supabaseTeam(auth), ...supabaseActivity(), onboarding, workspaces, accounts, rates, summary, auth };
 }
 
 export const api: SarrifApi = SUPABASE_CONFIGURED ? realApi() : mockApi;

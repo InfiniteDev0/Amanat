@@ -1454,6 +1454,12 @@
       "change_role_member": "Xuquuq ayaa la beddelay",
       "remove_member_member": "Qof ayaa la saaray",
       "update_shop_workspace": "Dejinta dukaanka waa la beddelay",
+      "create_shop": "Dukaan la daray",
+      "delete_shop": "Dukaan la tirtiray",
+      "edit_amanat": "Amaano la beddelay",
+      "delete_amanat": "Amaano qashinka la geeyay",
+      "restore_amanat": "Amaano la soo celiyay",
+      "delete_amanatGone": "Amaano si buuxda loo tirtiray",
       "other": "Isbeddel ayaa la sameeyay"
     },
     "by": "Qofka",
