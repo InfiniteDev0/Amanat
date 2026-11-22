@@ -29,6 +29,8 @@ export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Pr
     title: { default: t('name'), template: `%s · ${t('name')}` },
     description: t('description'),
     appleWebApp: { capable: true, title: t('name') },
+    // Google Search Console: proves the site is ours (amanat-moneyapp.vercel.app), for Safe Browsing reviews.
+    verification: { google: 'QIq7qsR1c9eXXkwspVABMWdcqyuwbtCjwru_eWYjG-M' },
   };
 }
 
