@@ -5,6 +5,7 @@ import { SUPABASE_CONFIGURED } from '@/lib/supabase/env';
 import { mockApi, mockSession } from './mock/mock-api';
 import { supabaseAmanat } from './supabase/amanat';
 import { supabaseAuth } from './supabase/auth';
+import { supabaseDeals } from './supabase/deals';
 import { notYetAreas } from './supabase/not-yet';
 import { supabaseShops } from './supabase/shops';
 
@@ -29,7 +30,7 @@ function realApi(): SarrifApi {
   const shops = supabaseShops(auth);
   const { onboarding, workspaces, accounts, rates, summary } = shops;
   // Amanat is in the database too (the local one for now, migration 20261122100000).
-  return { ...mockApi, ...notYetAreas(shops), ...supabaseAmanat(auth), onboarding, workspaces, accounts, rates, summary, auth };
+  return { ...mockApi, ...notYetAreas(shops), ...supabaseAmanat(auth), ...supabaseDeals(auth, shops), onboarding, workspaces, accounts, rates, summary, auth };
 }
 
 export const api: SarrifApi = SUPABASE_CONFIGURED ? realApi() : mockApi;
@@ -42,6 +43,9 @@ export const CAN_RECORD = !SUPABASE_CONFIGURED;
 
 /** Amanat can be held, given back and undone everywhere: the demo, and the database (its own table). */
 export const CAN_HOLD_AMANAT = true;
+
+/** Exchanges can be saved everywhere: the demo, and the database (migration 20261122130000). */
+export const CAN_SAVE_EXCHANGE = true;
 
 /** Whether people can be invited yet: the demo can; a real shop with team roles (1e). */
 export const CAN_INVITE = !SUPABASE_CONFIGURED;

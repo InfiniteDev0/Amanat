@@ -13,8 +13,8 @@ import { Field, inputClass, PickSelect } from '@/features/calculator/fields';
 import { useCreateDeal } from '@/features/deals/queries';
 import { useShortMoney } from '@/features/profit/money-text';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
-import { CAN_RECORD } from '@/lib/api';
-import { errorKey, useMessage } from '@/lib/api/errors';
+import { CAN_SAVE_EXCHANGE } from '@/lib/api';
+import { formErrorKey, useMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
 import { useDaySummary } from './queries';
@@ -95,7 +95,7 @@ export function ExchangeDialog({ open, onClose, shopId: startShop }: { open: boo
         gooeyToast.success(t('saved'));
         onClose();
       },
-      (error) => gooeyToast.error(t('couldNotSave'), { description: message(errorKey(error)) }),
+      (error) => gooeyToast.error(t('couldNotSave'), { description: message(formErrorKey(error)) }),
     );
   };
 
@@ -111,7 +111,7 @@ export function ExchangeDialog({ open, onClose, shopId: startShop }: { open: boo
           <AdminButton variant="ghost" onClick={onClose}>
             {t('cancel')}
           </AdminButton>
-          <AdminButton variant="primary" disabled={create.isPending || !CAN_RECORD} onClick={() => submit()}>
+          <AdminButton variant="primary" disabled={create.isPending || !CAN_SAVE_EXCHANGE} onClick={() => submit()}>
             {create.isPending ? t('saving') : t('save')}
           </AdminButton>
         </>
@@ -192,7 +192,7 @@ export function ExchangeDialog({ open, onClose, shopId: startShop }: { open: boo
           </span>
         </div>
 
-        {CAN_RECORD ? null : <p className="text-muted-foreground text-[0.8125rem]">{t('soon')}</p>}
+        {CAN_SAVE_EXCHANGE ? null : <p className="text-muted-foreground text-[0.8125rem]">{t('soon')}</p>}
       </form>
     </Modal>
   );
