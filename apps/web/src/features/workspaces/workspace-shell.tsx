@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect } from 'react';
 
 import { WorkspaceFrame } from '@/components/layout/workspace-frame';
-import { LoadingScreen } from '@/features/auth/session-gate';
+import { FrameLoading } from '@/components/layout/frame-loading';
 
 import { setLastWorkspaceId } from './last-workspace';
 import { NoAccess } from './no-access';
@@ -23,7 +23,7 @@ export function WorkspaceShell({ workspaceId, children }: { workspaceId: string;
     if (membership) setLastWorkspaceId(workspaceId);
   }, [membership, workspaceId]);
 
-  if (memberships.isPending) return <LoadingScreen />;
+  if (memberships.isPending) return <FrameLoading />;
   if (!membership) return <NoAccess />;
 
   return (

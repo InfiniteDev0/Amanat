@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { PageBreadcrumb } from '@/components/layout/page-breadcrumb';
 import { AppFrame } from '@/components/layout/workspace-frame';
-import { LoadingScreen } from '@/features/auth/session-gate';
+import { FrameLoading } from '@/components/layout/frame-loading';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { WorkspaceProvider } from '@/features/workspaces/workspace-context';
 
@@ -24,7 +24,7 @@ import { YourShops } from './your-shops';
 export function HomePage() {
   const shops = useMyWorkspaces();
   const [shown, setShown] = useState<string | null>(null);
-  if (shops.isPending) return <LoadingScreen />;
+  if (shops.isPending) return <FrameLoading />;
   const list = shops.data ?? [];
   const main = list.find((m) => m.workspace.isMain) ?? list[0];
   if (!main) return null;

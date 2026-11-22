@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { type ReactNode, useEffect } from 'react';
 
 import { Loader } from '@/components/motion/loader';
+import { FrameLoading } from '@/components/layout/frame-loading';
 import { Button } from '@/components/ui/button';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useMinimumWait } from '@/lib/use-minimum-wait';
@@ -63,7 +64,8 @@ export function SessionGate({ children }: { children: ReactNode }) {
     );
   }
   if (!user || !waited) {
-    return <LoadingScreen />;
+    // As Barista's: the frame with a sheen, not dots on a blank page.
+    return <FrameLoading />;
   }
   return children;
 }

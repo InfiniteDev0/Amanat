@@ -2,9 +2,10 @@
 
 import { ChevronDownIcon, GemIcon, UserRoundCogIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AccountItems } from '@/components/layout/account-items';
+import { NAME_KEY } from '@/components/layout/frame-loading';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AccountSettingsDialog } from '@/features/auth/account-settings-dialog';
 import { useSession } from '@/features/auth/queries';
@@ -45,6 +46,16 @@ export function NameMenu() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   const [everywhereOpen, setEverywhereOpen] = useState(false);
+  // Kept, so the frame shows it while you're checked next time.
+  const name = user?.name;
+  useEffect(() => {
+    if (!name) return;
+    try {
+      window.localStorage.setItem(NAME_KEY, name);
+    } catch {
+      // Private mode: just not remembered.
+    }
+  }, [name]);
   if (!user) return null;
 
   return (

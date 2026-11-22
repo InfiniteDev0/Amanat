@@ -10,7 +10,7 @@ import { MoneyText } from '@/components/money-text';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useSession } from '@/features/auth/queries';
-import { LoadingScreen } from '@/features/auth/session-gate';
+import { FrameLoading } from '@/components/layout/frame-loading';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { directionOf } from '@/i18n/routing';
 import { useMessage } from '@/lib/api/errors';
@@ -73,7 +73,7 @@ export function useStartNewShop() {
  */
 function Setup({ user, onClose }: { user: User; onClose?: () => void }) {
   const progress = useOnboardingProgress({ enabled: !onClose });
-  if (!onClose && progress.isPending) return <LoadingScreen />;
+  if (!onClose && progress.isPending) return <FrameLoading />;
   return <SetupWithDraft user={user} saved={onClose ? null : (progress.data ?? null)} onClose={onClose} />;
 }
 
