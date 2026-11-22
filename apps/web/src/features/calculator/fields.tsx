@@ -17,7 +17,24 @@ export const inputClass =
   'w-full rounded-xl border-0 bg-muted px-3.5 text-foreground min-h-[2.75rem] py-2.5 text-[1rem] sm:text-[0.9375rem] outline-none transition-shadow duration-200 placeholder:text-muted-foreground focus-visible:ring-3 focus-visible:ring-ring/30';
 
 /** A label over its box: a red * when it must be filled, "optional" when it needn't. */
-export function Field({ label, htmlFor, optional, required, children }: { label: string; htmlFor: string; optional?: boolean; required?: boolean; children: ReactNode }) {
+export function Field({
+  label,
+  htmlFor,
+  optional,
+  required,
+  error,
+  hint,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  optional?: boolean;
+  required?: boolean;
+  /** What's wrong, under the box (red); or else a hint (grey). */
+  error?: string | null;
+  hint?: string;
+  children: ReactNode;
+}) {
   const t = useTranslations('calculator');
   return (
     <div>
@@ -33,6 +50,7 @@ export function Field({ label, htmlFor, optional, required, children }: { label:
         {optional ? <span className="text-muted-foreground font-normal">{t('optional')}</span> : null}
       </label>
       {children}
+      {error ? <p className="mt-1.5 text-[0.8125rem] text-red-600 dark:text-red-400">{error}</p> : hint ? <p className="text-muted-foreground mt-1.5 text-[0.75rem]">{hint}</p> : null}
     </div>
   );
 }

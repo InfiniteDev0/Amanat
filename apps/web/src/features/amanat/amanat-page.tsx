@@ -12,7 +12,9 @@ import { useAccountShort, useShortMoney } from '@/features/profit/money-text';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { cn } from '@/lib/utils';
 
-import { AmanatSheet, HoldSheet } from './amanat-sheets';
+import { AmanatDialog } from './amanat-dialog';
+// The hold sheet gave way to Barista's dialog (amanat-dialog.tsx).
+import { AmanatSheet /* , HoldSheet */ } from './amanat-sheets';
 import { useAmanat } from './queries';
 
 /** Per-currency totals of what's still held (USD first). */
@@ -91,8 +93,33 @@ export function AmanatPage() {
       </section>
     );
 
+  // Nothing held yet: the piggy bank in the middle of the page, Add amanat under it.
+  if (list.data && rows.length === 0) {
+    return (
+      <div className="flex min-h-full w-full flex-1 flex-col items-center justify-center gap-5 px-4 py-10 text-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/illustrations/saving-piggy.svg" alt="" width={200} height={200} className="size-48 dark:hue-rotate-180 dark:invert" />
+        <div className="flex flex-col gap-1">
+          <p className="text-foreground text-[15px] font-medium">{t('emptyTitle')}</p>
+          <p className="text-muted-foreground max-w-72 text-sm">{t('emptyBody')}</p>
+        </div>
+        {can('record') ? (
+          <button
+            type="button"
+            onClick={() => setHolding(true)}
+            className="bg-foreground text-background inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-opacity hover:opacity-90"
+          >
+            <PlusIcon className="size-4" />
+            {t('addFull')}
+          </button>
+        ) : null}
+        <AmanatDialog open={holding} onClose={() => setHolding(false)} />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex w-full flex-col gap-6 p-4 lg:p-6">
+    <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-6 px-4 py-6 lg:px-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <span className="text-muted-foreground text-sm">{t('heldNow')}</span>
@@ -128,7 +155,8 @@ export function AmanatPage() {
         </>
       )}
 
-      <HoldSheet open={holding} onOpenChange={setHolding} accounts={accounts} />
+      {/* <HoldSheet open={holding} onOpenChange={setHolding} accounts={accounts} /> */}
+      <AmanatDialog open={holding} onClose={() => setHolding(false)} />
       <AmanatSheet row={opened} accounts={accounts} onClose={() => setOpened(null)} />
     </div>
   );

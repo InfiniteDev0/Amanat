@@ -914,7 +914,10 @@
     "returnedToast": "أُعيدت إلى {name} ✓",
     "alreadyReturned": "أُعيدت من قبل",
     "undo": "تراجع",
-    "undone": "محفوظة من جديد"
+    "undone": "محفوظة من جديد",
+    "emptyTitle": "لا أمانات للعملاء",
+    "emptyBody": "المال الذي يتركه العميل عندك يظهر هنا، حتى يُرد إليه.",
+    "addFull": "أضف أمانة"
   },
   "reports": {
     "period": "الفترة",
@@ -1430,5 +1433,36 @@
     "nothingYet": "لا شيء هنا بعد",
     "nothingYetBody": "ما يفعله الأشخاص في المحل (الصرف، المصاريف، الأمانات، إغلاق اليوم) يظهر هنا.",
     "roleLabel": "الصلاحية"
+  },
+  "modal": {
+    "close": "إغلاق",
+    "discardTitle": "تجاهل تغييراتك؟",
+    "discardBody": "ما أدخلته سيضيع.",
+    "keepEditing": "متابعة التعديل",
+    "discard": "تجاهل"
+  },
+  "amanatDialog": {
+    "title": "حفظ أمانة",
+    "description": "مال يتركه العميل عندك. يدخل أحد حساباتك، لكنه ليس للمحل.",
+    "customer": "العميل",
+    "account": "إلى",
+    "pickAccount": "اختر حسابًا",
+    "amount": "المبلغ",
+    "amountIn": "المبلغ ({currency})",
+    "amountPlaceholder": "مثال 5000",
+    "note": "ملاحظة",
+    "notePlaceholder": "أي شيء للتذكر",
+    "goesInto": "يدخل إلى",
+    "notTheShops": "· للعميل، ليس للمحل",
+    "cancel": "إلغاء",
+    "save": "حفظ الأمانة",
+    "saving": "جارٍ الحفظ…",
+    "nameRequired": "اسم العميل، حرفان على الأقل.",
+    "accountRequired": "اختر الحساب الذي يدخل إليه.",
+    "amountRequired": "كم ترك.",
+    "heldBody": "مال {name} في {account}.",
+    "couldNotSave": "تعذر الحفظ",
+    "shop": "المحل",
+    "main": "الرئيسي"
   }
 }

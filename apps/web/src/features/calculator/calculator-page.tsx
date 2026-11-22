@@ -35,6 +35,7 @@ import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { queryKeys } from '@/lib/query/keys';
 import { cn } from '@/lib/utils';
 
+import { MoneyInput } from '@/components/money-input';
 import { Field, inputClass, Mark, MonthPicker, type PickOption, PickSelect, SearchContext, stepMonth, TickBox, useMonthLabel } from './fields';
 import { CalculatorGlyph, Keypad } from './keypad';
 import { CalculatorLoader } from './loader';
@@ -472,9 +473,17 @@ function AddMenu({ label, onPick, className }: { label: string; onPick: (type: S
     { value: 'rough', swatch: '#14b8a6' },
   ];
   return (
-    <MotionSelect value="" onValueChange={(pick: string) => onPick(pick as SheetType)} className={cn('w-56', className)}>
+    <MotionSelect value="" onValueChange={(pick: string) => onPick(pick as SheetType)} className={cn('w-max min-w-44', className)}>
       <MotionSelectTrigger className="bg-foreground! text-background! border-foreground! [&_svg]:text-background/70! h-10 font-semibold">
-        <MotionSelectValue placeholder={label} className="text-background!" />
+        {/* As wide as the longest of its words, in any language: the choices sit invisibly under the label and size the button (the list is the button's width). */}
+        <span className="grid">
+          <MotionSelectValue placeholder={label} className="text-background! col-start-1 row-start-1" />
+          {options.map(({ value }) => (
+            <span key={value} aria-hidden className="invisible col-start-1 row-start-1 ps-2 text-sm font-semibold whitespace-nowrap">
+              {t(`add.${value}`)}
+            </span>
+          ))}
+        </span>
       </MotionSelectTrigger>
       <MotionSelectContent className="bg-foreground! border-foreground!">
         {options.map(({ value, swatch }) => (
@@ -690,17 +699,7 @@ function SheetFields({ sheet, onChange, action }: { sheet: Sheet; onChange: (pat
   const unit = sheet.currency ? ` (${currencySymbol(sheet.currency)})` : '';
   const amountBox = (key: 'amount' | 'amountMax', fieldLabel: string, placeholder: string) => (
     <Field label={fieldLabel} htmlFor={`${key}-${sheet.id}`}>
-      <input
-        id={`${key}-${sheet.id}`}
-        type="number"
-        inputMode="decimal"
-        min={0}
-        placeholder={placeholder}
-        value={sheet[key]}
-        // Never below zero: a minus is left out as it's typed.
-        onChange={(event) => onChange({ [key]: event.target.value.replace('-', '') })}
-        className={cn(inputClass, AMOUNT_BOX)}
-      />
+      <MoneyInput id={`${key}-${sheet.id}`} placeholder={placeholder} value={sheet[key]} onChange={(plain) => onChange({ [key]: plain })} className={cn(inputClass, 'tabular-nums')} />
     </Field>
   );
   const amountModes: { id: AmountMode; key: 'any' | 'exact' | 'range' | 'highest' | 'lowest' }[] = [
@@ -1196,18 +1195,15 @@ function RoughEditor({ sheet, onChange, onPdf }: { sheet: Sheet; onChange: (patc
                 aria-label={t('rough.howMany')}
                 className={cn(box, figures)}
               />
-              <input
-                type="number"
-                inputMode="decimal"
-                min={0}
+              <MoneyInput
                 value={item.cost}
-                onChange={(event) => setItem(item.id, { cost: event.target.value.replace('-', '') })}
+                onChange={(plain) => setItem(item.id, { cost: plain })}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' && n === items.length - 1) addItem();
                 }}
                 placeholder="0"
                 aria-label={t('rough.costEach')}
-                className={cn(box, figures)}
+                className={cn(box, 'tabular-nums')}
               />
               <span dir="ltr" className="text-foreground truncate text-end text-sm font-medium tabular-nums">
                 {money(lineTotalOf(item))}
@@ -1507,7 +1503,7 @@ function CalculationBox({
             })}
           </AnimatePresence>
         </div>
-        <AddMenu label={t('addButton')} onPick={onAdd} className="w-56 shrink-0" />
+        <AddMenu label={t('addButton')} onPick={onAdd} className="shrink-0" />
       </div>
       <div className="relative flex min-h-0 flex-1">
         {active ? (

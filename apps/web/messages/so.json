@@ -5,7 +5,7 @@
     "description": "Hawlaha maalinlaha ah ee dukaamada sarrifka: sarrif, amaano, deyn iyo xisaab-xiridda maalinta.",
     "copyright": "© {year} Amanat. Xuquuqda oo dhan way xifdisan tahay.",
     "shortTagline": "Buugaagta dukaanka sarrifka",
-    "plan": "Qorshe bilaash ah",
+    "plan": "Free Plan",
     "seePlans": "Qorshe bilaash ah: kor u qaad",
     "upgrade": "Kor u qaad"
   },
@@ -98,7 +98,7 @@
     "home": "Hoyga",
     "clients": "Macaamiisha",
     "close": "Xir maalinta",
-    "reports": "Warbixinno",
+    "reports": "Report",
     "team": "Dadka",
     "settings": "Dejinta",
     "notifications": "Ogeysiisyo",
@@ -362,7 +362,7 @@
     "dayClosed": "Xiran",
     "dateRange": "Muddada taariikhda",
     "accountMenu": "Akoonkaaga",
-    "plan": "Qorshaha",
+    "plan": "Free plan",
     "you": "Adiga"
   },
   "theme": {
@@ -914,7 +914,10 @@
     "returnedToast": "Waa loo celiyay {name} ✓",
     "alreadyReturned": "Horay ayaa loo celiyay",
     "undo": "Ka noqo",
-    "undone": "Mar kale waa la hayaa"
+    "undone": "Mar kale waa la hayaa",
+    "emptyTitle": "Macaamiisha waxba looma hayo",
+    "emptyBody": "Lacagta macmiil kaaga tago halkan ayay ka muuqataa, ilaa loo celiyo.",
+    "addFull": "Ku dar amaano"
   },
   "reports": {
     "period": "Muddada",
@@ -1430,5 +1433,36 @@
     "nothingYet": "Weli waxba ma jiraan",
     "nothingYetBody": "Waxa dadku ka sameeyaan dukaanka (sarrif, kharash, amaano, xiridda maalinta) halkan ayay ka muuqdaan.",
     "roleLabel": "Xuquuqda"
+  },
+  "modal": {
+    "close": "Xir",
+    "discardTitle": "Ma tuurtaa isbeddeladaada?",
+    "discardBody": "Waxaad gelisay waa lumi doonaan.",
+    "keepEditing": "Sii wad",
+    "discard": "Tuur"
+  },
+  "amanatDialog": {
+    "title": "Hay amaano",
+    "description": "Lacag macmiil kaaga tago. Waxay gashaa mid ka mid ah koontooyinkaaga, laakiin ma aha tan dukaanka.",
+    "customer": "Macmiil",
+    "account": "Koontada",
+    "pickAccount": "Dooro koonto",
+    "amount": "Qadarka",
+    "amountIn": "Qadarka ({currency})",
+    "amountPlaceholder": "tusaale 5000",
+    "note": "Qoraal",
+    "notePlaceholder": "Wax la xasuusto",
+    "goesInto": "Waxay gashaa",
+    "notTheShops": "· tan macmiilka, ma aha tan dukaanka",
+    "cancel": "Jooji",
+    "save": "Hay amaanada",
+    "saving": "Waa la kaydinayaa…",
+    "nameRequired": "Magaca macmiilka, ugu yaraan 2 xaraf.",
+    "accountRequired": "Dooro koontada ay gasho.",
+    "amountRequired": "Inta uu kaa tagay.",
+    "heldBody": "Lacagta {name} waxay ku jirtaa {account}.",
+    "couldNotSave": "Lama kaydin karin",
+    "shop": "Dukaan",
+    "main": "Ugu weyn"
   }
 }

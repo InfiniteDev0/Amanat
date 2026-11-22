@@ -1,6 +1,6 @@
 'use client';
 
-import { MoonIcon, SearchIcon, SunIcon } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useEffect, useSyncExternalStore } from 'react';
 
@@ -14,7 +14,7 @@ import { ActivityLog } from '@/features/activity/activity-log';
 import { ActivityGlyph } from '@/features/activity/activity-sheet';
 import { NotificationsButton } from '@/features/notifications/notifications-sheet';
 import { CommandPalette, useCommandPalette } from '@/features/search/command-palette';
-import { useTheme } from '@/features/theme/use-theme';
+import { ThemeToggle as MiloThemeToggle, useThemeToggle } from '@/components/motion/theme-toggle';
 import { cn } from '@/lib/utils';
 // The day picker is off for now; it comes back with the import and the block below.
 // import { SidebarDay } from '@/features/workspaces/sidebar-day';
@@ -22,9 +22,6 @@ import { cn } from '@/lib/utils';
 /** The bar's icons, as Barista's: just the grey icon, a soft square only under the pointer. */
 export const BAR_ICON =
   'flex size-8 items-center justify-center rounded-md bg-transparent text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/30 dark:hover:bg-white/10 [&_svg]:size-[1.125rem]';
-
-/** Light and dark: a larger icon in the same button. */
-const BAR_ICON_LARGE = `${BAR_ICON} [&_svg]:size-5!`;
 
 /** Ctrl K, or ⌘K on a Mac. */
 function useShortcutLabel() {
@@ -37,30 +34,25 @@ function useShortcutLabel() {
   return mac ? t('shortcutMac') : t('shortcut');
 }
 
-/** Light or dark: the sun and moon crossing over with the theme. D flips it from anywhere. */
+/** Light or dark, as Milo's: the new theme sweeps up from the bottom, the sun and moon blurring into each other. D does it from anywhere. */
 function ThemeToggle() {
   const t = useTranslations('theme');
-  const { theme, setTheme } = useTheme();
-  const flip = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+  const { toggle } = useThemeToggle();
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (event.ctrlKey || event.metaKey || event.altKey || event.key.toLowerCase() !== 'd') return;
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
-      setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+      toggle();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [setTheme]);
+  }, [toggle]);
 
   return (
     <Tooltip>
-      <TooltipTrigger render={<button type="button" aria-label={t('toggle')} aria-keyshortcuts="D" onClick={flip} className={cn(BAR_ICON_LARGE, 'relative')} />}>
-        {/* Both are always there; one turns in as the other turns out. */}
-        <SunIcon className="rotate-0 scale-100 transition-transform duration-300 ease-out dark:-rotate-90 dark:scale-0" />
-        <MoonIcon className="absolute rotate-90 scale-0 transition-transform duration-300 ease-out dark:rotate-0 dark:scale-100" />
-      </TooltipTrigger>
+      <TooltipTrigger render={<MiloThemeToggle aria-label={t('toggle')} aria-keyshortcuts="D" className={BAR_ICON} iconClassName="size-[1.125rem]" />} />
       <TooltipContent side="bottom" sideOffset={8}>
         {t('toggle')} · D
       </TooltipContent>

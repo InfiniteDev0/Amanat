@@ -362,7 +362,7 @@
     "dayClosed": "Closed",
     "dateRange": "Date range",
     "accountMenu": "Your account",
-    "plan": "Plan",
+    "plan": "Free plan",
     "you": "You"
   },
   "theme": {
@@ -914,7 +914,10 @@
     "returnedToast": "Given back to {name} ✓",
     "alreadyReturned": "Already given back",
     "undo": "Undo",
-    "undone": "Held again"
+    "undone": "Held again",
+    "emptyTitle": "Nothing held for customers",
+    "emptyBody": "Money a customer leaves with you shows here, until it goes back to them.",
+    "addFull": "Add amanat"
   },
   "reports": {
     "period": "Period",
@@ -1430,5 +1433,36 @@
     "nothingYet": "Nothing here yet",
     "nothingYetBody": "What people do in the shop (exchanges, expenses, amanat, closing the day) shows up here.",
     "roleLabel": "Right"
+  },
+  "modal": {
+    "close": "Close",
+    "discardTitle": "Discard your changes?",
+    "discardBody": "What you have entered will be lost.",
+    "keepEditing": "Keep editing",
+    "discard": "Discard"
+  },
+  "amanatDialog": {
+    "title": "Hold amanat",
+    "description": "Money a customer leaves with you. It comes into one of your accounts, but it isn't the shop's.",
+    "customer": "Customer",
+    "account": "Into",
+    "pickAccount": "Pick an account",
+    "amount": "Amount",
+    "amountIn": "Amount ({currency})",
+    "amountPlaceholder": "e.g. 5000",
+    "note": "Note",
+    "notePlaceholder": "Anything to remember",
+    "goesInto": "Goes into",
+    "notTheShops": "· the customer's, not the shop's",
+    "cancel": "Cancel",
+    "save": "Hold amanat",
+    "saving": "Saving…",
+    "nameRequired": "The customer's name, at least 2 letters.",
+    "accountRequired": "Pick the account it goes into.",
+    "amountRequired": "How much they left.",
+    "heldBody": "{name}'s money is in {account}.",
+    "couldNotSave": "Couldn't save",
+    "shop": "Shop",
+    "main": "Main"
   }
 }
