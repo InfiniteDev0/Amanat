@@ -25,7 +25,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { type ComponentType, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
-import { Select as MotionSelect, SelectContent as MotionSelectContent, SelectItem as MotionSelectItem, SelectTrigger as MotionSelectTrigger, SelectValue as MotionSelectValue } from '@/components/motion/select';
+import { Select as MotionSelect, SelectContent as MotionSelectContent, SelectItem as MotionSelectItem, SelectTrigger as MotionSelectTrigger, SelectValue as MotionSelectValue } from '@/components/motion/barista-select';
 import { useAccountLabel } from '@/features/accounts/account-label';
 import { useAccounts } from '@/features/accounts/queries';
 import { currencySymbol, useShortMoney } from '@/features/profit/money-text';
