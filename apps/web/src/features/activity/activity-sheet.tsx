@@ -86,7 +86,7 @@ function Line({ row }: { row: ActivityRow }) {
  * get the button.
  */
 /** Streamline's Time Lapse, as Barista's: a clock in a broken circle, "what happened, and when". */
-function ActivityGlyph({ className }: { className?: string }) {
+export function ActivityGlyph({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
       <path

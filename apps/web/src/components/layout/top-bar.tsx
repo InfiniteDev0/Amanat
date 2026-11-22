@@ -2,13 +2,16 @@
 
 import { MoonIcon, SearchIcon, SunIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { type ReactNode, Suspense, useEffect, useSyncExternalStore } from 'react';
+import { type ReactNode, useEffect, useSyncExternalStore } from 'react';
 
 // The shop menu is off: shops live on Home now, and top-left is your name.
 // import { ShopMenu } from '@/components/layout/shop-menu';
 import { NameMenu } from '@/components/layout/user-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ActivityButton } from '@/features/activity/activity-sheet';
+// Amanat's own activity sheet is off: the log is Barista's (activity-log.tsx).
+// import { ActivityButton } from '@/features/activity/activity-sheet';
+import { ActivityLog } from '@/features/activity/activity-log';
+import { ActivityGlyph } from '@/features/activity/activity-sheet';
 import { NotificationsButton } from '@/features/notifications/notifications-sheet';
 import { CommandPalette, useCommandPalette } from '@/features/search/command-palette';
 import { useTheme } from '@/features/theme/use-theme';
@@ -82,9 +85,10 @@ export function TopBar({ title: _title }: { title?: ReactNode }) {
 
       {/* After the account: the activity log. */}
       <div className="ms-1">
-        <Suspense fallback={null}>
-          <ActivityButton className={BAR_ICON} />
-        </Suspense>
+        {/* 17px: this clock fills its whole box, so it reads larger than the bar's other 18px icons. */}
+        <ActivityLog className={cn(BAR_ICON, '[&_svg]:size-[17px]!')}>
+          <ActivityGlyph />
+        </ActivityLog>
       </div>
 
       {/* Search, in the middle of the bar; wide screens only. */}
