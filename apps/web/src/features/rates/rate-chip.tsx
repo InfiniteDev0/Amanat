@@ -17,7 +17,7 @@ import { RatesDialog } from './rates-dialog';
  * 129.61", or "Set today's rate" while it's missing. People who can set it
  * tap it to change it, right where they are.
  */
-export function RateChip() {
+export function RateChip({ onlyWhenSet = false }: { /** Hidden while the rate is missing (Home: the strip at the top asks for it). */ onlyWhenSet?: boolean }) {
   const t = useTranslations('rates');
   const { workspace, can } = useWorkspace();
   const { today } = useShopDay();
@@ -26,6 +26,7 @@ export function RateChip() {
   if (!summary) return null;
   const rate = summary.board.rates.KES?.buy;
   const canSet = can('set_rates');
+  if (onlyWhenSet && !rate) return null;
 
   return (
     <>

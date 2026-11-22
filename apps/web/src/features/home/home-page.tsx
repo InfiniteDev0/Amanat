@@ -58,7 +58,7 @@ export function HomePage() {
               {onScreen ? (
                 <ShopContext membership={onScreen}>
                   <Suspense fallback={null}>
-                    <RateChip />
+                    <RateChip onlyWhenSet />
                   </Suspense>
                 </ShopContext>
               ) : null}
