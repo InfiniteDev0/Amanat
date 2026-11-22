@@ -368,7 +368,8 @@
   "theme": {
     "label": "المظهر",
     "light": "فاتح",
-    "dark": "داكن"
+    "dark": "داكن",
+    "toggle": "فاتح أو داكن"
   },
   "notifications": {
     "title": "الإشعارات",
@@ -1101,7 +1102,37 @@
   "search": {
     "placeholder": "بحث",
     "shortcut": "Ctrl K",
-    "shortcutMac": "⌘K"
+    "shortcutMac": "⌘K",
+    "open": "فتح",
+    "openEnter": "فتح · Enter",
+    "recent": "الأخيرة",
+    "goTo": "انتقل إلى",
+    "results": "النتائج",
+    "kinds": {
+      "page": "الصفحات",
+      "shop": "المحلات",
+      "account": "الحسابات"
+    },
+    "scopes": {
+      "all": "الكل",
+      "shops": "المحلات",
+      "accounts": "الحسابات",
+      "pages": "الصفحات"
+    },
+    "description": "ابحث في صفحاتك ومحلاتك وحساباتك.",
+    "fieldPlaceholder": "ابحث في الصفحات والمحلات والحسابات…",
+    "clear": "مسح",
+    "lookIn": "ابحث في",
+    "nothingFound": "لا نتائج لـ«{query}»",
+    "nothingYet": "لا شيء هنا بعد",
+    "everywhere": "ابحث في كل مكان",
+    "showAll": "عرض الكل {count}",
+    "toMove": "للتنقل",
+    "toOpen": "للفتح",
+    "toSwitch": "للتبديل",
+    "toClose": "للإغلاق",
+    "allShops": "كل محلاتك",
+    "main": "الرئيسي"
   },
   "me": {
     "menu": "إعدادات الحساب",

@@ -368,7 +368,8 @@
   "theme": {
     "label": "Muuqaalka",
     "light": "Iftiin",
-    "dark": "Mugdi"
+    "dark": "Mugdi",
+    "toggle": "Iftiin ama mugdi"
   },
   "notifications": {
     "title": "Ogeysiisyada",
@@ -1101,7 +1102,37 @@
   "search": {
     "placeholder": "Raadi",
     "shortcut": "Ctrl K",
-    "shortcutMac": "⌘K"
+    "shortcutMac": "⌘K",
+    "open": "Fur",
+    "openEnter": "Fur · Enter",
+    "recent": "Dhowaan",
+    "goTo": "U gudub",
+    "results": "Natiijooyin",
+    "kinds": {
+      "page": "Bogag",
+      "shop": "Dukaamo",
+      "account": "Koontooyin"
+    },
+    "scopes": {
+      "all": "Dhammaan",
+      "shops": "Dukaamo",
+      "accounts": "Koontooyin",
+      "pages": "Bogag"
+    },
+    "description": "Raadi bogaggaaga, dukaamadaada iyo koontooyinkaaga.",
+    "fieldPlaceholder": "Raadi bogag, dukaamo, koontooyin…",
+    "clear": "Masax",
+    "lookIn": "Ka raadi",
+    "nothingFound": "Waxba looma helin “{query}”",
+    "nothingYet": "Weli waxba ma jiraan",
+    "everywhere": "Meel kasta ka raadi",
+    "showAll": "Tus dhammaan {count}",
+    "toMove": "si aad u dhaqaaqdo",
+    "toOpen": "si aad u furto",
+    "toSwitch": "si aad u beddesho",
+    "toClose": "si aad u xirto",
+    "allShops": "Dhammaan dukaamadaada",
+    "main": "Ugu weyn"
   },
   "me": {
     "menu": "Dejinta akoonka",

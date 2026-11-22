@@ -1,7 +1,6 @@
 'use client';
 
 import type { ActivityRow } from '@sarrif/core';
-import { HistoryIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -86,7 +85,21 @@ function Line({ row }: { row: ActivityRow }) {
  * and by kind. Owners see everyone; Editors only themselves; Viewers don't
  * get the button.
  */
-export function ActivityButton() {
+/** Streamline's Time Lapse, as Barista's: a clock in a broken circle, "what happened, and when". */
+function ActivityGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className={className}>
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.905 2.905C2.021 3.79 1.5 5.138 1.5 7c0 1.862 0.521 3.21 1.405 4.095C3.79 11.979 5.138 12.5 7 12.5c2.365 0 3.915 -0.836 4.742 -2.246a0.75 0.75 0 0 1 1.293 0.759C11.867 13.005 9.738 14 7 14c-2.138 0 -3.914 -0.604 -5.155 -1.845C0.604 10.915 0 9.138 0 7c0 -2.138 0.604 -3.914 1.845 -5.155C3.085 0.604 4.862 0 7 0h0.006c0.32 0.003 1.144 0.03 1.65 0.144a0.75 0.75 0 1 1 -0.328 1.463c-0.33 -0.074 -1.004 -0.104 -1.331 -0.107 -1.86 0 -3.208 0.522 -4.092 1.405Zm8.206 -1.716a0.75 0.75 0 0 0 -0.675 1.34c0.483 0.243 0.87 0.577 1.167 0.995a0.75 0.75 0 0 0 1.224 -0.867 4.632 4.632 0 0 0 -1.716 -1.468Zm1.29 6.969a0.75 0.75 0 0 0 1.48 0.247A8.54 8.54 0 0 0 13.99 7c0 -0.49 -0.037 -0.96 -0.11 -1.405a0.75 0.75 0 0 0 -1.48 0.247c0.06 0.356 0.09 0.741 0.09 1.158 0 0.417 -0.03 0.802 -0.09 1.158ZM7.75 4.75a0.75 0.75 0 0 0 -1.5 0v2.5c0 0.18 0.064 0.352 0.18 0.488l2.062 2.403a0.75 0.75 0 0 0 1.139 -0.977L7.75 6.972V4.75Z"
+      />
+    </svg>
+  );
+}
+
+export function ActivityButton({ className }: { className?: string }) {
   const t = useTranslations('activity');
   const { workspace, can } = useWorkspace();
   const { day } = useShopDay();
@@ -110,11 +123,12 @@ export function ActivityButton() {
               type="button"
               onClick={() => setOpen(true)}
               aria-label={t('title')}
-              className="text-foreground/80 hover:text-foreground flex size-8 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
+              // 17px: this clock fills its whole box, so it reads larger than the bar's other 18px icons.
+              className={cn(className, '[&_svg]:size-[17px]!')}
             />
           }
         >
-          <HistoryIcon className="size-5" />
+          <ActivityGlyph />
         </TooltipTrigger>
         <TooltipContent side="bottom">{t('title')}</TooltipContent>
       </Tooltip>

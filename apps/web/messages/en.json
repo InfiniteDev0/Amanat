@@ -368,7 +368,8 @@
   "theme": {
     "label": "Theme",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "toggle": "Light or dark"
   },
   "notifications": {
     "title": "Notifications",
@@ -1101,7 +1102,37 @@
   "search": {
     "placeholder": "Search",
     "shortcut": "Ctrl K",
-    "shortcutMac": "⌘K"
+    "shortcutMac": "⌘K",
+    "open": "Open",
+    "openEnter": "Open · Enter",
+    "recent": "Recent",
+    "goTo": "Go to",
+    "results": "Results",
+    "kinds": {
+      "page": "Pages",
+      "shop": "Shops",
+      "account": "Accounts"
+    },
+    "scopes": {
+      "all": "All",
+      "shops": "Shops",
+      "accounts": "Accounts",
+      "pages": "Pages"
+    },
+    "description": "Search your pages, shops and accounts.",
+    "fieldPlaceholder": "Search pages, shops, accounts…",
+    "clear": "Clear",
+    "lookIn": "Look in",
+    "nothingFound": "Nothing found for “{query}”",
+    "nothingYet": "Nothing here yet",
+    "everywhere": "Look everywhere",
+    "showAll": "Show all {count}",
+    "toMove": "to move",
+    "toOpen": "to open",
+    "toSwitch": "to switch",
+    "toClose": "to close",
+    "allShops": "All your shops",
+    "main": "Main"
   },
   "me": {
     "menu": "Account settings",
