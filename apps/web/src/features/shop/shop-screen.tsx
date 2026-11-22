@@ -12,6 +12,8 @@ import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { cn } from '@/lib/utils';
 
+import { ActivityTab, AmanatTab, ExchangeTab, ProfitTab, ReportsTab } from './shop-tabs';
+
 const TABS = [
   { id: 'activity', icon: <ActivityIcon /> },
   { id: 'exchange', icon: <ArrowLeftRightIcon /> },
@@ -27,8 +29,8 @@ type Tab = (typeof TABS)[number]['id'];
  * the top bar's breadcrumb),
  * its drawers as cards (each account's balance; a card opens it), the
  * everyday actions recording into this shop, Close day, then the tabs:
- * Recent activity, Exchange, Profit, Amanat, Reports. Nothing is recorded in
- * the database yet (Phase 3), so the tabs show friendly empty states.
+ * Recent activity, Exchange, Profit, Amanat, Reports, each with this shop's
+ * own records.
  */
 export function ShopScreen() {
   const t = useTranslations('shop');
@@ -74,7 +76,8 @@ export function ShopScreen() {
           ))}
         </div>
         <div role="tabpanel">
-          <EmptyState icon={TABS.find((item) => item.id === tab)!.icon}>{t(`empty.${tab}`)}</EmptyState>
+          {/* Each tab: this shop's own records (shop-tabs.tsx). */}
+          {tab === 'activity' ? <ActivityTab /> : tab === 'exchange' ? <ExchangeTab /> : tab === 'profit' ? <ProfitTab /> : tab === 'amanat' ? <AmanatTab /> : <ReportsTab />}
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import { ApiError, type BusinessDate, businessDate, createDealSchema, dealProfit, type DealRow, type Exchange, rateBoard, type SarrifApi } from '@sarrif/core';
+import { ApiError, type BusinessDate, businessDate, createDealSchema, dealProfit, type DealRow, type Exchange, rateBoard, report, type SarrifApi } from '@sarrif/core';
 
 import { createClient } from '@/lib/supabase/client';
 
@@ -60,7 +60,7 @@ function toExchange(row: ExchangeDbRow): Exchange {
   };
 }
 
-export function supabaseDeals(auth: SarrifApi['auth'], shops: Shops): Pick<SarrifApi, 'deals'> {
+export function supabaseDeals(auth: SarrifApi['auth'], shops: Shops): Pick<SarrifApi, 'deals' | 'reports'> {
   const supabase = () => createClient();
   const notYet = async (): Promise<never> => {
     throw formError('unavailable', 'errors.notYet');
@@ -73,6 +73,18 @@ export function supabaseDeals(auth: SarrifApi['auth'], shops: Shops): Pick<Sarri
   }
 
   return {
+    // A run of days: profit from the exchanges kept in the database (each with its own today's rate).
+    reports: {
+      async range(shopId, from, to) {
+        const [accounts, board] = await Promise.all([shops.shopAccounts(shopId), shops.shopBoard(shopId)]);
+        const { data, error } = await withTimeout(
+          supabase().from('exchanges').select(COLUMNS).eq('shop_id', shopId).gte('date', from).lte('date', to).is('deleted_at', null).returns<ExchangeDbRow[]>(),
+        );
+        if (error) throw databaseError(error, 'reportExchanges');
+        const today = rateBoard(board.workspace, board.rates);
+        return report({ from, to, exchanges: data.map(toExchange), expenses: [], closings: [], accounts, boardFor: () => today });
+      },
+    },
     deals: {
       /** A day's exchanges (today's without a date), newest first, each with what it made. */
       async list(shopId, date?: BusinessDate) {

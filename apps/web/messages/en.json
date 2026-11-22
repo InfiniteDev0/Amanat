@@ -829,6 +829,13 @@
       "what": "What",
       "who": "Customer or account",
       "amount": "Amount"
+    },
+    "views": {
+      "label": "Show",
+      "all": "All",
+      "exchange": "Exchange",
+      "sallam": "Sallam",
+      "resize": "Drag to resize"
     }
   },
   "account": {
@@ -1166,7 +1173,16 @@
       "profit": "No profit yet. It comes from Sallam and Exchange.",
       "amanat": "No amanat held. Money kept for customers will show here.",
       "reports": "Reports fill in as the days are recorded."
-    }
+    },
+    "lines": {
+      "exchange": "Exchange recorded",
+      "sallam": "Sallam recorded",
+      "amanat": "Amanat held for {name}"
+    },
+    "openProfit": "Open Profit",
+    "openAmanat": "Open Amanat",
+    "openReports": "Open Reports",
+    "thisMonth": "This month so far"
   },
   "calculator": {
     "optional": "optional",

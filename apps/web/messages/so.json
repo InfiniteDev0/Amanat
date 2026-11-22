@@ -829,6 +829,13 @@
       "what": "Maxay ahayd",
       "who": "Macmiil ama koonto",
       "amount": "Qadar"
+    },
+    "views": {
+      "label": "Muuji",
+      "all": "Dhammaan",
+      "exchange": "Sarrif",
+      "sallam": "Sallam",
+      "resize": "Jiid si cabbirka loo beddelo"
     }
   },
   "account": {
@@ -1166,7 +1173,16 @@
       "profit": "Weli faa'iido ma jirto. Waxay ka timaadaa Sallam iyo Sarrif.",
       "amanat": "Amaanad lama hayo. Lacagta macaamiisha loo hayo halkan ayay ka muuqan doontaa.",
       "reports": "Warbixinnadu way buuxsamaan marka maalmaha la diiwaangeliyo."
-    }
+    },
+    "lines": {
+      "exchange": "Sarrif ayaa la diiwaangeliyay",
+      "sallam": "Sallam ayaa la diiwaangeliyay",
+      "amanat": "Amaano ayaa loo hayaa {name}"
+    },
+    "openProfit": "Fur Faa’iidada",
+    "openAmanat": "Fur Amaanada",
+    "openReports": "Fur Warbixinnada",
+    "thisMonth": "Bishan ilaa hadda"
   },
   "calculator": {
     "optional": "ikhtiyaari",

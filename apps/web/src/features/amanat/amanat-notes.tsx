@@ -104,7 +104,7 @@ function rememberOpened(id: string) {
 /* ── Words ───────────────────────────────────────────────────────────── */
 
 /** Today, Yesterday, then the date ("Nov 20", with the year when it isn't this one). */
-function useDayLabel() {
+export function useDayLabel() {
   const t = useTranslations('amanatNotes');
   const locale = useLocale();
   return (date: string, today: string) => {
@@ -119,7 +119,7 @@ function useDayLabel() {
 /* ── The card ────────────────────────────────────────────────────────── */
 
 /** One customer's amanat, as Milo's note card: the amount on the cover, then the customer, the shop, when. */
-function AmanatCard({ row, shop, day, onOpen, onHighlight }: { row: AmanatRow; shop: Workspace | undefined; day: string; onOpen: () => void; onHighlight: () => void }) {
+export function AmanatCard({ row, shop, day, onOpen, onHighlight }: { row: AmanatRow; shop: Workspace | undefined; day: string; onOpen: () => void; onHighlight: () => void }) {
   const t = useTranslations('amanatNotes');
   const money = useShortMoney();
   const { amanat } = row;
@@ -197,7 +197,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function AmanatDetails({ row, shop, today, onClose, onEdit }: { row: AmanatRow | null; shop: Workspace | undefined; today: string; onClose: () => void; onEdit: (row: AmanatRow) => void }) {
+export function AmanatDetails({ row, shop, today, onClose, onEdit }: { row: AmanatRow | null; shop: Workspace | undefined; today: string; onClose: () => void; onEdit: (row: AmanatRow) => void }) {
   const t = useTranslations('amanatNotes');
   const locale = useLocale();
   const money = useShortMoney();
