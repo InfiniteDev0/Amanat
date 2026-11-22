@@ -22,9 +22,11 @@ import { cn } from '@/lib/utils';
  * The shop switcher, at the foot of the sidebar, as Notion's workspaces: the
  * shop you're in (or All shops) with ⇅. Open: that shop at the top (its
  * badge, name, "Free Plan · 1 member"), then Upgrade, Settings and Invite
- * members; under your email, All shops and each of your shops (a tick on the
- * one you're in) and + New shop; then Log out. Picking a shop shows only it
- * everywhere, from Home to Trash; the page you're on opens for that shop.
+ * members; under your email, All shops and each of your shops, each with
+ * its tick, and + New shop; then Log out. Tick one shop or several: Home and
+ * Amanat show only the ticked ones, and a page of one shop (Profit, Settings…)
+ * opens for a ticked shop. All shops ticks every one. The menu stays open
+ * while you tick.
  */
 
 const ITEM = 'gap-3 rounded-md px-2.5 py-2 text-[15px] [&_svg]:size-4.5';
@@ -49,23 +51,22 @@ export function ShopSwitcher() {
   const [people, setPeople] = useState(false);
   const [adding, setAdding] = useState(false);
 
-  // The shop you're in: the one in the address, else the one picked.
   const inAddress = /^\/w\/([^/]+)/.exec(pathname)?.[1] ?? null;
-  const currentId = inAddress ?? (scope === 'all' ? null : scope);
-  const current = shops.find((m) => m.workspace.id === currentId) ?? null;
   const main = shops.find((m) => m.workspace.isMain) ?? shops[0];
-  // The shop the menu's top (Settings, Invite) is about: the current one, or the main shop for All.
-  const about = current ?? main;
+  // What's ticked: every shop for 'all', else those picked (still there).
+  const ticked = scope === 'all' ? shops.map((m) => m.workspace.id) : scope.filter((id) => shops.some((m) => m.workspace.id === id));
+  const everything = scope === 'all' || ticked.length === shops.length;
+  // The one shop shown at the top: the only one ticked; else the one in the address, else the main shop.
+  const single = ticked.length === 1 ? shops.find((m) => m.workspace.id === ticked[0]) : undefined;
+  const about = single ?? shops.find((m) => m.workspace.id === inAddress) ?? main;
+  const label = single ? single.workspace.name : everything ? t('allShops') : t('someShops', { count: ticked.length });
 
-  const pick = (id: string | 'all') => {
-    setShopScope(id);
-    if (id === 'all') {
-      // Every shop together: Home and Amanat show them all; a page of one shop goes back Home.
-      if (inAddress && !pathname.endsWith('/amanat')) router.push('/home');
-      return;
-    }
-    // The same page, for that shop.
-    if (inAddress) router.push(pathname.replace(/^\/w\/[^/]+/, `/w/${id}`));
+  /** Ticks a shop, or unticks it (one always stays); a page of an unticked shop opens for one that's ticked. */
+  const toggle = (id: string) => {
+    const next = ticked.includes(id) ? ticked.filter((each) => each !== id) : [...ticked, id];
+    if (next.length === 0) return;
+    setShopScope(next.length === shops.length ? 'all' : next);
+    if (inAddress && !next.includes(inAddress) && !pathname.endsWith('/amanat')) router.push(pathname.replace(/^\/w\/[^/]+/, `/w/${next[0]}`));
   };
 
   if (!about) return null;
@@ -77,14 +78,14 @@ export function ShopSwitcher() {
           aria-label={t('label')}
           className="hover:bg-white/10 aria-expanded:bg-white/10 flex h-12 w-full items-center gap-2.5 rounded-md px-2 text-start outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/40 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
         >
-          {current ? (
-            <ShopBadge id={current.workspace.id} name={current.workspace.name} className="size-7 shrink-0 rounded-md text-sm" />
+          {single ? (
+            <ShopBadge id={single.workspace.id} name={single.workspace.name} className="size-7 shrink-0 rounded-md text-sm" />
           ) : (
             <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-white/15">
               <LayoutGridIcon className="size-4" />
             </span>
           )}
-          <span className="min-w-0 flex-1 truncate text-sm font-medium group-data-[collapsible=icon]:hidden">{current ? current.workspace.name : t('allShops')}</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-medium group-data-[collapsible=icon]:hidden">{label}</span>
           <ChevronsUpDownIcon className="text-sidebar-foreground/60 size-4 shrink-0 group-data-[collapsible=icon]:hidden" />
         </DropdownMenuTrigger>
 
@@ -93,9 +94,9 @@ export function ShopSwitcher() {
           <div className="flex items-center gap-3 px-2.5 pt-2 pb-3">
             <ShopBadge id={about.workspace.id} name={about.workspace.name} className="size-11 shrink-0 rounded-lg text-lg" />
             <div className="min-w-0">
-              <p className="truncate text-[15px] font-semibold">{current ? current.workspace.name : t('allShops')}</p>
+              <p className="truncate text-[15px] font-semibold">{label}</p>
               <p className="text-muted-foreground truncate text-[13px]">
-                {current ? <MemberCount shopId={current.workspace.id} /> : t('shopsCount', { count: shops.length })}
+                {single ? <MemberCount shopId={single.workspace.id} /> : t('shopsCount', { count: ticked.length })}
               </p>
             </div>
           </div>
@@ -115,19 +116,19 @@ export function ShopSwitcher() {
           <DropdownMenuSeparator className="my-1.5" />
           {/* Under your email: every shop together, then each of yours. */}
           {user?.email ? <p className="text-muted-foreground truncate px-2.5 pt-1 pb-1.5 text-[13px] font-medium">{user.email}</p> : null}
-          <DropdownMenuItem className={ITEM} onClick={() => pick('all')}>
+          <DropdownMenuItem className={ITEM} closeOnClick={false} onClick={() => setShopScope('all')}>
             <span className="bg-foreground/10 flex size-6 shrink-0 items-center justify-center rounded-md">
               <LayoutGridIcon className="size-3.5!" />
             </span>
             <span className="min-w-0 flex-1 truncate">{t('allShops')}</span>
-            {current ? null : <CheckIcon />}
+            {everything ? <CheckIcon /> : null}
           </DropdownMenuItem>
           {shops.map(({ workspace }) => (
-            <DropdownMenuItem key={workspace.id} className={ITEM} onClick={() => pick(workspace.id)}>
+            <DropdownMenuItem key={workspace.id} className={ITEM} closeOnClick={false} onClick={() => toggle(workspace.id)} aria-checked={ticked.includes(workspace.id)} role="menuitemcheckbox">
               <ShopBadge id={workspace.id} name={workspace.name} className="size-6 shrink-0 rounded-md text-xs" />
               <span className="min-w-0 flex-1 truncate">{workspace.name}</span>
               {workspace.isMain ? <span className="shrink-0 rounded-sm bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-semibold text-amber-500">{t('main')}</span> : null}
-              {current?.workspace.id === workspace.id ? <CheckIcon /> : null}
+              {ticked.includes(workspace.id) ? <CheckIcon /> : <span className="size-4.5 shrink-0" />}
             </DropdownMenuItem>
           ))}
           <DropdownMenuItem className={cn(ITEM, 'text-[#2f80ed] [&_svg]:text-[#2f80ed]')} onClick={() => setAdding(true)}>

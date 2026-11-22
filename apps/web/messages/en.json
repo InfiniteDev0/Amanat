@@ -1621,6 +1621,7 @@
     "invite": "Invite members",
     "main": "Main",
     "newShop": "New shop",
-    "logOut": "Log out"
+    "logOut": "Log out",
+    "someShops": "{count} shops"
   }
 }
