@@ -836,6 +836,24 @@
       "exchange": "Sarrif",
       "sallam": "Sallam",
       "resize": "Jiid si cabbirka loo beddelo"
+    },
+    "card": {
+      "market": "Sicirka suuqa:",
+      "mine": "Sicirkayga:",
+      "profit": "Faa’iido:",
+      "percent": "Boqolkiiba:",
+      "customer": "Macmiil:",
+      "count": "{count, plural, one {# sarrif} other {# sarrif}}",
+      "search": "Raadi {title}",
+      "noMatch": "Waxba ma waafaqsana.",
+      "today": "maanta",
+      "exchangeSub": "Sarrifka {day}",
+      "sallamSub": "Sallamka {day}",
+      "addExchange": "Sarrif cusub",
+      "addSallam": "Sallam cusub",
+      "sallamSoon": "Sallam wuxuu imaan doonaa cusboonaysiinta xigta",
+      "noExchange": "Weli sarrif ma jiro. + ayaa mid ku daraya.",
+      "noSallam": "Weli Sallam ma jiro."
     }
   },
   "account": {

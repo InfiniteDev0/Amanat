@@ -9,7 +9,9 @@ import { AmanatDialog } from '@/features/amanat/amanat-dialog';
 import { AmanatCard, AmanatDetails, useDayLabel } from '@/features/amanat/amanat-notes';
 import { useAmanat, useHighlightAmanat } from '@/features/amanat/queries';
 import { useDeals } from '@/features/deals/queries';
-import { DealList, useDealSentence } from '@/features/profit/deal-list';
+import { ExchangeDialog } from '@/features/home/exchange-dialog';
+import { useDealSentence } from '@/features/profit/deal-list';
+import { DealsCard } from '@/features/profit/deals-card';
 import { useShortMoney } from '@/features/profit/money-text';
 import { useReport } from '@/features/reports/queries';
 import { StatCard } from '@/features/reports/period';
@@ -82,18 +84,29 @@ export function ActivityTab() {
   );
 }
 
-/** Today's exchanges in this shop. */
+/** Today's exchanges in this shop, as the Profit page shows them; + opens Exchange. */
 export function ExchangeTab() {
   const t = useTranslations('shop');
+  const tProfit = useTranslations('profit');
   const { workspace } = useWorkspace();
   const deals = useDeals(workspace.id);
+  const [exchanging, setExchanging] = useState(false);
   const rows = (deals.data ?? []).filter((row) => dealSection(row.deal) === 'exchange');
   return (
     <div className="flex flex-col gap-3">
       <div className="flex justify-end">
         <More href={`/w/${workspace.id}/profit`}>{t('openProfit')}</More>
       </div>
-      {deals.data && rows.length === 0 ? <Empty icon={<ArrowLeftRightIcon />}>{t('empty.exchange')}</Empty> : <DealList rows={rows} loading={!deals.data} empty={t('empty.exchange')} />}
+      <DealsCard
+        title={tProfit('exchange')}
+        sub={tProfit('card.exchangeSub', { day: tProfit('card.today') })}
+        rows={rows}
+        loading={!deals.data}
+        addLabel={tProfit('card.addExchange')}
+        onAdd={() => setExchanging(true)}
+        empty={tProfit('card.noExchange')}
+      />
+      <ExchangeDialog open={exchanging} onClose={() => setExchanging(false)} shopId={workspace.id} />
     </div>
   );
 }

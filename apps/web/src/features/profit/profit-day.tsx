@@ -13,7 +13,11 @@ import { useShopDay } from '@/features/workspaces/shop-day';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { cn } from '@/lib/utils';
 
-import { DealList } from './deal-list';
+import { gooeyToast } from 'goey-toast';
+
+import { ExchangeDialog } from '@/features/home/exchange-dialog';
+
+import { DealsCard } from './deals-card';
 
 // Profit, one day at a time, as Barista's Day plan: the day ("Sun Nov 22",
 // the weekday blue when it's today; click it for the date wheel) with ‹ ›
@@ -92,15 +96,23 @@ function Day() {
     document.body.style.userSelect = 'none';
   };
 
-  const column = (title: string, list: typeof rows) => (
-    <section className="flex min-w-0 flex-col gap-3">
-      <h2 className="text-muted-foreground flex items-center gap-2 px-1 text-sm font-semibold">
-        {title}
-        <span className="bg-foreground/[0.08] text-foreground/75 dark:bg-muted dark:text-muted-foreground rounded-sm px-1.5 py-0.5 text-[11px] font-medium tabular-nums">{list.length}</span>
-      </h2>
-      <DealList rows={list} loading={!deals.data} empty={t('none')} />
-    </section>
-  );
+  const [exchanging, setExchanging] = useState(false);
+  const dayName = isToday ? t('card.today') : new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(shown);
+  // Each side as Barista's class schedule: its pill, search and +, then its deals.
+  const column = (title: string, list: typeof rows) => {
+    const isExchange = title === t('exchange');
+    return (
+      <DealsCard
+        title={title}
+        sub={isExchange ? t('card.exchangeSub', { day: dayName }) : t('card.sallamSub', { day: dayName })}
+        rows={list}
+        loading={!deals.data}
+        addLabel={isExchange ? t('card.addExchange') : t('card.addSallam')}
+        onAdd={() => (isExchange ? setExchanging(true) : gooeyToast.info(t('card.sallamSoon')))}
+        empty={isExchange ? t('card.noExchange') : t('card.noSallam')}
+      />
+    );
+  };
 
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-[96rem] flex-col px-4 py-6 lg:px-6">
@@ -149,6 +161,7 @@ function Day() {
             </button>
           ))}
         </div>
+        <ExchangeDialog open={exchanging} onClose={() => setExchanging(false)} shopId={workspace.id} />
         <DateWheel open={wheelOpen} onOpenChange={setWheelOpen} value={day} latest={today} firstYear={Number(today.slice(0, 4)) - 2} onPick={setDay} onToday={() => setDay(today)} />
       </div>
 

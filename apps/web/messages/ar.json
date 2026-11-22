@@ -836,6 +836,24 @@
       "exchange": "صرف",
       "sallam": "سلام",
       "resize": "اسحب لتغيير الحجم"
+    },
+    "card": {
+      "market": "سعر السوق:",
+      "mine": "سعري:",
+      "profit": "الربح:",
+      "percent": "النسبة:",
+      "customer": "العميل:",
+      "count": "{count, plural, one {عملية صرف واحدة} other {# عمليات صرف}}",
+      "search": "ابحث في {title}",
+      "noMatch": "لا شيء مطابق.",
+      "today": "اليوم",
+      "exchangeSub": "عمليات الصرف ليوم {day}",
+      "sallamSub": "السلام ليوم {day}",
+      "addExchange": "صرف جديد",
+      "addSallam": "سلام جديد",
+      "sallamSoon": "السلام يأتي في التحديث القادم",
+      "noExchange": "لا عمليات صرف بعد. + يضيف واحدة.",
+      "noSallam": "لا سلام بعد."
     }
   },
   "account": {

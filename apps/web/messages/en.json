@@ -836,6 +836,24 @@
       "exchange": "Exchange",
       "sallam": "Sallam",
       "resize": "Drag to resize"
+    },
+    "card": {
+      "market": "Market rate:",
+      "mine": "My rate:",
+      "profit": "Profit:",
+      "percent": "Rate:",
+      "customer": "Customer:",
+      "count": "{count, plural, one {# exchange} other {# exchanges}}",
+      "search": "Search {title}",
+      "noMatch": "Nothing matches.",
+      "today": "today",
+      "exchangeSub": "The exchanges for {day}",
+      "sallamSub": "The Sallam for {day}",
+      "addExchange": "New exchange",
+      "addSallam": "New Sallam",
+      "sallamSoon": "Sallam comes in the next update",
+      "noExchange": "No exchanges yet. + adds one.",
+      "noSallam": "No Sallam yet."
     }
   },
   "account": {
