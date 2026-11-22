@@ -3,6 +3,7 @@ import type { SarrifApi } from '@sarrif/core';
 import { SUPABASE_CONFIGURED } from '@/lib/supabase/env';
 
 import { mockApi, mockSession } from './mock/mock-api';
+import { supabaseAmanat } from './supabase/amanat';
 import { supabaseAuth } from './supabase/auth';
 import { notYetAreas } from './supabase/not-yet';
 import { supabaseShops } from './supabase/shops';
@@ -27,7 +28,8 @@ function realApi(): SarrifApi {
   const auth = supabaseAuth(mockSession);
   const shops = supabaseShops(auth);
   const { onboarding, workspaces, accounts, rates, summary } = shops;
-  return { ...mockApi, ...notYetAreas(shops), onboarding, workspaces, accounts, rates, summary, auth };
+  // Amanat is in the database too (the local one for now, migration 20261122100000).
+  return { ...mockApi, ...notYetAreas(shops), ...supabaseAmanat(auth), onboarding, workspaces, accounts, rates, summary, auth };
 }
 
 export const api: SarrifApi = SUPABASE_CONFIGURED ? realApi() : mockApi;
@@ -37,6 +39,9 @@ export const IS_DEMO_AUTH = !SUPABASE_CONFIGURED;
 
 /** Whether money can be recorded yet: the demo can; a real shop once the ledger is in the database (Phase 3). */
 export const CAN_RECORD = !SUPABASE_CONFIGURED;
+
+/** Amanat can be held, given back and undone everywhere: the demo, and the database (its own table). */
+export const CAN_HOLD_AMANAT = true;
 
 /** Whether people can be invited yet: the demo can; a real shop with team roles (1e). */
 export const CAN_INVITE = !SUPABASE_CONFIGURED;

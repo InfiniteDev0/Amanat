@@ -13,7 +13,7 @@ import { Field, inputClass, PickSelect } from '@/features/calculator/fields';
 import { currencySymbol } from '@/features/profit/money-text';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
-import { CAN_RECORD } from '@/lib/api';
+import { CAN_HOLD_AMANAT } from '@/lib/api';
 import { errorKey, useMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
@@ -102,7 +102,7 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
           <AdminButton variant="ghost" onClick={onClose}>
             {tDialog('cancel')}
           </AdminButton>
-          <AdminButton variant="primary" disabled={hold.isPending || !CAN_RECORD} onClick={() => submit()}>
+          <AdminButton variant="primary" disabled={hold.isPending || !CAN_HOLD_AMANAT} onClick={() => submit()}>
             {hold.isPending ? tDialog('saving') : tDialog('save')}
           </AdminButton>
         </>
@@ -160,7 +160,7 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
           <input id="amanat-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} placeholder={tDialog('notePlaceholder')} className={inputClass} />
         </Field>
 
-        {CAN_RECORD ? null : <p className="text-muted-foreground text-[0.8125rem]">{tSoon('soon')}</p>}
+        {CAN_HOLD_AMANAT ? null : <p className="text-muted-foreground text-[0.8125rem]">{tSoon('soon')}</p>}
       </form>
     </Modal>
   );
