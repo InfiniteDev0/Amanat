@@ -98,7 +98,13 @@ export function ShopSwitcher() {
         <DropdownMenuContent side="top" align="start" sideOffset={8} className="w-80 rounded-xl border p-1.5 dark:bg-[#1f1f1f]">
           {/* The shop at the top: its badge, name, plan and members. */}
           <div className="flex items-center gap-3 px-2.5 pt-2 pb-3">
-            <ShopBadge id={about.workspace.id} name={about.workspace.name} className="size-11 shrink-0 rounded-lg text-lg" />
+            {single ? (
+              <ShopBadge id={single.workspace.id} name={single.workspace.name} className="size-11 shrink-0 rounded-lg text-lg" />
+            ) : (
+              <span className="bg-foreground/10 flex size-11 shrink-0 items-center justify-center rounded-lg">
+                <LayoutGridIcon className="size-5" />
+              </span>
+            )}
             <div className="min-w-0">
               <p className="truncate text-[15px] font-semibold">{label}</p>
               <p className="text-muted-foreground truncate text-[13px]">

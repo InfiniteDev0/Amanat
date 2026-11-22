@@ -26,7 +26,7 @@ const BLACK_SIDEBAR_CLASS = [
 /**
  * The sidebar-07 block: folds to an icon rail (`collapsible="icon"`), the
  * name small under each icon. The open/fold button at the top, then the
- * pages; Settings and Trash at the foot, above the brand (which
+ * pages; Settings and Trash at the foot, then the shop switcher, above the brand (which
  * opens the plans). Pages live in features/workspaces/navigation.ts.
  */
 export function AppSidebar({
@@ -58,7 +58,8 @@ export function AppSidebar({
           <NavMain items={NAV_FOOT} workspaceId={workspaceId} className="p-0" />
         </Suspense>
         {/* The shop switcher, as Notion's workspaces (the brand while the app starts). */}
-        {still ? <SidebarBrand /> : <ShopSwitcher />}
+        {still ? null : <ShopSwitcher />}
+        <SidebarBrand />
       </SidebarFooter>
     </Sidebar>
   );
