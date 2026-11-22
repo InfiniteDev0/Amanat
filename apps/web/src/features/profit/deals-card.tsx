@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { type ReactNode, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { ShopBadge } from '@/components/shop-badge';
 import { exportListCsv, exportListPdf, fileNameOf, type ResultColumn } from '@/features/calculator/search';
 import { useRemoveDeals } from '@/features/deals/queries';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
@@ -16,22 +17,31 @@ import { cn } from '@/lib/utils';
 import { addUp } from './amounts';
 import { useShortMoney } from './money-text';
 
+/** A deal and, when Profit shows more than one shop, the shop it was done in. */
+export type ShopDealRow = DealRow & { shop?: { id: Id; name: string } };
+
+/** More than one shop among these rows. */
+const fromSeveralShops = (rows: ShopDealRow[]) => new Set(rows.map((row) => row.shop?.id)).size > 1;
+
 /** An action on the selection bar. */
 const BAR_ACTION = 'bg-muted text-foreground hover:bg-muted/70 flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors [&_svg]:size-4';
 
 /**
  * Deals as a table to take away (PDF, CSV): when, what, in, out, the market
- * rate, my rate, the profit; and the profit added up.
+ * rate, my rate, the profit; and the profit added up. From more than one
+ * shop: a Shop column too, and the shops' names on top (`shops`).
  */
-export function useDealExport() {
+export function useDealExport(shops?: string) {
   const t = useTranslations('profit.export');
   const tProfit = useTranslations('profit');
   const locale = useLocale();
   const money = useShortMoney();
   const { workspace } = useWorkspace();
+  const shopName = shops ?? workspace.name;
   const rate = (value: string | null | undefined) => (value ? Number(value).toLocaleString('en-US', { maximumFractionDigits: 6 }) : '—');
-  const columns: ResultColumn[] = [
+  const columnsOf = (rows: ShopDealRow[]): ResultColumn[] => [
     { label: t('time'), width: 0.8 },
+    ...(fromSeveralShops(rows) ? [{ label: t('shop'), width: 1.2 }] : []),
     { label: t('kind'), width: 0.9 },
     { label: t('in'), width: 1.3, align: 'end' },
     { label: t('out'), width: 1.3, align: 'end' },
@@ -39,11 +49,12 @@ export function useDealExport() {
     { label: t('mine'), width: 1, align: 'end' },
     { label: t('profit'), width: 1.2, align: 'end' },
   ];
-  const table = (rows: DealRow[]) =>
-    rows.map(({ deal, profit }) => {
+  const table = (rows: ShopDealRow[]) =>
+    rows.map(({ deal, profit, shop }) => {
       const sallam = dealSection(deal) === 'sallam';
       return [
         new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(new Date(deal.createdAt)),
+        ...(fromSeveralShops(rows) ? [shop?.name ?? ''] : []),
         sallam ? tProfit('sallam') : tProfit('exchange'),
         money({ amount: deal.amountIn, currency: deal.currencyIn }),
         money({ amount: deal.amountOut, currency: deal.currencyOut }),
@@ -57,23 +68,25 @@ export function useDealExport() {
     return total.length ? total.map((m) => money(m, true)).join(' · ') : '0';
   };
   return {
-    pdf: (rows: DealRow[], title: string, scope: string) =>
+    pdf: (rows: ShopDealRow[], title: string, scope: string) =>
       exportListPdf({
-        shop: workspace.name,
+        shop: shopName,
         title,
         scope,
         summary: `${t('count', { count: rows.length })}   |   ${t('profit')} ${totalText(rows)}`,
-        fileName: fileNameOf(`${workspace.name} ${title} ${scope}`, 'profit'),
-        columns,
+        fileName: fileNameOf(`${shopName} ${title} ${scope}`, 'profit'),
+        columns: columnsOf(rows),
         rows: table(rows),
         total: { label: t('total'), value: totalText(rows) },
       }).catch(() => gooeyToast.error(t('couldNotPdf'))),
-    csv: (rows: DealRow[], title: string, scope: string) =>
+    csv: (rows: ShopDealRow[], title: string, scope: string) => {
+      const columns = columnsOf(rows);
       exportListCsv(
-        fileNameOf(`${workspace.name} ${title} ${scope}`, 'profit'),
+        fileNameOf(`${shopName} ${title} ${scope}`, 'profit'),
         columns.map((c) => c.label),
         [...table(rows), columns.map((_, i) => (i === 0 ? t('total') : i === columns.length - 1 ? totalText(rows) : ''))],
-      ),
+      );
+    },
   };
 }
 
@@ -121,8 +134,8 @@ function RoundButton({ label, on, onClick, solid, children }: { label: string; o
   );
 }
 
-/** One deal: its tick, From over To, the card of rates and profit beside it. */
-function DealEntry({ row, ticked, ticking, onTick }: { row: DealRow; ticked: boolean; ticking: boolean; onTick: () => void }) {
+/** One deal: its tick, From over To, the card of rates and profit beside it (its shop on top, with more than one shop). */
+function DealEntry({ row, showShop, ticked, ticking, onTick }: { row: ShopDealRow; showShop: boolean; ticked: boolean; ticking: boolean; onTick: () => void }) {
   const t = useTranslations('profit.card');
   const money = useShortMoney();
   const { deal, profit } = row;
@@ -162,6 +175,12 @@ function DealEntry({ row, ticked, ticking, onTick }: { row: DealRow; ticked: boo
         onClick={ticking ? onTick : undefined}
         className={cn('bg-card relative min-w-0 flex-1 rounded-s-none rounded-e-lg border-s-2 px-3 py-2.5', made ? 'border-emerald-500' : 'border-red-500', ticked && 'ring-2 ring-sky-500', ticking && 'cursor-pointer')}
       >
+        {showShop && row.shop ? (
+          <p className="mb-1.5 flex min-w-0 items-center gap-1.5 text-xs font-medium">
+            <ShopBadge id={row.shop.id} name={row.shop.name} className="size-4 rounded-[4px] text-[9px]" />
+            <span className="truncate">{row.shop.name}</span>
+          </p>
+        ) : null}
         <dl className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm">
           {sallam ? (
             <>
@@ -220,22 +239,25 @@ export function DealsCard({
   onAdd,
   addLabel,
   empty,
+  shops,
 }: {
   title: string;
   sub: string;
   /** The day, for a download's name: "Sun, Nov 22". */
   scope: string;
-  rows: DealRow[];
+  rows: ShopDealRow[];
   loading?: boolean;
   onAdd: () => void;
   addLabel: string;
   empty: string;
+  /** The ticked shops' names, when there's more than one: each row shows its shop. */
+  shops?: string;
 }) {
   const t = useTranslations('profit.card');
   const money = useShortMoney();
   const { workspace } = useWorkspace();
   const remove = useRemoveDeals(workspace.id);
-  const take = useDealExport();
+  const take = useDealExport(shops);
   const [query, setQuery] = useState<string | null>(null);
   const [ticked, setTicked] = useState<Set<Id>>(new Set());
   const toggle = (id: Id) =>
@@ -259,14 +281,38 @@ export function DealsCard({
   };
   const words = (query ?? '').trim().toLowerCase().split(/\s+/).filter(Boolean);
   const shown = rows.filter((row) => {
-    const text = `${row.deal.customer ?? ''} ${row.deal.note ?? ''} ${money({ amount: row.deal.amountIn, currency: row.deal.currencyIn })} ${money({ amount: row.deal.amountOut, currency: row.deal.currencyOut })}`.toLowerCase();
+    const text = `${row.shop?.name ?? ''} ${row.deal.customer ?? ''} ${row.deal.note ?? ''} ${money({ amount: row.deal.amountIn, currency: row.deal.currencyIn })} ${money({ amount: row.deal.amountOut, currency: row.deal.currencyOut })}`.toLowerCase();
     return words.every((word) => text.includes(word));
   });
+  const totals = addUp(shown.map((row) => row.profit)).filter((m) => m.amount !== 0);
 
   return (
-    <section className="flex min-h-0 flex-col gap-3">
+    <section className="flex min-h-0 flex-col gap-3 lg:flex-1">
       <div className="flex h-8 items-center justify-between gap-2">
-        <span className="bg-card ring-foreground/10 truncate rounded-lg px-3 py-1.5 text-sm font-medium ring-1">{title}</span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="bg-card ring-foreground/10 truncate rounded-lg px-3 py-1.5 text-sm font-medium ring-1">{title}</span>
+          {/* What this side made in all (what's shown, while searching), each currency on its own. */}
+          {loading ? null : (
+            <span className="flex min-w-0 items-center gap-1.5" aria-label={t('total')}>
+              {totals.length === 0 ? (
+                <span className="bg-foreground/[0.06] text-muted-foreground rounded-md px-2.5 py-1 text-sm font-semibold tabular-nums">0</span>
+              ) : (
+                totals.map((m) => (
+                  <span
+                    key={m.currency}
+                    dir="ltr"
+                    className={cn(
+                      'truncate rounded-md px-2.5 py-1 text-sm font-semibold tabular-nums',
+                      m.amount >= 0 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'bg-red-500/15 text-red-600 dark:text-red-400',
+                    )}
+                  >
+                    {money(m, true)}
+                  </span>
+                ))
+              )}
+            </span>
+          )}
+        </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <RoundButton label={t('search', { title })} on={query !== null} onClick={() => setQuery(query === null ? '' : null)}>
             <SearchIcon />
@@ -301,9 +347,10 @@ export function DealsCard({
       ) : shown.length === 0 ? (
         <p className="text-foreground/35 py-6 text-center text-xs">{rows.length === 0 ? empty : t('noMatch')}</p>
       ) : (
-        <div className="flex flex-col gap-2">
+        // The deals alone scroll (wide screens), with room between them and the scrollbar.
+        <div className="scrollbar-pill flex flex-col gap-2 lg:-me-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pe-3 lg:pb-6">
           {shown.map((row) => (
-            <DealEntry key={row.deal.id} row={row} ticked={ticked.has(row.deal.id)} ticking={ticked.size > 0} onTick={() => toggle(row.deal.id)} />
+            <DealEntry key={row.deal.id} row={row} showShop={shops !== undefined} ticked={ticked.has(row.deal.id)} ticking={ticked.size > 0} onTick={() => toggle(row.deal.id)} />
           ))}
         </div>
       )}

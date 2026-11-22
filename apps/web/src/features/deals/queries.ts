@@ -1,7 +1,7 @@
 'use client';
 
 import type { CreateDealInput, Id } from '@sarrif/core';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query/keys';
@@ -9,6 +9,17 @@ import { queryKeys } from '@/lib/query/keys';
 /** One day's rows of the exchange sheet (today when no date is given). */
 export function useDeals(workspaceId: Id, date?: string) {
   return useQuery({ queryKey: queryKeys.deals(workspaceId, date), queryFn: () => api.deals.list(workspaceId, date) });
+}
+
+/** One day's rows of several shops, each row with its shop; newest first. Null until every shop's are in. */
+export function useDealsOfShops(shops: { id: Id; name: string }[], date?: string) {
+  const results = useQueries({
+    queries: shops.map((shop) => ({ queryKey: queryKeys.deals(shop.id, date), queryFn: () => api.deals.list(shop.id, date) })),
+  });
+  if (!results.every((result) => result.data)) return null;
+  return results
+    .flatMap((result, i) => (result.data ?? []).map((row) => ({ ...row, shop: { id: shops[i]!.id, name: shops[i]!.name } })))
+    .sort((a, b) => b.deal.createdAt.localeCompare(a.deal.createdAt));
 }
 
 /** Colouring rows: the sheet refreshes. */
@@ -26,7 +37,12 @@ export function useRemoveDeals(workspaceId: Id) {
   return useMutation({
     mutationFn: ({ ids, restore }: { ids: Id[]; restore?: boolean }) =>
       restore ? api.deals.restore(workspaceId, ids) : api.deals.remove(workspaceId, ids),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) }),
+    // The rows may be from several shops (Profit with more than one ticked): every shop's list refreshes.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) }),
+        queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === 'w' && query.queryKey[2] === 'deals' }),
+      ]),
   });
 }
 

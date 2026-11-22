@@ -7,8 +7,11 @@ import { useLocale, useTranslations } from 'next-intl';
 import { type CSSProperties, type PointerEvent as ReactPointerEvent, Suspense, useEffect, useRef, useState } from 'react';
 
 import { DateWheel } from '@/components/date-wheel';
+import { ShopBadge } from '@/components/shop-badge';
 import { Button } from '@/components/ui/button';
-import { useDeals } from '@/features/deals/queries';
+import { useDealsOfShops } from '@/features/deals/queries';
+import { useMyWorkspaces } from '@/features/workspaces/queries';
+import { inScope, useShopScope } from '@/features/workspaces/shop-scope';
 import { useShopDay } from '@/features/workspaces/shop-day';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { cn } from '@/lib/utils';
@@ -19,14 +22,17 @@ import { ExchangeDialog } from '@/features/home/exchange-dialog';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-import { DealsCard, useDealExport } from './deals-card';
+import { Amounts, addUp } from './amounts';
+import { DealsCard, type ShopDealRow, useDealExport } from './deals-card';
 
 // Profit, one day at a time, as Barista's Day plan: the day ("Sun Nov 22",
 // the weekday blue when it's today; click it for the date wheel) with ‹ ›
 // beside it, and across from it All | Exchange | Sallam; a line under them.
 // All: Exchange on the left and Sallam on the right, a line between them that
 // drags sideways (as VS Code's, a double-click puts it back in the middle);
-// Exchange or Sallam: that one alone.
+// Exchange or Sallam: that one alone. It follows the shops ticked in the name
+// menu: with more than one, a box per shop with its profit sits under the
+// header, and each deal shows the shop it was done in.
 
 type View = 'all' | 'exchange' | 'sallam';
 const VIEWS: View[] = ['all', 'exchange', 'sallam'];
@@ -59,8 +65,15 @@ function Day() {
   const sameYear = day.slice(0, 4) === today.slice(0, 4);
   const [wheelOpen, setWheelOpen] = useState(false);
   const [view, setView] = useState<View>('all');
-  const deals = useDeals(workspace.id, isToday ? undefined : day);
-  const rows = deals.data ?? [];
+  // The ticked shops (the one in the address until the list is in).
+  const mine = useMyWorkspaces().data;
+  const scope = useShopScope();
+  const shops = mine ? inScope(mine, scope).map((m) => ({ id: m.workspace.id, name: m.workspace.name })) : [{ id: workspace.id, name: workspace.name }];
+  const many = shops.length > 1;
+  const shopNames = many ? shops.map((shop) => shop.name).join(', ') : undefined;
+  const loaded = useDealsOfShops(shops, isToday ? undefined : day);
+  const deals = { data: loaded };
+  const rows: ShopDealRow[] = loaded ?? [];
   const exchange = rows.filter((row) => dealSection(row.deal) === 'exchange');
   const sallam = rows.filter((row) => dealSection(row.deal) === 'sallam');
 
@@ -99,7 +112,7 @@ function Day() {
   };
 
   const [exchanging, setExchanging] = useState(false);
-  const take = useDealExport();
+  const take = useDealExport(shopNames);
   const viewRows = view === 'exchange' ? exchange : view === 'sallam' ? sallam : rows;
   const viewTitle = view === 'exchange' ? t('exchange') : view === 'sallam' ? t('sallam') : t('title');
   const dayName = isToday ? t('card.today') : new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(shown);
@@ -116,12 +129,13 @@ function Day() {
         addLabel={isExchange ? t('card.addExchange') : t('card.addSallam')}
         onAdd={() => (isExchange ? setExchanging(true) : gooeyToast.info(t('card.sallamSoon')))}
         empty={isExchange ? t('card.noExchange') : t('card.noSallam')}
+        shops={shopNames}
       />
     );
   };
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-[96rem] flex-col px-4 py-6 lg:px-6">
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-[96rem] flex-1 flex-col px-4 py-6 lg:overflow-hidden lg:px-6 lg:pb-0">
       {/* The day and its arrows; across from it All | Exchange | Sallam; a line under them. */}
       <div className="flex shrink-0 flex-col gap-3 border-b border-neutral-200 pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 dark:border-neutral-800">
         <div className="flex items-center gap-2">
@@ -193,9 +207,35 @@ function Day() {
         <DateWheel open={wheelOpen} onOpenChange={setWheelOpen} value={day} latest={today} firstYear={Number(today.slice(0, 4)) - 2} onPick={setDay} onToday={() => setDay(today)} />
       </div>
 
+      {/* More than one shop: each one's profit for what's showing, then all of them together. */}
+      {many ? (
+        <div role="list" aria-label={t('byShop')} className="scrollbar-none flex shrink-0 gap-2 overflow-x-auto pt-4">
+          {shops.map((shop) => {
+            const own = viewRows.filter((row) => row.shop?.id === shop.id);
+            return (
+              <div key={shop.id} role="listitem" className="bg-card flex min-w-52 shrink-0 items-center gap-3 rounded-lg px-3 py-2.5">
+                <ShopBadge id={shop.id} name={shop.name} className="size-8 rounded-md text-sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{shop.name}</p>
+                  <p className="text-muted-foreground text-xs tabular-nums">{t('card.count', { count: own.length })}</p>
+                </div>
+                <span className="text-sm font-semibold tabular-nums">{loaded ? <Amounts money={addUp(own.map((row) => row.profit))} /> : '…'}</span>
+              </div>
+            );
+          })}
+          <div role="listitem" className="bg-foreground/[0.04] flex min-w-44 shrink-0 items-center gap-3 rounded-lg px-3 py-2.5">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{t('together')}</p>
+              <p className="text-muted-foreground text-xs tabular-nums">{t('card.count', { count: viewRows.length })}</p>
+            </div>
+            <span className="text-sm font-semibold tabular-nums">{loaded ? <Amounts money={addUp(viewRows.map((row) => row.profit))} /> : '…'}</span>
+          </div>
+        </div>
+      ) : null}
+
       {view === 'all' ? (
         <div ref={box} style={{ '--split': `${split}%` } as CSSProperties} className="flex min-h-0 flex-1 flex-col gap-6 pt-4 lg:flex-row lg:gap-0">
-          <div className="min-w-0 lg:w-(--split) lg:flex-none lg:pe-6">{column(t('exchange'), exchange)}</div>
+          <div className="flex min-h-0 min-w-0 flex-col lg:w-(--split) lg:flex-none lg:pe-6">{column(t('exchange'), exchange)}</div>
           {/* The line down the middle, a grip in its middle; drag it sideways, double-click to centre it. */}
           <div
             role="separator"
@@ -224,10 +264,10 @@ function Day() {
               <span className="size-1 rounded-full bg-current" />
             </span>
           </div>
-          <div className="min-w-0 flex-1 lg:ps-6">{column(t('sallam'), sallam)}</div>
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:ps-6">{column(t('sallam'), sallam)}</div>
         </div>
       ) : (
-        <div className="pt-4">{view === 'exchange' ? column(t('exchange'), exchange) : column(t('sallam'), sallam)}</div>
+        <div className="flex min-h-0 flex-1 flex-col pt-4">{view === 'exchange' ? column(t('exchange'), exchange) : column(t('sallam'), sallam)}</div>
       )}
     </div>
   );

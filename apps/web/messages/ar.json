@@ -865,7 +865,8 @@
       "deleted": "{count, plural, one {حُذفت} other {حُذفت #}}",
       "undo": "تراجع",
       "restored": "عادت",
-      "couldNotDelete": "تعذر الحذف"
+      "couldNotDelete": "تعذر الحذف",
+      "total": "إجمالي الربح"
     },
     "export": {
       "download": "تنزيل",
@@ -880,8 +881,11 @@
       "profit": "الربح",
       "total": "المجموع",
       "count": "{count, plural, one {صفقة واحدة} other {# صفقات}}",
-      "couldNotPdf": "تعذر إنشاء PDF"
-    }
+      "couldNotPdf": "تعذر إنشاء PDF",
+      "shop": "المحل"
+    },
+    "byShop": "الربح حسب المحل",
+    "together": "كل المحلات المختارة"
   },
   "account": {
     "cashUsd": "$ نقد",

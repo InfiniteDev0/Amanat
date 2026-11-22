@@ -865,7 +865,8 @@
       "deleted": "{count, plural, one {Waa la tirtiray} other {# waa la tirtiray}}",
       "undo": "Ka noqo",
       "restored": "Waa la soo celiyay",
-      "couldNotDelete": "Lama tirtiri karin"
+      "couldNotDelete": "Lama tirtiri karin",
+      "total": "Wadarta faa'iidada"
     },
     "export": {
       "download": "Soo deji",
@@ -880,8 +881,11 @@
       "profit": "Faa’iido",
       "total": "Wadarta",
       "count": "{count, plural, one {# heshiis} other {# heshiis}}",
-      "couldNotPdf": "PDF-ka lama samayn karin"
-    }
+      "couldNotPdf": "PDF-ka lama samayn karin",
+      "shop": "Dukaan"
+    },
+    "byShop": "Faa'iidada dukaan kasta",
+    "together": "Dukaamada la doortay"
   },
   "account": {
     "cashUsd": "$ Kaash",

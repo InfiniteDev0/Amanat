@@ -865,7 +865,8 @@
       "deleted": "{count, plural, one {Deleted} other {# deleted}}",
       "undo": "Undo",
       "restored": "Back",
-      "couldNotDelete": "Couldn't delete"
+      "couldNotDelete": "Couldn't delete",
+      "total": "Total profit"
     },
     "export": {
       "download": "Download",
@@ -880,8 +881,11 @@
       "profit": "Profit",
       "total": "Total",
       "count": "{count, plural, one {# deal} other {# deals}}",
-      "couldNotPdf": "Couldn't make the PDF"
-    }
+      "couldNotPdf": "Couldn't make the PDF",
+      "shop": "Shop"
+    },
+    "byShop": "Profit by shop",
+    "together": "All ticked shops"
   },
   "account": {
     "cashUsd": "$ Cash",
