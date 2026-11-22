@@ -3,7 +3,7 @@
 import { type ComponentProps, Suspense } from 'react';
 
 import { NavMain } from '@/components/nav-main';
-import { ShopSwitcher } from '@/components/shop-switcher';
+// import { ShopSwitcher } from '@/components/shop-switcher';
 import { SidebarBrand } from '@/components/sidebar-brand';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
@@ -26,7 +26,7 @@ const BLACK_SIDEBAR_CLASS = [
 /**
  * The sidebar-07 block: folds to an icon rail (`collapsible="icon"`), the
  * name small under each icon. The open/fold button at the top, then the
- * pages; Settings and Trash at the foot, then the shop switcher, above the brand (which
+ * pages; Settings and Trash at the foot, above the brand (which
  * opens the plans). Pages live in features/workspaces/navigation.ts.
  */
 export function AppSidebar({
@@ -58,7 +58,8 @@ export function AppSidebar({
           <NavMain items={NAV_FOOT} workspaceId={workspaceId} className="p-0" />
         </Suspense>
         {/* The shop switcher, as Notion's workspaces (the brand while the app starts). */}
-        {still ? null : <ShopSwitcher />}
+        {/* The shops live in the name menu (top left), as Notion's workspaces. */}
+        {/* {still ? null : <ShopSwitcher />} */}
         <SidebarBrand />
       </SidebarFooter>
     </Sidebar>

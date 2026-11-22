@@ -1624,6 +1624,8 @@
     "newShop": "محل جديد",
     "logOut": "تسجيل الخروج",
     "someShops": "{count} محلات",
-    "invited": "{count} مدعوون"
+    "invited": "{count} مدعوون",
+    "members": "{count, plural, one {عضو واحد} other {# أعضاء}}",
+    "yourShops": "محلاتك"
   }
 }

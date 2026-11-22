@@ -1624,6 +1624,8 @@
     "newShop": "New shop",
     "logOut": "Log out",
     "someShops": "{count} shops",
-    "invited": "{count} invited"
+    "invited": "{count} invited",
+    "members": "{count, plural, one {# member} other {# members}}",
+    "yourShops": "Your shops"
   }
 }

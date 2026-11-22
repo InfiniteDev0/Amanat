@@ -5,13 +5,16 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { AccountItems } from '@/components/layout/account-items';
+import { ShopsMenuItems, useShopTicks } from '@/components/layout/shops-menu';
 import { NAME_KEY } from '@/components/layout/frame-loading';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AccountSettingsDialog } from '@/features/auth/account-settings-dialog';
 import { useSession } from '@/features/auth/queries';
 import { SignOutEverywhereDialog } from '@/features/auth/sign-out-everywhere-dialog';
 import { PlansDialog } from '@/features/billing/plans-dialog';
-import { useWorkspace } from '@/features/workspaces/workspace-context';
+import { NewShopDialog } from '@/features/home/new-shop-dialog';
+import { PeopleDialog } from '@/features/team/people-dialog';
+import { useWorkspace, WorkspaceProvider } from '@/features/workspaces/workspace-context';
 import { cn } from '@/lib/utils';
 
 /** Account settings and Plan: two quiet buttons side by side under your name (as Barista's). */
@@ -34,10 +37,11 @@ function Photo({ name, src, className }: { name: string; src: string | null; cla
 }
 
 /**
- * Top-left, as Barista's: your photo and name in a pill (no email; shops live
- * on Home, not here). The menu: you (photo, name, your role and email), then
- * Account settings and Plan side by side, then language, theme and sign out.
- * Its dialogs live outside the menu, which is gone by the time they show.
+ * Top-left, as Barista's: your photo and name in a pill. The menu: you
+ * (photo, name, your role and email), Account settings and Plan side by side;
+ * then, as Notion's workspaces, Invite members and your shops, each with its
+ * tick (shops-menu.tsx); then language, theme and sign out. Its dialogs live
+ * outside the menu, which is gone by the time they show.
  */
 export function NameMenu() {
   const t = useTranslations();
@@ -46,6 +50,9 @@ export function NameMenu() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   const [everywhereOpen, setEverywhereOpen] = useState(false);
+  const [peopleOpen, setPeopleOpen] = useState(false);
+  const [newShopOpen, setNewShopOpen] = useState(false);
+  const { about, main } = useShopTicks();
   // Kept, so the frame shows it while you're checked next time.
   const name = user?.name;
   useEffect(() => {
@@ -69,7 +76,7 @@ export function NameMenu() {
           <span className="truncate">{user.name}</span>
           <ChevronDownIcon className="text-muted-foreground size-4 shrink-0" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" sideOffset={6} className="border-border dark:bg-background w-80 rounded-xl border bg-white p-2 shadow-none ring-0">
+        <DropdownMenuContent align="start" sideOffset={6} className="border-border dark:bg-background scrollbar-pill max-h-[calc(100svh-5rem)] w-80 overflow-y-auto rounded-xl border bg-white p-2 shadow-none ring-0">
           <div className="flex items-center gap-3 p-2">
             <Photo name={user.name} src={user.avatar} className="size-11 rounded-xl text-lg" />
             <div className="min-w-0">
@@ -91,12 +98,20 @@ export function NameMenu() {
             </DropdownMenuItem>
           </div>
           <DropdownMenuSeparator className="my-1" />
+          <ShopsMenuItems onInvite={() => setPeopleOpen(true)} onNewShop={() => setNewShopOpen(true)} />
+          <DropdownMenuSeparator className="my-1" />
           <AccountItems onSignOutEverywhere={() => setEverywhereOpen(true)} />
         </DropdownMenuContent>
       </DropdownMenu>
       <AccountSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
       <PlansDialog open={plansOpen} onOpenChange={setPlansOpen} />
       <SignOutEverywhereDialog open={everywhereOpen} onOpenChange={setEverywhereOpen} />
+      {about ? (
+        <WorkspaceProvider workspace={about.workspace} role={about.role}>
+          <PeopleDialog open={peopleOpen} onOpenChange={setPeopleOpen} />
+        </WorkspaceProvider>
+      ) : null}
+      {main ? <NewShopDialog open={newShopOpen} onOpenChange={setNewShopOpen} main={main.workspace} /> : null}
     </>
   );
 }

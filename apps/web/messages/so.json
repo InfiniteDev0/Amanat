@@ -1624,6 +1624,8 @@
     "newShop": "Dukaan cusub",
     "logOut": "Ka bax",
     "someShops": "{count} dukaan",
-    "invited": "{count} la martiqaaday"
+    "invited": "{count} la martiqaaday",
+    "members": "{count, plural, one {# xubin} other {# xubnood}}",
+    "yourShops": "Dukaamadaada"
   }
 }
