@@ -135,7 +135,7 @@ export function YourShops({ shops, main, onShown }: { shops: WorkspaceMembership
             </button>
           </>
         ) : null}
-        {/* A plain button: White on black in dark mode, black on white in light. */}
+        {/* + New shop lives in the name menu now (top left), with the shops.
         <button
           type="button"
           onClick={() => setAdding(true)}
@@ -143,7 +143,7 @@ export function YourShops({ shops, main, onShown }: { shops: WorkspaceMembership
         >
           <PlusIcon className="size-4" />
           {t('newShop.button')}
-        </button>
+        </button> */}
         </div>
       </div>
 
