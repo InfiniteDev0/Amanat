@@ -541,7 +541,7 @@
       "viewAll": "View all",
       "all": "All actions",
       "reports": "Reports",
-      "team": "Team",
+      "team": "People",
       "profit": "Profit",
       "amanatList": "Amanat held",
       "settings": "Settings",
@@ -550,9 +550,12 @@
       "less": "Show less",
       "profitHint": "Sallam and Exchange",
       "amanatListHint": "Money kept for customers",
-      "settingsHint": "The shop's details"
+      "settingsHint": "The shop's details",
+      "soon": "Coming in the next update"
     },
-    "goToShop": "Go to {shop}"
+    "goToShop": "Go to {shop}",
+    "previousShop": "Previous shop",
+    "nextShop": "Next shop"
   },
   "rates": {
     "title": "Today's rates",
@@ -987,7 +990,10 @@
     "close": "Close",
     "ownersOnly": "Only Owners can see and change who’s in the shop.",
     "alreadyIn": "That number is already in the shop.",
-    "lastOwnerError": "The shop’s only Owner can’t be changed or removed."
+    "lastOwnerError": "The shop’s only Owner can’t be changed or removed.",
+    "title": "People",
+    "summary": "{count, plural, one {# person} other {# people}} in {shop}. Tap someone's right to change it.",
+    "inviteSoon": "Inviting people comes in the next update."
   },
   "settings": {
     "shop": "The shop",

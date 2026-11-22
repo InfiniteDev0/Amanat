@@ -331,7 +331,7 @@ export function SettingsPage() {
         ))}
       </div>
 
-      <div role="tabpanel" className="scrollbar-pill min-h-0 max-w-3xl flex-1 overflow-y-auto overscroll-contain py-6 pb-10">
+      <div role="tabpanel" className="scrollbar-pill min-h-0 flex-1 overflow-y-auto overscroll-contain py-6 pe-5 pb-10">
         {tab === 'shop' ? <ShopTab key={workspace.id} /> : null}
         {tab === 'accounts' ? <AccountsTab /> : null}
         {tab === 'rates' ? <RatesTab /> : null}

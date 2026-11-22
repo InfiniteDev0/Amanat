@@ -38,4 +38,7 @@ export const IS_DEMO_AUTH = !SUPABASE_CONFIGURED;
 /** Whether money can be recorded yet: the demo can; a real shop once the ledger is in the database (Phase 3). */
 export const CAN_RECORD = !SUPABASE_CONFIGURED;
 
+/** Whether people can be invited yet: the demo can; a real shop with team roles (1e). */
+export const CAN_INVITE = !SUPABASE_CONFIGURED;
+
 export { CASHIER_EMAIL, DEMO_EMAIL, DEMO_PASSWORD } from './mock/seed';

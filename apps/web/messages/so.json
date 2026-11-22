@@ -541,7 +541,7 @@
       "viewAll": "Dhammaan",
       "all": "Dhammaan falalka",
       "reports": "Warbixinno",
-      "team": "Kooxda",
+      "team": "Dadka",
       "profit": "Faa'iido",
       "amanatList": "Amaanadaha",
       "settings": "Dejinta",
@@ -550,9 +550,12 @@
       "less": "Yaree",
       "profitHint": "Sallam iyo Sarrif",
       "amanatListHint": "Lacagta macaamiisha loo hayo",
-      "settingsHint": "Xogta dukaanka"
+      "settingsHint": "Xogta dukaanka",
+      "soon": "Waxay imaan doontaa cusboonaysiinta xigta"
     },
-    "goToShop": "U gudub {shop}"
+    "goToShop": "U gudub {shop}",
+    "previousShop": "Dukaankii hore",
+    "nextShop": "Dukaanka xiga"
   },
   "rates": {
     "title": "Sicirrada maanta",
@@ -987,7 +990,10 @@
     "close": "Xir",
     "ownersOnly": "Milkiilayaasha keliya ayaa arki kara oo beddeli kara dadka dukaanka.",
     "alreadyIn": "Lambarkaasi horey ayuu dukaanka ugu jiray.",
-    "lastOwnerError": "Milkiilaha keliya ee dukaanka lama beddeli karo lamana saari karo."
+    "lastOwnerError": "Milkiilaha keliya ee dukaanka lama beddeli karo lamana saari karo.",
+    "title": "Dadka",
+    "summary": "{count, plural, one {# qof} other {# qof}} ku jira {shop}. Taabo xaqa qofka si aad u beddesho.",
+    "inviteSoon": "Martiqaadka dadka wuxuu imanayaa cusboonaysiinta xigta."
   },
   "settings": {
     "shop": "Dukaanka",

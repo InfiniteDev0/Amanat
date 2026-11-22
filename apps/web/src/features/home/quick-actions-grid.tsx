@@ -1,6 +1,7 @@
 'use client';
 
 import type { WorkspaceMembership } from '@sarrif/core';
+import { gooeyToast } from 'goey-toast';
 import { ChartNoAxesColumnIcon, ChevronDownIcon, LockIcon, SettingsIcon, TrendingUpIcon, UsersIcon, WalletIcon } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
@@ -9,7 +10,23 @@ import { type ReactNode, useId, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
-import { ACTION_ICONS, ActionHost, type ShopAction, SHOP_ACTIONS } from './shop-actions';
+import { PeopleDialog } from '@/features/team/people-dialog';
+import { WorkspaceProvider } from '@/features/workspaces/workspace-context';
+
+// The action sheets are off: recording comes back with the new money engine (Phase 3).
+// import { ACTION_ICONS, ActionHost, type ShopAction, SHOP_ACTIONS } from './shop-actions';
+import { ACTION_ICONS, SHOP_ACTIONS } from './shop-actions';
+
+/** People for the shop on screen (its own context: the dialog reads the shop and your right there). */
+function PeopleFor({ shops, shopId, open, onOpenChange }: { shops: WorkspaceMembership[]; shopId: string; open: boolean; onOpenChange: (open: boolean) => void }) {
+  const membership = shops.find((m) => m.workspace.id === shopId);
+  if (!membership) return null;
+  return (
+    <WorkspaceProvider workspace={membership.workspace} role={membership.role}>
+      <PeopleDialog open={open} onOpenChange={onOpenChange} />
+    </WorkspaceProvider>
+  );
+}
 
 /** Each action's colour, like M-Pesa's: the icon on a soft tint of it. */
 const TINT: Record<string, string> = {
@@ -87,10 +104,12 @@ function Tile({ id, icon, label, hint, onClick, href, disabled, compact }: TileP
  * the shop page's shop), and the form names that shop at the top. `compact`
  * for a narrow column (the shop page): icons and names only.
  */
-export function QuickActionsGrid({ shops, shopId, compact = false }: { shops: WorkspaceMembership[]; shopId: string; compact?: boolean }) {
+export function QuickActionsGrid({ shops, shopId, compact = false, className }: { shops: WorkspaceMembership[]; shopId: string; compact?: boolean; className?: string }) {
   const t = useTranslations('home');
-  const [action, setAction] = useState<ShopAction | null>(null);
+  // const [action, setAction] = useState<ShopAction | null>(null);
   const [all, setAll] = useState(false);
+  // People opens as a dialog over the page, not a page of its own.
+  const [people, setPeople] = useState(false);
   const panelId = useId();
   const reduce = useReducedMotion();
   const duration = reduce ? 0 : 0.35;
@@ -99,7 +118,7 @@ export function QuickActionsGrid({ shops, shopId, compact = false }: { shops: Wo
   const grid = cn('grid gap-2', compact ? 'grid-cols-4' : 'grid-cols-2 md:grid-cols-4');
 
   return (
-    <section aria-labelledby="quick-actions" className="bg-card rounded-xl p-4">
+    <section aria-labelledby="quick-actions" className={cn('bg-card rounded-xl p-4', className)}>
       <div className="mb-3 flex items-center justify-between px-1">
         <h2 id="quick-actions" className="text-base font-semibold">
           {t('quick.title')}
@@ -118,11 +137,11 @@ export function QuickActionsGrid({ shops, shopId, compact = false }: { shops: Wo
 
       <div className={grid}>
         {SHOP_ACTIONS.map((id) =>
-          tile({ id, icon: ACTION_ICONS[id], label: t(`quick.${id}`), hint: t(`quick.${id}Hint`), onClick: () => setAction(id) }),
+          tile({ id, icon: ACTION_ICONS[id], label: t(`quick.${id}`), hint: t(`quick.${id}Hint`), onClick: () => gooeyToast.info(t('actions.soon')) }),
         )}
         {tile({ id: 'close', icon: <LockIcon />, label: t('closeDay'), hint: t('closeDaySoon'), disabled: true })}
         {tile({ id: 'reports', icon: <ChartNoAxesColumnIcon />, label: t('actions.reports'), hint: t('actions.reportsHint'), href: `/w/${shopId}/reports` })}
-        {tile({ id: 'team', icon: <UsersIcon />, label: t('actions.team'), hint: t('actions.teamHint'), href: `/w/${shopId}/team` })}
+        {tile({ id: 'team', icon: <UsersIcon />, label: t('actions.team'), hint: t('actions.teamHint'), onClick: () => setPeople(true) })}
       </div>
 
       {/* The rest, opened in place. Closed, it's out of the page (and of Tab). */}
@@ -152,7 +171,8 @@ export function QuickActionsGrid({ shops, shopId, compact = false }: { shops: Wo
         ) : null}
       </AnimatePresence>
 
-      <ActionHost shops={shops} action={action} shopId={shopId} onClose={() => setAction(null)} />
+      {/* <ActionHost shops={shops} action={action} shopId={shopId} onClose={() => setAction(null)} /> */}
+      <PeopleFor shops={shops} shopId={shopId} open={people} onOpenChange={setPeople} />
     </section>
   );
 }
