@@ -1527,5 +1527,27 @@
     "emptyRecent": "Maanta weli waxba lama furin. Amaanada aad furto halkan ayay ku jirtaa ilaa saqda dhexe.",
     "noMatch": "Waxba ma waafaqsana.",
     "edit": "Wax ka beddel"
+  },
+  "exchangeDialog": {
+    "title": "Sarrif",
+    "description": "Doollar ilaa shilin, ama shilin ilaa doollar, sicirkayaga.",
+    "shop": "Dukaan",
+    "main": "Ugu weyn",
+    "from": "Laga bilaabo ({currency})",
+    "to": "Ilaa ({currency})",
+    "rate": "Sicirka",
+    "ratePlaceholder": "tusaale 129",
+    "swap": "Rogo",
+    "todayRate": "Sicirka maanta {rate}",
+    "noTodayRate": "Maanta sicir lama dejin",
+    "profit": "Faa’iido",
+    "cancel": "Jooji",
+    "save": "Kaydi sarrifka",
+    "saving": "Waa la kaydinayaa…",
+    "saved": "Sarrifka waa la kaydiyay",
+    "couldNotSave": "Lama kaydin karin",
+    "fromRequired": "Inta uu keenayo.",
+    "rateRequired": "Sicirka, sida 129.",
+    "soon": "Kaydinta sarrifka waxay imaan doontaa cusboonaysiinta xigta."
   }
 }

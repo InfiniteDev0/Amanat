@@ -1527,5 +1527,27 @@
     "emptyRecent": "Nothing opened yet today. Amanat you open shows here until midnight.",
     "noMatch": "Nothing matches that.",
     "edit": "Edit"
+  },
+  "exchangeDialog": {
+    "title": "Exchange",
+    "description": "Dollars to shillings, or shillings to dollars, at our rate.",
+    "shop": "Shop",
+    "main": "Main",
+    "from": "From ({currency})",
+    "to": "To ({currency})",
+    "rate": "Rate",
+    "ratePlaceholder": "e.g. 129",
+    "swap": "Turn it round",
+    "todayRate": "Today's rate {rate}",
+    "noTodayRate": "No rate set for today",
+    "profit": "Profit",
+    "cancel": "Cancel",
+    "save": "Save exchange",
+    "saving": "Saving…",
+    "saved": "Exchange saved",
+    "couldNotSave": "Couldn't save",
+    "fromRequired": "How much they hand over.",
+    "rateRequired": "The rate, like 129.",
+    "soon": "Saving exchanges comes in the next update."
   }
 }

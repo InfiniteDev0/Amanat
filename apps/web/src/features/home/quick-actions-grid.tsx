@@ -7,7 +7,6 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useId, useState } from 'react';
 
-import { AdminButton, Modal } from '@/components/barista-modal';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +15,7 @@ import { WorkspaceProvider } from '@/features/workspaces/workspace-context';
 
 // The action sheets are off: recording comes back with the new money engine (Phase 3).
 // import { ACTION_ICONS, ActionHost, type ShopAction, SHOP_ACTIONS } from './shop-actions';
+import { ExchangeDialog } from './exchange-dialog';
 import { ACTION_ICONS, SHOP_ACTIONS } from './shop-actions';
 
 /** People for the shop on screen (its own context: the dialog reads the shop and your right there). */
@@ -111,7 +111,7 @@ export function QuickActionsGrid({ shops, shopId, compact = false, className }: 
   const [all, setAll] = useState(false);
   // People opens as a dialog over the page, not a page of its own.
   const [people, setPeople] = useState(false);
-  // Exchange: an empty dialog for now, its form to come.
+  // Exchange: its dialog (from, to, the rate, the profit).
   const [exchange, setExchange] = useState(false);
   const panelId = useId();
   const reduce = useReducedMotion();
@@ -176,19 +176,7 @@ export function QuickActionsGrid({ shops, shopId, compact = false, className }: 
 
       {/* <ActionHost shops={shops} action={action} shopId={shopId} onClose={() => setAction(null)} /> */}
       <PeopleFor shops={shops} shopId={shopId} open={people} onOpenChange={setPeople} />
-      <Modal
-        open={exchange}
-        onClose={() => setExchange(false)}
-        title={t('quick.exchange')}
-        description={t('quick.exchangeHint')}
-        footer={
-          <AdminButton variant="ghost" onClick={() => setExchange(false)}>
-            {t('actions.cancel')}
-          </AdminButton>
-        }
-      >
-        {null}
-      </Modal>
+      <ExchangeDialog open={exchange} onClose={() => setExchange(false)} shopId={shopId} />
     </section>
   );
 }
