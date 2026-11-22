@@ -866,7 +866,14 @@
       "undo": "Undo",
       "restored": "Back",
       "couldNotDelete": "Couldn't delete",
-      "total": "Total profit"
+      "total": "Total profit",
+      "selectAll": "Select all",
+      "highlight": "Highlight",
+      "unhighlight": "Remove highlight",
+      "highlighted": "Highlighted",
+      "highlightedCount": "{count, plural, one {# exchange highlighted} other {# exchanges highlighted}}",
+      "unhighlightedCount": "{count, plural, one {Highlight removed} other {Highlight removed from #}}",
+      "couldNotHighlight": "Couldn’t highlight. Try again."
     },
     "export": {
       "download": "Download",

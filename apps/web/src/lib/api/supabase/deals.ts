@@ -29,10 +29,11 @@ interface ExchangeDbRow {
   created_by: string | null;
   created_at: string;
   deleted_at: string | null;
+  highlight: string | null;
 }
 
 const COLUMNS =
-  'id, shop_id, date, currency_in, amount_in, account_in, currency_out, amount_out, account_out, rate, customer_rate::text, today_rate::text, customer, note, created_by, created_at, deleted_at';
+  'id, shop_id, date, currency_in, amount_in, account_in, currency_out, amount_out, account_out, rate, customer_rate::text, today_rate::text, customer, note, created_by, created_at, deleted_at, highlight';
 
 function toExchange(row: ExchangeDbRow): Exchange {
   return {
@@ -56,7 +57,7 @@ function toExchange(row: ExchangeDbRow): Exchange {
     customerRate: Number(row.customer_rate).toString(),
     percent: null,
     customer: row.customer,
-    highlight: null,
+    highlight: row.highlight,
   };
 }
 
@@ -131,7 +132,10 @@ export function supabaseDeals(auth: SarrifApi['auth'], shops: Shops): Pick<Sarri
       },
 
       update: notYet,
-      highlight: notYet,
+      async highlight(_shopId, ids, colour) {
+        const { error } = await withTimeout(supabase().rpc('highlight_exchanges', { ids, colour: colour ?? '' }));
+        if (error) throw databaseError(error, 'highlightExchanges');
+      },
       async remove(_shopId, ids) {
         const { error } = await withTimeout(supabase().rpc('trash_exchanges', { ids }));
         if (error) throw databaseError(error, 'trashExchanges');

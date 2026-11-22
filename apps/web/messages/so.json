@@ -866,7 +866,14 @@
       "undo": "Ka noqo",
       "restored": "Waa la soo celiyay",
       "couldNotDelete": "Lama tirtiri karin",
-      "total": "Wadarta faa'iidada"
+      "total": "Wadarta faa'iidada",
+      "selectAll": "Dooro dhammaan",
+      "highlight": "Calaamadee",
+      "unhighlight": "Ka saar calaamadda",
+      "highlighted": "La calaamadeeyay",
+      "highlightedCount": "{count, plural, one {# sarrif ayaa la calaamadeeyay} other {# sarrif ayaa la calaamadeeyay}}",
+      "unhighlightedCount": "{count, plural, one {Calaamadda waa laga saaray} other {Calaamadda waa laga saaray #}}",
+      "couldNotHighlight": "Lama calaamadayn karin. Isku day mar kale."
     },
     "export": {
       "download": "Soo deji",

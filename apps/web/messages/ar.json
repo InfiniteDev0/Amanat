@@ -866,7 +866,14 @@
       "undo": "تراجع",
       "restored": "عادت",
       "couldNotDelete": "تعذر الحذف",
-      "total": "إجمالي الربح"
+      "total": "إجمالي الربح",
+      "selectAll": "تحديد الكل",
+      "highlight": "تمييز",
+      "unhighlight": "إزالة التمييز",
+      "highlighted": "مميّز",
+      "highlightedCount": "{count, plural, one {مُيّزت عملية واحدة} other {مُيّزت # عمليات}}",
+      "unhighlightedCount": "{count, plural, one {أُزيل التمييز} other {أُزيل التمييز عن #}}",
+      "couldNotHighlight": "تعذّر التمييز. حاول مرة أخرى."
     },
     "export": {
       "download": "تنزيل",

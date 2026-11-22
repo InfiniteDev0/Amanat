@@ -27,7 +27,12 @@ export function useHighlightDeals(workspaceId: Id) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ ids, colour }: { ids: Id[]; colour: string | null }) => api.deals.highlight(workspaceId, ids, colour),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) }),
+    // The rows may be from several shops: every shop's list refreshes.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.workspace(workspaceId) }),
+        queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === 'w' && query.queryKey[2] === 'deals' }),
+      ]),
   });
 }
 

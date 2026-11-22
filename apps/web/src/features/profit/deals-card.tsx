@@ -2,7 +2,7 @@
 
 import { dealResult, dealSection, type DealRow, type Id, type Money } from '@sarrif/core';
 import { gooeyToast } from 'goey-toast';
-import { CheckIcon, FileDownIcon, PlusIcon, SearchIcon, SheetIcon, Trash2Icon, XIcon } from 'lucide-react';
+import { CheckCheckIcon, CheckIcon, FileDownIcon, HighlighterIcon, PlusIcon, SearchIcon, SheetIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { type ReactNode, useState } from 'react';
@@ -10,7 +10,7 @@ import { createPortal } from 'react-dom';
 
 import { ShopBadge } from '@/components/shop-badge';
 import { exportListCsv, exportListPdf, fileNameOf, type ResultColumn } from '@/features/calculator/search';
-import { useRemoveDeals } from '@/features/deals/queries';
+import { useHighlightDeals, useRemoveDeals } from '@/features/deals/queries';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +22,9 @@ export type ShopDealRow = DealRow & { shop?: { id: Id; name: string } };
 
 /** More than one shop among these rows. */
 const fromSeveralShops = (rows: ShopDealRow[]) => new Set(rows.map((row) => row.shop?.id)).size > 1;
+
+/** The one highlight colour for now. */
+const HIGHLIGHT = 'amber';
 
 /** An action on the selection bar. */
 const BAR_ACTION = 'bg-muted text-foreground hover:bg-muted/70 flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors [&_svg]:size-4';
@@ -173,8 +176,15 @@ function DealEntry({ row, showShop, ticked, ticking, onTick }: { row: ShopDealRo
       {/* Square on the accent's side, so the edge runs straight. */}
       <div
         onClick={ticking ? onTick : undefined}
-        className={cn('bg-card relative min-w-0 flex-1 rounded-s-none rounded-e-lg border-s-2 px-3 py-2.5', made ? 'border-emerald-500' : 'border-red-500', ticked && 'ring-2 ring-sky-500', ticking && 'cursor-pointer')}
+        className={cn(
+          'relative min-w-0 flex-1 rounded-s-none rounded-e-lg border-s-2 px-3 py-2.5',
+          deal.highlight ? 'bg-amber-400/15 dark:bg-amber-400/10' : 'bg-card',
+          made ? 'border-emerald-500' : 'border-red-500',
+          ticked && 'ring-2 ring-sky-500',
+          ticking && 'cursor-pointer',
+        )}
       >
+        {deal.highlight ? <HighlighterIcon aria-label={t('highlighted')} className="absolute end-2 top-2 size-3.5 text-amber-500" /> : null}
         {showShop && row.shop ? (
           <p className="mb-1.5 flex min-w-0 items-center gap-1.5 text-xs font-medium">
             <ShopBadge id={row.shop.id} name={row.shop.name} className="size-4 rounded-[4px] text-[9px]" />
@@ -257,6 +267,7 @@ export function DealsCard({
   const money = useShortMoney();
   const { workspace } = useWorkspace();
   const remove = useRemoveDeals(workspace.id);
+  const highlight = useHighlightDeals(workspace.id);
   const take = useDealExport(shops);
   const [query, setQuery] = useState<string | null>(null);
   const [ticked, setTicked] = useState<Set<Id>>(new Set());
@@ -268,6 +279,16 @@ export function DealsCard({
       return next;
     });
   const chosen = rows.filter((row) => ticked.has(row.deal.id));
+  /** Highlights the ticked ones; when they all are already, takes it off. */
+  const highlightTicked = () => {
+    const ids = [...ticked];
+    const off = chosen.length > 0 && chosen.every((row) => row.deal.highlight);
+    setTicked(new Set());
+    highlight.mutateAsync({ ids, colour: off ? null : HIGHLIGHT }).then(
+      () => gooeyToast.success(off ? t('unhighlightedCount', { count: ids.length }) : t('highlightedCount', { count: ids.length })),
+      () => gooeyToast.error(t('couldNotHighlight')),
+    );
+  };
   const deleteTicked = () => {
     const ids = [...ticked];
     setTicked(new Set());
@@ -285,6 +306,8 @@ export function DealsCard({
     return words.every((word) => text.includes(word));
   });
   const totals = addUp(shown.map((row) => row.profit)).filter((m) => m.amount !== 0);
+  const allTicked = shown.length > 0 && shown.every((row) => ticked.has(row.deal.id));
+  const allHighlighted = chosen.length > 0 && chosen.every((row) => row.deal.highlight);
 
   return (
     <section className="flex min-h-0 flex-col gap-3 lg:flex-1">
@@ -372,6 +395,15 @@ export function DealsCard({
                   <XIcon className="size-4" />
                 </button>
               </span>
+              {/* Every deal showing (what the search leaves), or none again. */}
+              <button type="button" onClick={() => setTicked(allTicked ? new Set() : new Set(shown.map((row) => row.deal.id)))} className={BAR_ACTION}>
+                <CheckCheckIcon />
+                {allTicked ? t('unselectAll') : t('selectAll')}
+              </button>
+              <button type="button" onClick={highlightTicked} className={cn(BAR_ACTION, !allHighlighted && 'text-amber-600 dark:text-amber-400')}>
+                <HighlighterIcon />
+                {allHighlighted ? t('unhighlight') : t('highlight')}
+              </button>
               <button type="button" onClick={() => void take.pdf(chosen, title, scope)} className={BAR_ACTION}>
                 <FileDownIcon />
                 {t('pdf')}
