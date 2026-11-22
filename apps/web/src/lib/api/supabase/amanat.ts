@@ -22,10 +22,12 @@ interface AmanatDbRow {
   created_by: string | null;
   created_at: string;
   returned_at: string | null;
+  highlighted: boolean;
+  deleted_at: string | null;
   account: { name: string } | null;
 }
 
-const COLUMNS = 'id, shop_id, account_id, client_name, amount, currency, note, date, created_by, created_at, returned_at, account:accounts(name)';
+const COLUMNS = 'id, shop_id, account_id, client_name, amount, currency, note, date, created_by, created_at, returned_at, highlighted, deleted_at, account:accounts(name)';
 
 function toAmanat(row: AmanatDbRow): Amanat {
   return {
@@ -33,7 +35,8 @@ function toAmanat(row: AmanatDbRow): Amanat {
     workspaceId: row.shop_id,
     createdBy: row.created_by ?? '',
     createdAt: row.created_at,
-    deletedAt: null,
+    deletedAt: row.deleted_at,
+    highlighted: row.highlighted,
     clientId: null,
     clientName: row.client_name,
     date: row.date,
@@ -76,9 +79,39 @@ export function supabaseAmanat(auth: SarrifApi['auth']): Pick<SarrifApi, 'amanat
   return {
     amanat: {
       async list(shopId) {
-        const { data, error } = await withTimeout(supabase().from('amanat').select(COLUMNS).eq('shop_id', shopId).order('created_at', { ascending: false }).returns<AmanatDbRow[]>());
+        const { data, error } = await withTimeout(
+          supabase().from('amanat').select(COLUMNS).eq('shop_id', shopId).is('deleted_at', null).order('created_at', { ascending: false }).returns<AmanatDbRow[]>(),
+        );
         if (error) throw databaseError(error, 'listAmanat');
         return rowsOf(data);
+      },
+
+      async trashed(shopId) {
+        const { data, error } = await withTimeout(
+          supabase().from('amanat').select(COLUMNS).eq('shop_id', shopId).not('deleted_at', 'is', null).order('deleted_at', { ascending: false }).returns<AmanatDbRow[]>(),
+        );
+        if (error) throw databaseError(error, 'trashedAmanat');
+        return rowsOf(data);
+      },
+
+      async highlight(_shopId, amanatId, on) {
+        const { error } = await withTimeout(supabase().rpc('highlight_amanat', { amanat: amanatId, highlighted: on }));
+        if (error) throw refused(error, 'highlightAmanat');
+      },
+
+      async remove(_shopId, amanatId) {
+        const { error } = await withTimeout(supabase().rpc('trash_amanat', { amanat: amanatId }));
+        if (error) throw refused(error, 'trashAmanat');
+      },
+
+      async restore(_shopId, amanatId) {
+        const { error } = await withTimeout(supabase().rpc('restore_amanat', { amanat: amanatId }));
+        if (error) throw refused(error, 'restoreAmanat');
+      },
+
+      async deleteForever(_shopId, amanatId) {
+        const { error } = await withTimeout(supabase().rpc('delete_amanat', { amanat: amanatId }));
+        if (error) throw refused(error, 'deleteAmanat');
       },
 
       async hold(_shopId, input) {

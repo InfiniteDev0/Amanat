@@ -338,6 +338,16 @@ export interface SarrifApi {
     markReturned(workspaceId: Id, amanatId: Id): Promise<Amanat>;
     /** Undoes "Given back" (today only): the withdrawal goes and the amanat is held again. */
     undoReturn(workspaceId: Id, amanatId: Id): Promise<Amanat>;
+    /** In Trash: deleted ones, newest deleted first, until restored or deleted for good. */
+    trashed(workspaceId: Id): Promise<AmanatRow[]>;
+    /** Highlighted or not: the Highlighted tab. */
+    highlight(workspaceId: Id, amanatId: Id, on: boolean): Promise<void>;
+    /** To Trash: off the lists and out of the account, until it's restored. */
+    remove(workspaceId: Id, amanatId: Id): Promise<void>;
+    /** Back from Trash, as it was. */
+    restore(workspaceId: Id, amanatId: Id): Promise<void>;
+    /** Out of Trash for good. */
+    deleteForever(workspaceId: Id, amanatId: Id): Promise<void>;
   };
 
   closings: {

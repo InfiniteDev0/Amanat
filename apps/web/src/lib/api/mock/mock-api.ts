@@ -1,4 +1,5 @@
 import {
+  type AmanatRow,
   type Action,
   ApiError,
   type BookFilter,
@@ -208,6 +209,21 @@ function activityDetail(db: MockDb, activity: ActivityLog): { money: Money | nul
 }
 
 /** The common fields of a new record, dated today in the shop's time zone. */
+/** A shop's amanat as rows (deposits; one given back is marked returned): the live ones, or those in Trash. */
+function amanatRows(db: MockDb, workspaceId: Id, inTrash: boolean): AmanatRow[] {
+  const name = (id: Id, list: { id: Id; name: string }[]) => list.find((x) => x.id === id)?.name ?? '—';
+  const givenBack = new Set(db.amanats.filter((a) => a.workspaceId === workspaceId && a.deletedAt === null && a.returnOf).map((a) => a.returnOf));
+  return db.amanats
+    .filter((a) => a.workspaceId === workspaceId && (inTrash ? a.deletedAt !== null : a.deletedAt === null) && a.type === 'deposit')
+    .map((amanat) => ({
+      amanat,
+      clientName: amanat.clientName ?? (amanat.clientId ? name(amanat.clientId, db.clients) : '—'),
+      account: { id: amanat.accountId, name: name(amanat.accountId, db.accounts) },
+      recordedBy: { id: amanat.createdBy, name: name(amanat.createdBy, db.users) },
+      returned: Boolean(amanat.returnedAt) || givenBack.has(amanat.id),
+    }));
+}
+
 function newRecord(db: MockDb, user: User, workspace: Workspace) {
   const date = today(workspace);
   assertDayOpen(db, workspace.id, date);
@@ -1036,18 +1052,7 @@ export const mockApi: SarrifApi = {
     async list(workspaceId) {
       await latency();
       const { db } = access(getDb(), workspaceId);
-      const name = (id: Id, list: { id: Id; name: string }[]) => list.find((x) => x.id === id)?.name ?? '—';
-      // Deposits are the amanat; a withdrawal that gave one back marks it returned.
-      const givenBack = new Set(db.amanats.filter((a) => a.workspaceId === workspaceId && a.deletedAt === null && a.returnOf).map((a) => a.returnOf));
-      const rows = db.amanats
-        .filter((a) => a.workspaceId === workspaceId && a.deletedAt === null && a.type === 'deposit')
-        .map((amanat) => ({
-          amanat,
-          clientName: amanat.clientName ?? (amanat.clientId ? name(amanat.clientId, db.clients) : '—'),
-          account: { id: amanat.accountId, name: name(amanat.accountId, db.accounts) },
-          recordedBy: { id: amanat.createdBy, name: name(amanat.createdBy, db.users) },
-          returned: Boolean(amanat.returnedAt) || givenBack.has(amanat.id),
-        }));
+      const rows = amanatRows(db, workspaceId, false);
       const held = rows.filter((r) => !r.returned).sort((a, b) => b.amanat.createdAt.localeCompare(a.amanat.createdAt));
       const back = rows.filter((r) => r.returned).sort((a, b) => (b.amanat.returnedAt ?? '').localeCompare(a.amanat.returnedAt ?? ''));
       return [...held, ...back];
@@ -1113,6 +1118,63 @@ export const mockApi: SarrifApi = {
       log(db, workspaceId, user, 'delete', 'amanat', back.id, back, null);
       saveDb();
       return held;
+    },
+
+    async trashed(workspaceId) {
+      await latency();
+      const { db } = access(getDb(), workspaceId);
+      return amanatRows(db, workspaceId, true).sort((a, b) => (b.amanat.deletedAt ?? '').localeCompare(a.amanat.deletedAt ?? ''));
+    },
+
+    async highlight(workspaceId, amanatId, on) {
+      await latency();
+      const { db } = access(getDb(), workspaceId, 'record');
+      const held = db.amanats.find((a) => a.id === amanatId && a.workspaceId === workspaceId && a.type === 'deposit');
+      if (!held) throw new ApiError('not_found');
+      held.highlighted = on;
+      saveDb();
+    },
+
+    async remove(workspaceId, amanatId) {
+      await latency();
+      const { db, user } = access(getDb(), workspaceId, 'record');
+      const held = db.amanats.find((a) => a.id === amanatId && a.workspaceId === workspaceId && a.deletedAt === null && a.type === 'deposit');
+      if (!held) throw new ApiError('not_found');
+      // It and its giving back, and the money they moved, all at the same moment (so Restore brings back exactly these).
+      const now = nowIso();
+      const back = db.amanats.filter((a) => a.returnOf === amanatId && a.deletedAt === null);
+      for (const record of [held, ...back]) {
+        record.deletedAt = now;
+        for (const entry of db.entries) if (entry.sourceType === 'amanat' && entry.sourceId === record.id && entry.deletedAt === null) entry.deletedAt = now;
+      }
+      log(db, workspaceId, user, 'delete', 'amanat', held.id, held, null);
+      saveDb();
+    },
+
+    async restore(workspaceId, amanatId) {
+      await latency();
+      const { db, user } = access(getDb(), workspaceId, 'record');
+      const held = db.amanats.find((a) => a.id === amanatId && a.workspaceId === workspaceId && a.deletedAt !== null && a.type === 'deposit');
+      if (!held) throw new ApiError('not_found');
+      const when = held.deletedAt;
+      const back = db.amanats.filter((a) => a.returnOf === amanatId && a.deletedAt === when);
+      for (const record of [held, ...back]) {
+        record.deletedAt = null;
+        for (const entry of db.entries) if (entry.sourceType === 'amanat' && entry.sourceId === record.id && entry.deletedAt === when) entry.deletedAt = null;
+      }
+      log(db, workspaceId, user, 'restore', 'amanat', held.id, null, held);
+      saveDb();
+    },
+
+    async deleteForever(workspaceId, amanatId) {
+      await latency();
+      const { db } = access(getDb(), workspaceId, 'record');
+      const held = db.amanats.find((a) => a.id === amanatId && a.workspaceId === workspaceId && a.deletedAt !== null && a.type === 'deposit');
+      if (!held) throw new ApiError('not_found');
+      const gone = new Set([held.id, ...db.amanats.filter((a) => a.returnOf === amanatId).map((a) => a.id)]);
+      db.amanats = db.amanats.filter((a) => !gone.has(a.id));
+      db.entries = db.entries.filter((e) => !(e.sourceType === 'amanat' && gone.has(e.sourceId)));
+      saveDb();
     },
   },
 

@@ -68,10 +68,19 @@ export function useThemeToggle() {
   return { isDark, toggle };
 }
 
-export function ThemeToggle({ className, iconClassName, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { iconClassName?: string }) {
+export function ThemeToggle({ className, iconClassName, onClick, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { iconClassName?: string }) {
   const { isDark, toggle } = useThemeToggle();
   return (
-    <button type="button" onClick={toggle} className={cn('flex items-center justify-center', className)} {...rest}>
+    // A wrapper's own click (the tooltip's) runs too, but never in place of the switch.
+    <button
+      type="button"
+      {...rest}
+      onClick={(event) => {
+        onClick?.(event);
+        toggle();
+      }}
+      className={cn('flex items-center justify-center', className)}
+    >
       <ActionSwapIcon value={isDark ? 'dark' : 'light'} animation="blur" className={iconClassName}>
         {isDark ? <SunIcon className={iconClassName} /> : <MoonIcon className={iconClassName} />}
       </ActionSwapIcon>

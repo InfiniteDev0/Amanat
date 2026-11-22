@@ -39,7 +39,7 @@ select lives_ok(
 );
 
 select results_eq(
-  $$ select name, is_main from shops order by created_at $$,
+  $$ select name, is_main from shops order by name $$,
   $$ values ('Eastleigh', true), ('Garissa', false) $$,
   'the new shop is an ordinary shop; Eastleigh stays main'
 );
@@ -74,7 +74,7 @@ select lives_ok(
 );
 
 select results_eq(
-  $$ select name, is_main from shops order by created_at $$,
+  $$ select name, is_main from shops order by name $$,
   $$ values ('Eastleigh', false), ('Garissa', true) $$,
   'the star moves: Garissa is main, Eastleigh isn''t'
 );

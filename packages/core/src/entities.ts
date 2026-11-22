@@ -192,6 +192,8 @@ export interface Amanat extends Recorded {
   returnedAt?: Timestamp | null;
   /** A withdrawal: the deposit it gave back. */
   returnOf?: Id | null;
+  /** Marked to stand out: the Amanat page's Highlighted tab. */
+  highlighted?: boolean;
 }
 
 export type DebtDirection = 'they_owe_us' | 'we_owe_them';
