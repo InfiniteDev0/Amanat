@@ -334,6 +334,8 @@ export interface SarrifApi {
     list(workspaceId: Id): Promise<AmanatRow[]>;
     /** Holds money for a client today: it comes into the account. */
     hold(workspaceId: Id, input: HoldAmanatInput): Promise<Amanat>;
+    /** Changes the name, note and, while still held, the account (same shop) and amount. */
+    update(workspaceId: Id, amanatId: Id, input: HoldAmanatInput): Promise<Amanat>;
     /** Gives it back today: marked returned, and the money leaves the account again. */
     markReturned(workspaceId: Id, amanatId: Id): Promise<Amanat>;
     /** Undoes "Given back" (today only): the withdrawal goes and the amanat is held again. */

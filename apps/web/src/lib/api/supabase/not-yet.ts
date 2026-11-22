@@ -31,7 +31,7 @@ export function notYetAreas(
       createTransfer: refuse,
     },
     book: { list: async () => [] },
-    amanat: { list: async () => [], hold: refuse, markReturned: refuse, undoReturn: refuse, trashed: async () => [], highlight: refuse, remove: refuse, restore: refuse, deleteForever: refuse },
+    amanat: { list: async () => [], hold: refuse, update: refuse, markReturned: refuse, undoReturn: refuse, trashed: async () => [], highlight: refuse, remove: refuse, restore: refuse, deleteForever: refuse },
     closings: {
       // What each account should hold is its opening amount: nothing has moved yet.
       async day(shopId, date) {

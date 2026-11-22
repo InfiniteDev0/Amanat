@@ -74,6 +74,7 @@ export function PickSelect({
   options,
   placeholder,
   className,
+  disabled,
 }: {
   id?: string;
   value: string;
@@ -81,6 +82,7 @@ export function PickSelect({
   options: PickOption[];
   placeholder: string;
   className?: string;
+  disabled?: boolean;
 }) {
   const t = useTranslations('calculator');
   const [open, setOpen] = useState(false);
@@ -108,8 +110,9 @@ export function PickSelect({
           <button
             id={id}
             type="button"
+            disabled={disabled}
             className={cn(
-              'bg-muted text-foreground hover:bg-muted/70 focus-visible:ring-ring/30 flex min-h-[2.75rem] w-full items-center gap-2.5 rounded-xl px-3.5 text-start text-[1rem] outline-none transition-colors focus-visible:ring-3 sm:text-[0.9375rem]',
+              'disabled:pointer-events-none disabled:opacity-60 bg-muted text-foreground hover:bg-muted/70 focus-visible:ring-ring/30 flex min-h-[2.75rem] w-full items-center gap-2.5 rounded-xl px-3.5 text-start text-[1rem] outline-none transition-colors focus-visible:ring-3 sm:text-[0.9375rem]',
               className,
             )}
           />

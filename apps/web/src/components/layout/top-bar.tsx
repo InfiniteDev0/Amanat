@@ -42,7 +42,7 @@ function ThemeToggle() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (event.ctrlKey || event.metaKey || event.altKey || event.key.toLowerCase() !== 'd') return;
+      if (event.ctrlKey || event.metaKey || event.altKey || event.key?.toLowerCase() !== 'd') return;
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
       toggle();
     };

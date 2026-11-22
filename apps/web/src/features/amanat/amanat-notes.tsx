@@ -2,7 +2,7 @@
 
 import { type AmanatRow, businessDate, type Id, type Workspace } from '@sarrif/core';
 import { gooeyToast } from 'goey-toast';
-import { ChevronRightIcon, ChevronsLeftIcon, HandCoinsIcon, PanelLeftIcon, PlusIcon, RotateCcwIcon, SearchIcon, StarIcon, Trash2Icon, XIcon } from 'lucide-react';
+import { ChevronRightIcon, ChevronsLeftIcon, HandCoinsIcon, PanelLeftIcon, PencilIcon, PlusIcon, RotateCcwIcon, SearchIcon, StarIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { type ReactNode, useState, useSyncExternalStore } from 'react';
 
@@ -197,7 +197,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function AmanatDetails({ row, shop, today, onClose }: { row: AmanatRow | null; shop: Workspace | undefined; today: string; onClose: () => void }) {
+function AmanatDetails({ row, shop, today, onClose, onEdit }: { row: AmanatRow | null; shop: Workspace | undefined; today: string; onClose: () => void; onEdit: (row: AmanatRow) => void }) {
   const t = useTranslations('amanatNotes');
   const locale = useLocale();
   const money = useShortMoney();
@@ -242,6 +242,9 @@ function AmanatDetails({ row, shop, today, onClose }: { row: AmanatRow | null; s
             }
           >
             {t('toTrash')}
+          </AdminButton>
+          <AdminButton variant="secondary" Icon={PencilIcon} onClick={() => onEdit(row)}>
+            {t('edit')}
           </AdminButton>
           <AdminButton variant="secondary" Icon={StarIcon} onClick={() => highlight.mutateAsync({ shopId, id: amanat.id, on: !amanat.highlighted }).then(onClose, failed)}>
             {amanat.highlighted ? t('unhighlight') : t('highlight')}
@@ -497,6 +500,7 @@ export function AmanatNotes() {
   const [day, setDay] = useState<string | null>(null);
   const [wheel, setWheel] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<AmanatRow | null>(null);
   const [openId, setOpenId] = useState<Id | null>(null);
   const recent = useSyncExternalStore(subscribeRecent, recentSnapshot, () => NONE);
   const today = businessDate(workspace.timeZone);
@@ -640,8 +644,26 @@ export function AmanatNotes() {
       </section>
 
       <DateWheel open={wheel} onOpenChange={setWheel} value={day ?? today} latest={today} firstYear={Number(today.slice(0, 4)) - 2} onPick={setDay} onToday={() => setDay(today)} />
-      <AmanatDialog open={adding} onClose={() => setAdding(false)} />
-      <AmanatDetails row={opened} shop={opened ? shopOf(opened.amanat.workspaceId) : undefined} today={today} onClose={() => setOpenId(null)} />
+      <AmanatDialog
+        open={adding || editing !== null}
+        editing={editing}
+        // The shop picked on the left, if one is; else the main shop.
+        shop={place}
+        onClose={() => {
+          setAdding(false);
+          setEditing(null);
+        }}
+      />
+      <AmanatDetails
+        row={opened}
+        shop={opened ? shopOf(opened.amanat.workspaceId) : undefined}
+        today={today}
+        onClose={() => setOpenId(null)}
+        onEdit={(row) => {
+          setOpenId(null);
+          setEditing(row);
+        }}
+      />
     </div>
   );
 }

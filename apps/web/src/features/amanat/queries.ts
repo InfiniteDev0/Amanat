@@ -49,5 +49,7 @@ export const useHighlightAmanat = () => useAmanatAction(({ shopId, id, on }: { s
 export const useTrashAmanat = () => useAmanatAction(({ shopId, id }: { shopId: Id; id: Id }) => api.amanat.remove(shopId, id));
 export const useRestoreAmanat = () => useAmanatAction(({ shopId, id }: { shopId: Id; id: Id }) => api.amanat.restore(shopId, id));
 export const useDeleteAmanat = () => useAmanatAction(({ shopId, id }: { shopId: Id; id: Id }) => api.amanat.deleteForever(shopId, id));
+export const useUpdateAmanat = () =>
+  useAmanatAction(({ shopId, id, input }: { shopId: Id; id: Id; input: HoldAmanatInput }) => api.amanat.update(shopId, id, input));
 export const useReturnAny = () => useAmanatAction(({ shopId, id }: { shopId: Id; id: Id }) => api.amanat.markReturned(shopId, id));
 export const useUndoReturnAny = () => useAmanatAction(({ shopId, id }: { shopId: Id; id: Id }) => api.amanat.undoReturn(shopId, id));

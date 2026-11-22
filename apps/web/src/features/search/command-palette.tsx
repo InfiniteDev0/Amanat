@@ -486,7 +486,7 @@ export function useCommandPalette() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k') {
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key?.toLowerCase() === 'k') {
         event.preventDefault();
         setOpen((current) => !current);
       }

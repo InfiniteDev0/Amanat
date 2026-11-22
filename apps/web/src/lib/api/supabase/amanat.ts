@@ -121,6 +121,13 @@ export function supabaseAmanat(auth: SarrifApi['auth']): Pick<SarrifApi, 'amanat
         return one(data as string);
       },
 
+      async update(_shopId, amanatId, input) {
+        const { clientName, accountId, amount, note } = parse(holdAmanatSchema, input);
+        const { error } = await withTimeout(supabase().rpc('update_amanat', { amanat: amanatId, account: accountId, client_name: clientName, amount, note: note ?? null }));
+        if (error) throw refused(error, 'updateAmanat');
+        return one(amanatId);
+      },
+
       async markReturned(_shopId, amanatId) {
         const { error } = await withTimeout(supabase().rpc('return_amanat', { amanat: amanatId }));
         if (error) throw refused(error, 'returnAmanat');

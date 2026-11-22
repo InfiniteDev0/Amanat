@@ -1,6 +1,6 @@
 'use client';
 
-import { parseAmount } from '@sarrif/core';
+import { type AmanatRow, fromMinor, parseAmount } from '@sarrif/core';
 import { gooeyToast } from 'goey-toast';
 import { useTranslations } from 'next-intl';
 import { type FormEvent, useState } from 'react';
@@ -17,7 +17,7 @@ import { CAN_HOLD_AMANAT } from '@/lib/api';
 import { errorKey, useMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
 
-import { useHoldAmanat } from './queries';
+import { useHoldAmanat, useUpdateAmanat } from './queries';
 
 /** A box that went wrong, once Save is pressed: a red ring. */
 const INPUT_ERROR = 'ring-2 ring-red-500/50 focus-visible:ring-red-500/50';
@@ -28,9 +28,11 @@ const INPUT_ERROR = 'ring-2 ring-red-500/50 focus-visible:ring-red-500/50';
  * shop to start), the customer, the account it goes into and how much side by
  * side (commas as you type), a note; under them, plainly, where the
  * money goes and that it isn't the shop's. Cancel and Hold amanat at the foot.
- * What's missing is said when Hold is pressed, not before.
+ * What's missing is said when Hold is pressed, not before. With `editing`,
+ * the same form filled in: its shop stays, and once given back so do its
+ * account and amount (the money has left).
  */
-export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function AmanatDialog({ open, onClose, editing = null, shop: startShop }: { open: boolean; onClose: () => void; editing?: AmanatRow | null; /** The shop to start on (the one picked on the page); else the main shop. */ shop?: string | null }) {
   const t = useTranslations('amanat');
   const tDialog = useTranslations('amanatDialog');
   const tSoon = useTranslations('home.actions');
@@ -42,6 +44,9 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
   const mainShop = shops.find((m) => m.workspace.isMain)?.workspace.id ?? workspace.id;
   const [shopId, setShopId] = useState(mainShop);
   const hold = useHoldAmanat(shopId);
+  const update = useUpdateAmanat();
+  const saving = hold.isPending || update.isPending;
+  const locked = Boolean(editing?.returned);
   const accounts = (useAccounts(shopId).data ?? []).filter((a) => !a.archived);
   // Cash dollars to start; another shop's accounts aren't this one's, so a pick from there gives way to its own.
   const startAccount = accounts.find((a) => a.currency === 'USD' && a.type === 'cash')?.id ?? accounts[0]?.id ?? '';
@@ -57,8 +62,16 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
   const [wasOpen, setWasOpen] = useState(open);
   if (open !== wasOpen) {
     setWasOpen(open);
-    if (open) {
-      setShopId(mainShop);
+    if (open && editing) {
+      const { amanat } = editing;
+      setShopId(amanat.workspaceId);
+      setClientName(editing.clientName);
+      setPicked(amanat.accountId);
+      setAmountText(fromMinor(amanat.amount, amanat.currency).toString());
+      setNote(amanat.note ?? '');
+      setTried(false);
+    } else if (open) {
+      setShopId(startShop ?? mainShop);
       setClientName('');
       setPicked('');
       setAmountText('');
@@ -75,13 +88,26 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
     amount: amount && amount > 0 ? null : tDialog('amountRequired'),
   };
   const shown = (key: keyof typeof errors) => (tried ? errors[key] : null);
-  const dirty = Boolean(clientName.trim() || amountText.trim() || note.trim());
+  const dirty = editing
+    ? clientName !== editing.clientName || note !== (editing.amanat.note ?? '') || accountId !== editing.amanat.accountId || amount !== editing.amanat.amount
+    : Boolean(clientName.trim() || amountText.trim() || note.trim());
 
   const submit = (event?: FormEvent) => {
     event?.preventDefault();
     setTried(true);
     if (errors.clientName || errors.account || errors.amount || !account || !amount) return;
-    hold.mutateAsync({ clientName: clientName.trim(), accountId: account.id, amount, note: note.trim() || null }).then(
+    const input = { clientName: clientName.trim(), accountId: account.id, amount, note: note.trim() || null };
+    if (editing) {
+      update.mutateAsync({ shopId: editing.amanat.workspaceId, id: editing.amanat.id, input }).then(
+        () => {
+          gooeyToast.success(tDialog('saved'), { description: clientName.trim() });
+          onClose();
+        },
+        (error) => gooeyToast.error(tDialog('couldNotSave'), { description: message(errorKey(error)) }),
+      );
+      return;
+    }
+    hold.mutateAsync(input).then(
       () => {
         gooeyToast.success(t('held'), { description: tDialog('heldBody', { name: clientName.trim(), account: `${label(account)} · ${shopName(shopId)}` }) });
         onClose();
@@ -94,16 +120,16 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
     <Modal
       open={open}
       onClose={onClose}
-      title={tDialog('title')}
-      description={tDialog('description')}
+      title={editing ? tDialog('editTitle') : tDialog('title')}
+      description={editing ? (locked ? tDialog('editLocked') : tDialog('editDescription')) : tDialog('description')}
       dirty={dirty}
       footer={
         <>
           <AdminButton variant="ghost" onClick={onClose}>
             {tDialog('cancel')}
           </AdminButton>
-          <AdminButton variant="primary" disabled={hold.isPending || !CAN_HOLD_AMANAT} onClick={() => submit()}>
-            {hold.isPending ? tDialog('saving') : tDialog('save')}
+          <AdminButton variant="primary" disabled={saving || !CAN_HOLD_AMANAT || (Boolean(editing) && !dirty)} onClick={() => submit()}>
+            {saving ? tDialog('saving') : editing ? tDialog('saveChanges') : tDialog('save')}
           </AdminButton>
         </>
       }
@@ -112,6 +138,7 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
         <Field label={tDialog('shop')} htmlFor="amanat-shop">
           <PickSelect
             id="amanat-shop"
+            disabled={Boolean(editing)}
             value={shopId}
             onChange={(next) => {
               setShopId(next);
@@ -138,6 +165,7 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
           <Field label={tDialog('account')} htmlFor="amanat-account" error={shown('account')}>
             <PickSelect
               id="amanat-account"
+              disabled={locked}
               value={accountId}
               onChange={setAccountId}
               placeholder={tDialog('pickAccount')}
@@ -148,10 +176,11 @@ export function AmanatDialog({ open, onClose }: { open: boolean; onClose: () => 
           <Field label={account ? tDialog('amountIn', { currency: currencySymbol(account.currency) }) : tDialog('amount')} htmlFor="amanat-amount" error={shown('amount')}>
             <MoneyInput
               id="amanat-amount"
+              disabled={locked}
               placeholder={tDialog('amountPlaceholder')}
               value={amountText}
               onChange={setAmountText}
-              className={cn(inputClass, 'tabular-nums', shown('amount') && INPUT_ERROR)}
+              className={cn(inputClass, 'tabular-nums disabled:opacity-60', shown('amount') && INPUT_ERROR)}
             />
           </Field>
         </div>

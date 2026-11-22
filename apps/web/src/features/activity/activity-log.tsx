@@ -243,7 +243,7 @@ export function ActivityLog({ className, children }: { className?: string; child
     if (!allowed) return;
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (event.ctrlKey || event.metaKey || event.altKey || event.key.toLowerCase() !== 'a') return;
+      if (event.ctrlKey || event.metaKey || event.altKey || event.key?.toLowerCase() !== 'a') return;
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
       setOpenedAt(Date.now());
       setOpen((o) => !o);

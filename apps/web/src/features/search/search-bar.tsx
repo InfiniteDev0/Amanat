@@ -24,7 +24,7 @@ export function SearchBar({ className }: { className?: string }) {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      if ((event.ctrlKey || event.metaKey) && event.key?.toLowerCase() === 'k') {
         event.preventDefault();
         input.current?.focus();
         input.current?.select();

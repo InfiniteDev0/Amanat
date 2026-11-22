@@ -1079,6 +1079,36 @@ export const mockApi: SarrifApi = {
       return record;
     },
 
+    async update(workspaceId, amanatId, input) {
+      await latency();
+      const { db, user } = access(getDb(), workspaceId, 'record');
+      const data = parse(holdAmanatSchema, input);
+      const held = db.amanats.find((a) => a.id === amanatId && a.workspaceId === workspaceId && a.deletedAt === null && a.type === 'deposit');
+      if (!held) throw new ApiError('not_found');
+      const account = db.accounts.find((a) => a.id === data.accountId && a.workspaceId === workspaceId);
+      if (!account || (account.archived && account.id !== held.accountId)) throw new ApiError('not_found');
+      // Given back: the money has left, so its amount and account stay.
+      if (held.returnedAt && (account.id !== held.accountId || data.amount !== held.amount)) {
+        throw new ApiError('invalid', 'errors.invalid', { form: 'amanatDialog.lockedGivenBack' });
+      }
+      const before = { ...held };
+      held.clientName = data.clientName;
+      held.note = data.note;
+      held.accountId = account.id;
+      held.currency = account.currency;
+      held.amount = data.amount;
+      // The money it brought in moves with it.
+      for (const entry of db.entries) {
+        if (entry.sourceType !== 'amanat' || entry.sourceId !== held.id || entry.deletedAt !== null) continue;
+        entry.accountId = account.id;
+        entry.currency = account.currency;
+        entry.amount = data.amount;
+      }
+      log(db, workspaceId, user, 'edit', 'amanat', held.id, before, held);
+      saveDb();
+      return held;
+    },
+
     async markReturned(workspaceId, amanatId) {
       await latency();
       const { db, user, workspace } = access(getDb(), workspaceId, 'record');

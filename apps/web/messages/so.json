@@ -1463,7 +1463,13 @@
     "heldBody": "Lacagta {name} waxay ku jirtaa {account}.",
     "couldNotSave": "Lama kaydin karin",
     "shop": "Dukaan",
-    "main": "Ugu weyn"
+    "main": "Ugu weyn",
+    "editTitle": "Wax ka beddel amaanada",
+    "editDescription": "Beddel macmiilka, koontada, qadarka ama qoraalka.",
+    "editLocked": "Waa la celiyay: lacagtu way baxday, sidaa darteed qadarka iyo koontadu way sii jiraan. Magaca iyo qoraalka weli waa la beddeli karaa.",
+    "saveChanges": "Kaydi isbeddelada",
+    "saved": "Isbeddelada waa la kaydiyay",
+    "lockedGivenBack": "Waa la celiyay: qadarka iyo koontadu way sii jiraan."
   },
   "amanatNotes": {
     "title": "Amaano",
@@ -1518,6 +1524,7 @@
     "emptyAll": "Weli waxba looma hayo. Lacagta macmiil kaaga tago halkan ayay ka muuqataa.",
     "emptyHighlighted": "Waxba lama calaamadeyn. Xiddig sii amaano, halkan ayay ka muuqan doontaa.",
     "emptyRecent": "Maanta weli waxba lama furin. Amaanada aad furto halkan ayay ku jirtaa ilaa saqda dhexe.",
-    "noMatch": "Waxba ma waafaqsana."
+    "noMatch": "Waxba ma waafaqsana.",
+    "edit": "Wax ka beddel"
   }
 }

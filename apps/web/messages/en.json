@@ -1463,7 +1463,13 @@
     "heldBody": "{name}'s money is in {account}.",
     "couldNotSave": "Couldn't save",
     "shop": "Shop",
-    "main": "Main"
+    "main": "Main",
+    "editTitle": "Edit amanat",
+    "editDescription": "Change the customer, the account, the amount or the note.",
+    "editLocked": "Given back: the money has left, so its amount and account stay. The name and note can still change.",
+    "saveChanges": "Save changes",
+    "saved": "Changes saved",
+    "lockedGivenBack": "Given back: its amount and account stay."
   },
   "amanatNotes": {
     "title": "Amanat",
@@ -1518,6 +1524,7 @@
     "emptyAll": "Nothing held yet. Money a customer leaves with you shows here.",
     "emptyHighlighted": "Nothing highlighted. Star an amanat and it shows here.",
     "emptyRecent": "Nothing opened yet today. Amanat you open shows here until midnight.",
-    "noMatch": "Nothing matches that."
+    "noMatch": "Nothing matches that.",
+    "edit": "Edit"
   }
 }
