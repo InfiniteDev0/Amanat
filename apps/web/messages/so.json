@@ -552,7 +552,8 @@
       "profitHint": "Sallam iyo Sarrif",
       "amanatListHint": "Lacagta macaamiisha loo hayo",
       "settingsHint": "Xogta dukaanka",
-      "soon": "Waxay imaan doontaa cusboonaysiinta xigta"
+      "soon": "Waxay imaan doontaa cusboonaysiinta xigta",
+      "cancel": "Jooji"
     },
     "goToShop": "U gudub {shop}",
     "previousShop": "Dukaankii hore",

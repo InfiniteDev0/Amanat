@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useId, useState } from 'react';
 
+import { AdminButton, Modal } from '@/components/barista-modal';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
@@ -110,6 +111,8 @@ export function QuickActionsGrid({ shops, shopId, compact = false, className }: 
   const [all, setAll] = useState(false);
   // People opens as a dialog over the page, not a page of its own.
   const [people, setPeople] = useState(false);
+  // Exchange: an empty dialog for now, its form to come.
+  const [exchange, setExchange] = useState(false);
   const panelId = useId();
   const reduce = useReducedMotion();
   const duration = reduce ? 0 : 0.35;
@@ -137,7 +140,7 @@ export function QuickActionsGrid({ shops, shopId, compact = false, className }: 
 
       <div className={grid}>
         {SHOP_ACTIONS.map((id) =>
-          tile({ id, icon: ACTION_ICONS[id], label: t(`quick.${id}`), hint: t(`quick.${id}Hint`), onClick: () => gooeyToast.info(t('actions.soon')) }),
+          tile({ id, icon: ACTION_ICONS[id], label: t(`quick.${id}`), hint: t(`quick.${id}Hint`), onClick: () => (id === 'exchange' ? setExchange(true) : gooeyToast.info(t('actions.soon'))) }),
         )}
         {tile({ id: 'close', icon: <LockIcon />, label: t('closeDay'), hint: t('closeDaySoon'), disabled: true })}
         {tile({ id: 'reports', icon: <ChartNoAxesColumnIcon />, label: t('actions.reports'), hint: t('actions.reportsHint'), href: `/w/${shopId}/reports` })}
@@ -173,6 +176,19 @@ export function QuickActionsGrid({ shops, shopId, compact = false, className }: 
 
       {/* <ActionHost shops={shops} action={action} shopId={shopId} onClose={() => setAction(null)} /> */}
       <PeopleFor shops={shops} shopId={shopId} open={people} onOpenChange={setPeople} />
+      <Modal
+        open={exchange}
+        onClose={() => setExchange(false)}
+        title={t('quick.exchange')}
+        description={t('quick.exchangeHint')}
+        footer={
+          <AdminButton variant="ghost" onClick={() => setExchange(false)}>
+            {t('actions.cancel')}
+          </AdminButton>
+        }
+      >
+        {null}
+      </Modal>
     </section>
   );
 }

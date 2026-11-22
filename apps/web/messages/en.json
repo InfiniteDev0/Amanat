@@ -552,7 +552,8 @@
       "profitHint": "Sallam and Exchange",
       "amanatListHint": "Money kept for customers",
       "settingsHint": "The shop's details",
-      "soon": "Coming in the next update"
+      "soon": "Coming in the next update",
+      "cancel": "Cancel"
     },
     "goToShop": "Go to {shop}",
     "previousShop": "Previous shop",
