@@ -89,7 +89,7 @@ export function ForgotPasswordForm() {
           />
           <Button type="submit" disabled={reset.isPending || !online} className="h-11 w-full rounded-xl font-semibold">
             {reset.isPending ? <Loader className="animate-spin" /> : null}
-            {reset.isPending ? t('sending') : t('sendLink')}
+            <span>{reset.isPending ? t('sending') : t('sendLink')}</span>
           </Button>
           <FormError>{reset.error ? message(formErrorKey(reset.error)) : null}</FormError>
           {backToLogIn}

@@ -143,7 +143,7 @@ function NewShopForm({ main, onDone }: { main: Workspace; onDone: () => void }) 
         </Button>
         <Button type="button" onClick={next} disabled={create.isPending} className="h-11 rounded-lg px-5 font-semibold">
           {create.isPending ? <Loader className="animate-spin" /> : null}
-          {t('create')}
+          <span>{t('create')}</span>
         </Button>
       </div>
 

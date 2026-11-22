@@ -94,7 +94,7 @@ export function LinkExpired({ kind = 'signup' }: { kind?: LinkKind }) {
           />
           <Button type="submit" disabled={sending.isPending || !online} className="h-11 w-full rounded-xl font-semibold">
             {sending.isPending ? <Loader className="animate-spin" /> : null}
-            {sending.isPending ? t('sending') : t('sendNewLink')}
+            <span>{sending.isPending ? t('sending') : t('sendNewLink')}</span>
           </Button>
           <FormError>{sending.error ? message(formErrorKey(sending.error)) : null}</FormError>
           {logIn}

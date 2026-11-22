@@ -89,7 +89,7 @@ export function ResetPasswordForm() {
           />
           <Button type="submit" disabled={busy || !online} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
-            {busy ? t('saving') : t('savePassword')}
+            <span>{busy ? t('saving') : t('savePassword')}</span>
           </Button>
           <FormError>{setPassword.error ? message(formErrorKey(setPassword.error)) : null}</FormError>
         </FieldGroup>

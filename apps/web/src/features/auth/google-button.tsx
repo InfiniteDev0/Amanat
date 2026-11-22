@@ -64,7 +64,7 @@ export function GoogleButton() {
     <div className="flex flex-col gap-4">
       <div className="text-muted-foreground flex items-center gap-3 text-xs">
         <span className="bg-foreground/10 h-px flex-1" />
-        {t('or')}
+        <span>{t('or')}</span>
         <span className="bg-foreground/10 h-px flex-1" />
       </div>
       <button
@@ -75,8 +75,9 @@ export function GoogleButton() {
         disabled={busy || !online}
         className="bg-field hover:bg-field-focus relative flex h-11 w-full items-center justify-center gap-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60"
       >
+        {/* Text in its own span: a browser translator swaps bare text nodes, and React then can't swap the icon next to it. */}
         {busy ? <Loader className="size-4 animate-spin" /> : <GoogleMark />}
-        {t('google')}
+        <span>{t('google')}</span>
         {/* How this browser signed in last time (features/auth/last-sign-in.ts). */}
         {lastUsed ? (
           <span className="bg-primary text-primary-foreground absolute end-3 rounded-md px-2 py-0.5 text-[11px] font-semibold">

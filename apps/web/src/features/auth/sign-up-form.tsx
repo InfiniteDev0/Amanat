@@ -174,7 +174,7 @@ export function SignUpForm() {
 
           <Button type="submit" disabled={busy || !online} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
-            {busy ? t('signingUp') : t('signUp')}
+            <span>{busy ? t('signingUp') : t('signUp')}</span>
           </Button>
           <FormError>{signUp.error ? message(formErrorKey(signUp.error)) : null}</FormError>
         </FieldGroup>

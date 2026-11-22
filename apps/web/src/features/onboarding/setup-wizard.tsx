@@ -231,7 +231,7 @@ function SetupWizard({ draft, update, onClose }: ReturnType<typeof useOnboarding
               className={cn('h-11 flex-1 rounded-xl font-semibold', blocked && 'opacity-50')}
             >
               {completion.isPending ? <Loader className="animate-spin" /> : null}
-              {last ? t('finish') : index === 0 ? t('start') : t('continue')}
+              <span>{last ? t('finish') : index === 0 ? t('start') : t('continue')}</span>
             </Button>
           </div>
           <div className="bg-field h-1 overflow-hidden rounded-full">

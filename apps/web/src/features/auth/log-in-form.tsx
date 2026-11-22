@@ -120,7 +120,7 @@ export function LogInForm() {
 
           <Button type="submit" disabled={busy || !online} className="h-11 w-full rounded-xl font-semibold">
             {busy ? <Loader className="animate-spin" /> : null}
-            {busy ? t('loggingIn') : t('logIn')}
+            <span>{busy ? t('loggingIn') : t('logIn')}</span>
           </Button>
           {logIn.error ? (
             <FormError>
