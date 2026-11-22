@@ -853,7 +853,34 @@
       "addSallam": "سلام جديد",
       "sallamSoon": "السلام يأتي في التحديث القادم",
       "noExchange": "لا عمليات صرف بعد. + يضيف واحدة.",
-      "noSallam": "لا سلام بعد."
+      "noSallam": "لا سلام بعد.",
+      "select": "حدد",
+      "unselect": "ألغِ التحديد",
+      "unselectAll": "ألغِ تحديد الكل",
+      "selected": "{count} محدد",
+      "selectedBar": "الصفقات المحددة",
+      "pdf": "PDF",
+      "csv": "CSV",
+      "delete": "حذف",
+      "deleted": "{count, plural, one {حُذفت} other {حُذفت #}}",
+      "undo": "تراجع",
+      "restored": "عادت",
+      "couldNotDelete": "تعذر الحذف"
+    },
+    "export": {
+      "download": "تنزيل",
+      "pdf": "PDF",
+      "csv": "CSV (إكسل)",
+      "time": "الوقت",
+      "kind": "النوع",
+      "in": "داخل",
+      "out": "خارج",
+      "market": "سعر السوق",
+      "mine": "سعري",
+      "profit": "الربح",
+      "total": "المجموع",
+      "count": "{count, plural, one {صفقة واحدة} other {# صفقات}}",
+      "couldNotPdf": "تعذر إنشاء PDF"
     }
   },
   "account": {

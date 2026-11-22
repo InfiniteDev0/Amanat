@@ -1,13 +1,81 @@
 'use client';
 
-import { dealResult, dealSection, type DealRow } from '@sarrif/core';
-import { PlusIcon, SearchIcon } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { dealResult, dealSection, type DealRow, type Id, type Money } from '@sarrif/core';
+import { gooeyToast } from 'goey-toast';
+import { CheckIcon, FileDownIcon, PlusIcon, SearchIcon, SheetIcon, Trash2Icon, XIcon } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useLocale, useTranslations } from 'next-intl';
 import { type ReactNode, useState } from 'react';
+import { createPortal } from 'react-dom';
 
+import { exportListCsv, exportListPdf, fileNameOf, type ResultColumn } from '@/features/calculator/search';
+import { useRemoveDeals } from '@/features/deals/queries';
+import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { cn } from '@/lib/utils';
 
+import { addUp } from './amounts';
 import { useShortMoney } from './money-text';
+
+/** An action on the selection bar. */
+const BAR_ACTION = 'bg-muted text-foreground hover:bg-muted/70 flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors [&_svg]:size-4';
+
+/**
+ * Deals as a table to take away (PDF, CSV): when, what, in, out, the market
+ * rate, my rate, the profit; and the profit added up.
+ */
+export function useDealExport() {
+  const t = useTranslations('profit.export');
+  const tProfit = useTranslations('profit');
+  const locale = useLocale();
+  const money = useShortMoney();
+  const { workspace } = useWorkspace();
+  const rate = (value: string | null | undefined) => (value ? Number(value).toLocaleString('en-US', { maximumFractionDigits: 6 }) : '—');
+  const columns: ResultColumn[] = [
+    { label: t('time'), width: 0.8 },
+    { label: t('kind'), width: 0.9 },
+    { label: t('in'), width: 1.3, align: 'end' },
+    { label: t('out'), width: 1.3, align: 'end' },
+    { label: t('market'), width: 1, align: 'end' },
+    { label: t('mine'), width: 1, align: 'end' },
+    { label: t('profit'), width: 1.2, align: 'end' },
+  ];
+  const table = (rows: DealRow[]) =>
+    rows.map(({ deal, profit }) => {
+      const sallam = dealSection(deal) === 'sallam';
+      return [
+        new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(new Date(deal.createdAt)),
+        sallam ? tProfit('sallam') : tProfit('exchange'),
+        money({ amount: deal.amountIn, currency: deal.currencyIn }),
+        money({ amount: deal.amountOut, currency: deal.currencyOut }),
+        sallam ? '—' : rate(deal.todayRate),
+        sallam ? (deal.percent ? `${deal.percent}%` : '—') : rate(deal.customerRate),
+        profit ? money(profit, true) : '—',
+      ];
+    });
+  const totalText = (rows: DealRow[]) => {
+    const total: Money[] = addUp(rows.map((row) => row.profit));
+    return total.length ? total.map((m) => money(m, true)).join(' · ') : '0';
+  };
+  return {
+    pdf: (rows: DealRow[], title: string, scope: string) =>
+      exportListPdf({
+        shop: workspace.name,
+        title,
+        scope,
+        summary: `${t('count', { count: rows.length })}   |   ${t('profit')} ${totalText(rows)}`,
+        fileName: fileNameOf(`${workspace.name} ${title} ${scope}`, 'profit'),
+        columns,
+        rows: table(rows),
+        total: { label: t('total'), value: totalText(rows) },
+      }).catch(() => gooeyToast.error(t('couldNotPdf'))),
+    csv: (rows: DealRow[], title: string, scope: string) =>
+      exportListCsv(
+        fileNameOf(`${workspace.name} ${title} ${scope}`, 'profit'),
+        columns.map((c) => c.label),
+        [...table(rows), columns.map((_, i) => (i === 0 ? t('total') : i === columns.length - 1 ? totalText(rows) : ''))],
+      ),
+  };
+}
 
 // A day's deals as Barista's class schedule: a title pill with its search and
 // +, a line saying what's in it with its count, a line under them; then each
@@ -53,8 +121,8 @@ function RoundButton({ label, on, onClick, solid, children }: { label: string; o
   );
 }
 
-/** One deal: From over To on the left, the card of rates and profit beside it. */
-function DealEntry({ row }: { row: DealRow }) {
+/** One deal: its tick, From over To, the card of rates and profit beside it. */
+function DealEntry({ row, ticked, ticking, onTick }: { row: DealRow; ticked: boolean; ticking: boolean; onTick: () => void }) {
   const t = useTranslations('profit.card');
   const money = useShortMoney();
   const { deal, profit } = row;
@@ -62,7 +130,24 @@ function DealEntry({ row }: { row: DealRow }) {
   const made = (profit?.amount ?? 0) >= 0;
   const percent = deal.percent ?? dealResult(deal)?.percent;
   return (
-    <div className="flex shrink-0 gap-3">
+    <div className="group/row flex shrink-0 gap-3">
+      {/* The tick, on the left: under the pointer, and while any is ticked. */}
+      <div className="flex w-[18px] shrink-0 pt-2.5">
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={ticked}
+          aria-label={ticked ? t('unselect') : t('select')}
+          onClick={onTick}
+          className={cn(
+            'flex size-[18px] items-center justify-center rounded-[5px] border transition-[opacity,colors]',
+            ticking ? 'opacity-100' : 'opacity-0 focus-visible:opacity-100 group-hover/row:opacity-100',
+            ticked ? 'border-foreground bg-foreground text-background' : 'border-foreground/30 hover:border-foreground/60',
+          )}
+        >
+          {ticked ? <CheckIcon className="size-3.5" strokeWidth={3} /> : null}
+        </button>
+      </div>
       <div className="flex w-36 shrink-0 flex-col pt-2.5 leading-snug tabular-nums">
         <div className="flex items-stretch gap-2">
           <RouteMarks />
@@ -73,7 +158,10 @@ function DealEntry({ row }: { row: DealRow }) {
         </div>
       </div>
       {/* Square on the accent's side, so the edge runs straight. */}
-      <div className={cn('bg-card relative min-w-0 flex-1 rounded-s-none rounded-e-lg border-s-2 px-3 py-2.5', made ? 'border-emerald-500' : 'border-red-500')}>
+      <div
+        onClick={ticking ? onTick : undefined}
+        className={cn('bg-card relative min-w-0 flex-1 rounded-s-none rounded-e-lg border-s-2 px-3 py-2.5', made ? 'border-emerald-500' : 'border-red-500', ticked && 'ring-2 ring-sky-500', ticking && 'cursor-pointer')}
+      >
         <dl className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm">
           {sallam ? (
             <>
@@ -123,10 +211,52 @@ function DealEntry({ row }: { row: DealRow }) {
  * in it and how many, then the deals. Straight on the page, a line under its
  * heading, as Barista's Classes.
  */
-export function DealsCard({ title, sub, rows, loading, onAdd, addLabel, empty }: { title: string; sub: string; rows: DealRow[]; loading?: boolean; onAdd: () => void; addLabel: string; empty: string }) {
+export function DealsCard({
+  title,
+  sub,
+  scope,
+  rows,
+  loading,
+  onAdd,
+  addLabel,
+  empty,
+}: {
+  title: string;
+  sub: string;
+  /** The day, for a download's name: "Sun, Nov 22". */
+  scope: string;
+  rows: DealRow[];
+  loading?: boolean;
+  onAdd: () => void;
+  addLabel: string;
+  empty: string;
+}) {
   const t = useTranslations('profit.card');
   const money = useShortMoney();
+  const { workspace } = useWorkspace();
+  const remove = useRemoveDeals(workspace.id);
+  const take = useDealExport();
   const [query, setQuery] = useState<string | null>(null);
+  const [ticked, setTicked] = useState<Set<Id>>(new Set());
+  const toggle = (id: Id) =>
+    setTicked((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const chosen = rows.filter((row) => ticked.has(row.deal.id));
+  const deleteTicked = () => {
+    const ids = [...ticked];
+    setTicked(new Set());
+    remove.mutateAsync({ ids }).then(
+      () =>
+        gooeyToast.success(t('deleted', { count: ids.length }), {
+          action: { label: t('undo'), successLabel: t('restored'), onClick: () => void remove.mutateAsync({ ids, restore: true }) },
+        }),
+      () => gooeyToast.error(t('couldNotDelete')),
+    );
+  };
   const words = (query ?? '').trim().toLowerCase().split(/\s+/).filter(Boolean);
   const shown = rows.filter((row) => {
     const text = `${row.deal.customer ?? ''} ${row.deal.note ?? ''} ${money({ amount: row.deal.amountIn, currency: row.deal.currencyIn })} ${money({ amount: row.deal.amountOut, currency: row.deal.currencyOut })}`.toLowerCase();
@@ -173,10 +303,44 @@ export function DealsCard({ title, sub, rows, loading, onAdd, addLabel, empty }:
       ) : (
         <div className="flex flex-col gap-2">
           {shown.map((row) => (
-            <DealEntry key={row.deal.id} row={row} />
+            <DealEntry key={row.deal.id} row={row} ticked={ticked.has(row.deal.id)} ticking={ticked.size > 0} onTick={() => toggle(row.deal.id)} />
           ))}
         </div>
       )}
+      {ticked.size > 0 && typeof document !== 'undefined'
+        ? createPortal(
+            // Floating at the foot of the screen, as Barista's: how many, then what to do with them.
+            <motion.div
+              role="toolbar"
+              aria-label={t('selectedBar')}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="bg-popover text-popover-foreground ring-foreground/10 fixed inset-x-0 bottom-6 z-[120] mx-auto flex w-fit max-w-[calc(100vw-2rem)] items-center gap-2 overflow-x-auto rounded-xl p-2 shadow-xl ring-1"
+            >
+              <span className="bg-muted flex h-9 shrink-0 items-center gap-2 rounded-lg ps-3 pe-1 text-sm font-medium">
+                <span className="tabular-nums">{t('selected', { count: ticked.size })}</span>
+                <span aria-hidden className="bg-foreground/15 h-4 w-px" />
+                <button type="button" onClick={() => setTicked(new Set())} aria-label={t('unselectAll')} className="hover:bg-foreground/10 flex size-7 items-center justify-center rounded-md transition-colors">
+                  <XIcon className="size-4" />
+                </button>
+              </span>
+              <button type="button" onClick={() => void take.pdf(chosen, title, scope)} className={BAR_ACTION}>
+                <FileDownIcon />
+                {t('pdf')}
+              </button>
+              <button type="button" onClick={() => take.csv(chosen, title, scope)} className={BAR_ACTION}>
+                <SheetIcon />
+                {t('csv')}
+              </button>
+              <button type="button" onClick={deleteTicked} className={cn(BAR_ACTION, 'text-red-600 dark:text-red-400')}>
+                <Trash2Icon />
+                {t('delete')}
+              </button>
+            </motion.div>,
+            document.body,
+          )
+        : null}
     </section>
   );
 }

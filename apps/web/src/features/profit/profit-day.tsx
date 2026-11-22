@@ -1,7 +1,7 @@
 'use client';
 
 import { dealSection } from '@sarrif/core';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, FileDownIcon, SheetIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { type CSSProperties, type PointerEvent as ReactPointerEvent, Suspense, useEffect, useRef, useState } from 'react';
@@ -17,7 +17,9 @@ import { gooeyToast } from 'goey-toast';
 
 import { ExchangeDialog } from '@/features/home/exchange-dialog';
 
-import { DealsCard } from './deals-card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+import { DealsCard, useDealExport } from './deals-card';
 
 // Profit, one day at a time, as Barista's Day plan: the day ("Sun Nov 22",
 // the weekday blue when it's today; click it for the date wheel) with ‹ ›
@@ -97,6 +99,9 @@ function Day() {
   };
 
   const [exchanging, setExchanging] = useState(false);
+  const take = useDealExport();
+  const viewRows = view === 'exchange' ? exchange : view === 'sallam' ? sallam : rows;
+  const viewTitle = view === 'exchange' ? t('exchange') : view === 'sallam' ? t('sallam') : t('title');
   const dayName = isToday ? t('card.today') : new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(shown);
   // Each side as Barista's class schedule: its pill, search and +, then its deals.
   const column = (title: string, list: typeof rows) => {
@@ -104,6 +109,7 @@ function Day() {
     return (
       <DealsCard
         title={title}
+        scope={dayName}
         sub={isExchange ? t('card.exchangeSub', { day: dayName }) : t('card.sallamSub', { day: dayName })}
         rows={list}
         loading={!deals.data}
@@ -142,6 +148,27 @@ function Day() {
           </div>
         </div>
 
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+        {/* The day's profit to take away: what's showing (All, Exchange or Sallam), as a PDF or a CSV. */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            disabled={!deals.data}
+            className="bg-muted text-foreground hover:bg-muted/70 flex h-8 shrink-0 items-center gap-2 rounded-md px-3 text-[13px] font-medium transition-colors disabled:opacity-40 [&_svg]:size-4"
+          >
+            <DownloadIcon />
+            {t('export.download')}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={6} className="w-48 rounded-lg p-1.5">
+            <DropdownMenuItem className="gap-2.5 py-2" onClick={() => void take.pdf(viewRows, viewTitle, dayName)}>
+              <FileDownIcon />
+              {t('export.pdf')}
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2.5 py-2" onClick={() => take.csv(viewRows, viewTitle, dayName)}>
+              <SheetIcon />
+              {t('export.csv')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         {/* All | Exchange | Sallam, as Barista's segment tabs: the pill slides to the one picked. */}
         <div role="tablist" aria-label={t('views.label')} className="flex w-full shrink-0 rounded-md bg-black/[0.06] p-0.5 sm:w-auto dark:bg-white/[0.08]">
           {VIEWS.map((value) => (
@@ -160,6 +187,7 @@ function Day() {
               <span className="relative">{t(`views.${value}`)}</span>
             </button>
           ))}
+        </div>
         </div>
         <ExchangeDialog open={exchanging} onClose={() => setExchanging(false)} shopId={workspace.id} />
         <DateWheel open={wheelOpen} onOpenChange={setWheelOpen} value={day} latest={today} firstYear={Number(today.slice(0, 4)) - 2} onPick={setDay} onToday={() => setDay(today)} />

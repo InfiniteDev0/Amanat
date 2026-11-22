@@ -853,7 +853,34 @@
       "addSallam": "New Sallam",
       "sallamSoon": "Sallam comes in the next update",
       "noExchange": "No exchanges yet. + adds one.",
-      "noSallam": "No Sallam yet."
+      "noSallam": "No Sallam yet.",
+      "select": "Select",
+      "unselect": "Unselect",
+      "unselectAll": "Unselect all",
+      "selected": "{count} selected",
+      "selectedBar": "Selected deals",
+      "pdf": "PDF",
+      "csv": "CSV",
+      "delete": "Delete",
+      "deleted": "{count, plural, one {Deleted} other {# deleted}}",
+      "undo": "Undo",
+      "restored": "Back",
+      "couldNotDelete": "Couldn't delete"
+    },
+    "export": {
+      "download": "Download",
+      "pdf": "PDF",
+      "csv": "CSV (Excel)",
+      "time": "Time",
+      "kind": "Kind",
+      "in": "In",
+      "out": "Out",
+      "market": "Market rate",
+      "mine": "My rate",
+      "profit": "Profit",
+      "total": "Total",
+      "count": "{count, plural, one {# deal} other {# deals}}",
+      "couldNotPdf": "Couldn't make the PDF"
     }
   },
   "account": {

@@ -132,8 +132,15 @@ export function supabaseDeals(auth: SarrifApi['auth'], shops: Shops): Pick<Sarri
 
       update: notYet,
       highlight: notYet,
-      remove: notYet,
-      restore: notYet,
+      async remove(_shopId, ids) {
+        const { error } = await withTimeout(supabase().rpc('trash_exchanges', { ids }));
+        if (error) throw databaseError(error, 'trashExchanges');
+      },
+
+      async restore(_shopId, ids) {
+        const { error } = await withTimeout(supabase().rpc('restore_exchanges', { ids }));
+        if (error) throw databaseError(error, 'restoreExchanges');
+      },
     },
   };
 }

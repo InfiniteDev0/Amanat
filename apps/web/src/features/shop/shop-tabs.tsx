@@ -100,6 +100,7 @@ export function ExchangeTab() {
       <DealsCard
         title={tProfit('exchange')}
         sub={tProfit('card.exchangeSub', { day: tProfit('card.today') })}
+        scope={tProfit('card.today')}
         rows={rows}
         loading={!deals.data}
         addLabel={tProfit('card.addExchange')}

@@ -853,7 +853,34 @@
       "addSallam": "Sallam cusub",
       "sallamSoon": "Sallam wuxuu imaan doonaa cusboonaysiinta xigta",
       "noExchange": "Weli sarrif ma jiro. + ayaa mid ku daraya.",
-      "noSallam": "Weli Sallam ma jiro."
+      "noSallam": "Weli Sallam ma jiro.",
+      "select": "Dooro",
+      "unselect": "Ka saar",
+      "unselectAll": "Ka saar dhammaan",
+      "selected": "{count} la doortay",
+      "selectedBar": "Heshiisyada la doortay",
+      "pdf": "PDF",
+      "csv": "CSV",
+      "delete": "Tirtir",
+      "deleted": "{count, plural, one {Waa la tirtiray} other {# waa la tirtiray}}",
+      "undo": "Ka noqo",
+      "restored": "Waa la soo celiyay",
+      "couldNotDelete": "Lama tirtiri karin"
+    },
+    "export": {
+      "download": "Soo deji",
+      "pdf": "PDF",
+      "csv": "CSV (Excel)",
+      "time": "Waqti",
+      "kind": "Nooc",
+      "in": "Soo gal",
+      "out": "Bax",
+      "market": "Sicirka suuqa",
+      "mine": "Sicirkayga",
+      "profit": "Faa’iido",
+      "total": "Wadarta",
+      "count": "{count, plural, one {# heshiis} other {# heshiis}}",
+      "couldNotPdf": "PDF-ka lama samayn karin"
     }
   },
   "account": {
