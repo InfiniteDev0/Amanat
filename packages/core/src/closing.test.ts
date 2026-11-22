@@ -108,6 +108,48 @@ describe('report', () => {
   });
 });
 
+describe('money in and out', () => {
+  const leg = (id: string, accountId: string, date: string, amount: number, currency: Entry['currency'], sourceType: Entry['sourceType'], sourceId = id): Entry => ({
+    ...entry(id, accountId, date, amount, currency),
+    sourceType,
+    sourceId,
+  });
+  const mpesa = account('mpesa', 'KES', 'mobile_money', 0);
+  const entries = [
+    leg('before', 'cash-usd', '2026-10-08', 30_000, 'USD', 'exchange'),
+    leg('in', 'cash-usd', '2026-10-10', 10_000, 'USD', 'exchange'),
+    leg('paid', 'cash-kes', '2026-10-10', -1_270_000, 'KES', 'exchange'),
+    leg('lunch', 'cash-kes', '2026-10-11', -60_000, 'KES', 'expense'),
+    leg('held', 'cash-usd', '2026-10-11', 50_000, 'USD', 'amanat'),
+    // Cash to M-Pesa with a 100 fee: only the fee leaves the shop.
+    leg('m1', 'cash-kes', '2026-10-11', -500_000, 'KES', 'transfer', 'move'),
+    leg('m2', 'mpesa', '2026-10-11', 500_000, 'KES', 'transfer', 'move'),
+    leg('m3', 'cash-kes', '2026-10-11', -10_000, 'KES', 'transfer', 'move'),
+    // Sent to another shop: one leg here, so it's out.
+    leg('sent', 'cash-usd', '2026-10-11', -20_000, 'USD', 'transfer', 'away'),
+  ];
+  const data = report({ from: '2026-10-09', to: '2026-10-11', exchanges: [], expenses: [], closings: [], accounts: [usd, kes, mpesa], boardFor: () => board, entries });
+
+  it('counts everything in and out of the shop, expenses included, not moves between its own accounts', () => {
+    expect(data.moneyIn).toEqual([{ amount: 60_000, currency: 'USD' }]);
+    expect(data.moneyOut).toEqual([
+      { amount: 20_000, currency: 'USD' },
+      { amount: 1_270_000 + 60_000 + 10_000, currency: 'KES' },
+    ]);
+    expect(data.bySource.find((s) => s.source === 'expense')?.out).toEqual([{ amount: 60_000, currency: 'KES' }]);
+    expect(data.bySource.find((s) => s.source === 'transfer')?.out).toEqual([
+      { amount: 20_000, currency: 'USD' },
+      { amount: 10_000, currency: 'KES' },
+    ]);
+  });
+
+  it("gives each account's start, in, out and end over the run", () => {
+    const cash = data.accountFlows.find((a) => a.accountId === 'cash-usd');
+    expect(cash).toMatchObject({ start: 2_030_000, in: 60_000, out: 20_000, end: 2_070_000 });
+    expect(data.accountFlows.find((a) => a.accountId === 'mpesa')).toMatchObject({ start: 0, in: 500_000, out: 0, end: 500_000 });
+  });
+});
+
 describe('isLastOwner', () => {
   it('keeps one Owner in every shop', () => {
     expect(isLastOwner([{ id: 'm1', role: 'owner' }, { id: 'm2', role: 'editor' }], 'm1')).toBe(true);

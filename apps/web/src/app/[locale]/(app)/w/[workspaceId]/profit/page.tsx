@@ -1,6 +1,9 @@
-import { ProfitPage } from '@/features/profit/profit-page';
+// import { ProfitPage } from '@/features/profit/profit-page';
+// import { ProfitCalculator } from '@/features/profit/profit-calculator';
+import { ProfitDay } from '@/features/profit/profit-day';
 
-/** The Profit page: the day's swaps, exchanges and expenses, and the totals. */
+/** Profit, one day at a time: what it made by where it came from, and the records behind it. */
 export default function Page() {
-  return <ProfitPage />;
+  // return <ProfitPage />;
+  return <ProfitDay />;
 }

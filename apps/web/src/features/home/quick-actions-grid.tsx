@@ -118,7 +118,7 @@ export function QuickActionsGrid({ shops, shopId, compact = false, className }: 
   const grid = cn('grid gap-2', compact ? 'grid-cols-4' : 'grid-cols-2 md:grid-cols-4');
 
   return (
-    <section aria-labelledby="quick-actions" className={cn('bg-card rounded-xl p-4', className)}>
+    <section aria-labelledby="quick-actions" className={cn(className)}>
       <div className="mb-3 flex items-center justify-between px-1">
         <h2 id="quick-actions" className="text-base font-semibold">
           {t('quick.title')}

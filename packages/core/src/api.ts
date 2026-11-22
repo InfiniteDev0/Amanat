@@ -210,6 +210,9 @@ export interface TeamView {
 export interface BookFilter {
   /** One day; defaults to today. */
   date?: BusinessDate;
+  /** A run of days instead of one (both included): the calculator's searches. */
+  from?: BusinessDate;
+  to?: BusinessDate;
   type?: BookFilterType;
   /** Matches client name or note. */
   search?: string;

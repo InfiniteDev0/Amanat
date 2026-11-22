@@ -990,7 +990,8 @@ export const mockApi: SarrifApi = {
       await latency();
       const { db, workspace } = access(getDb(), workspaceId);
       const date = filter.date ?? today(workspace);
-      return bookRows(db, workspaceId).filter((row) => row.date === date && matchesFilter(row, filter));
+      const inRange = (day: string) => (filter.from || filter.to ? (!filter.from || day >= filter.from) && (!filter.to || day <= filter.to) : day === date);
+      return bookRows(db, workspaceId).filter((row) => inRange(row.date) && matchesFilter(row, filter));
     },
   },
 
@@ -1191,6 +1192,7 @@ export const mockApi: SarrifApi = {
         closings: inShop(db.closings),
         accounts: inShop(db.accounts),
         boardFor: (date) => rateBoard(workspace, rates.filter((r) => r.date === date)),
+        entries: inShop(db.entries),
       });
     },
   },

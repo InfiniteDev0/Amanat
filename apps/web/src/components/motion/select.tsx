@@ -20,13 +20,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { EASE_OUT } from "@/lib/ease";
 import { cn } from "@/lib/utils";
 
-const INSTANT_TRANSITION: Transition = { duration: 0 };
+/** Barista's ease-out: quick to start, soft to land. */
+const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
-// Corner radius in px, matching rounded-xl (the fields).
-const R = 8.4;
+const INSTANT_TRANSITION: Transition = { duration: 0 };
 
 // Spring with bounce powers the unfold/separation; per-property timings in the
 // content choreograph it (see SelectContent). Mirrors bouncy-accordion's feel.
@@ -86,6 +85,8 @@ export interface SelectProps {
    */
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
+  /** Always open this way — for a select near the bottom of a box that clips (Manasik). */
+  side?: Placement;
   className?: string;
   children: ReactNode;
 }
@@ -98,6 +99,7 @@ export function Select({
   defaultOpen = false,
   onOpenChange,
   disabled = false,
+  side,
   className,
   children,
 }: SelectProps) {
@@ -107,7 +109,9 @@ export function Select({
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const [internal, setInternal] = useState(defaultValue);
   const [labels, setLabels] = useState<Map<string, string>>(new Map());
-  const [placement, setPlacement] = useState<Placement>("bottom");
+  const [autoPlacement, setAutoPlacement] = useState<Placement>("bottom");
+  const placement = side ?? autoPlacement;
+  const setPlacement = useCallback((next: Placement) => setAutoPlacement(next), []);
 
   const controlled = value !== undefined;
   const current = controlled ? value : internal;
@@ -209,7 +213,7 @@ export function SelectTrigger({ className, children }: SelectTriggerProps) {
   const isTop = ctx.placement === "top";
   // edge facing the panel flattens then rounds; the far edge stays rounded.
   // All four corners are specified so none gets stranded when placement flips.
-  const kf = ctx.open ? [0, 0, R] : [R, 0, R];
+  const kf = ctx.open ? [0, 0, 12] : [12, 0, 12];
   const kfT: Transition = ctx.reduce
     ? { duration: 0 }
     : ctx.open
@@ -228,10 +232,10 @@ export function SelectTrigger({ className, children }: SelectTriggerProps) {
       // back once the panel pulls away — the two pinch apart.
       initial={false}
       animate={{
-        borderTopLeftRadius: isTop ? kf : R,
-        borderTopRightRadius: isTop ? kf : R,
-        borderBottomLeftRadius: isTop ? R : kf,
-        borderBottomRightRadius: isTop ? R : kf,
+        borderTopLeftRadius: isTop ? kf : 12,
+        borderTopRightRadius: isTop ? kf : 12,
+        borderBottomLeftRadius: isTop ? 12 : kf,
+        borderBottomRightRadius: isTop ? 12 : kf,
       }}
       transition={{
         borderTopLeftRadius: isTop ? kfT : INSTANT_TRANSITION,
@@ -240,9 +244,8 @@ export function SelectTrigger({ className, children }: SelectTriggerProps) {
         borderBottomRightRadius: isTop ? INSTANT_TRANSITION : kfT,
       }}
       className={cn(
-        "relative z-10 flex w-full items-center justify-between gap-2 rounded-xl bg-field px-3 py-2 text-sm text-foreground outline-none transition-colors",
-        // Sarrif: filled like the inputs; no border, no ring.
-        "focus-visible:bg-field-focus",
+        "relative z-10 flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors",
+        "hover:border-(--color-border-strong) focus-visible:ring-2 focus-visible:ring-foreground/20",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
@@ -318,7 +321,7 @@ export function SelectContent({ className, children }: SelectContentProps) {
   // stranded square corner when the placement flips between opens.
   const isTop = ctx.placement === "top";
   const nearGap = open ? 8 : 0;
-  const nearRadius = open ? R : 0;
+  const nearRadius = open ? 12 : 0;
 
   const gapT: Transition = open
     ? { type: "spring", duration: 0.6, bounce: 0.5, delay: 0.12 }
@@ -348,10 +351,10 @@ export function SelectContent({ className, children }: SelectContentProps) {
               marginTop: isTop ? 0 : nearGap,
               marginBottom: isTop ? nearGap : 0,
               // near corners go flat->round; far corners stay rounded
-              borderTopLeftRadius: isTop ? R : nearRadius,
-              borderTopRightRadius: isTop ? R : nearRadius,
-              borderBottomLeftRadius: isTop ? nearRadius : R,
-              borderBottomRightRadius: isTop ? nearRadius : R,
+              borderTopLeftRadius: isTop ? 12 : nearRadius,
+              borderTopRightRadius: isTop ? 12 : nearRadius,
+              borderBottomLeftRadius: isTop ? nearRadius : 12,
+              borderBottomRightRadius: isTop ? nearRadius : 12,
             }
       }
       transition={
@@ -380,7 +383,7 @@ export function SelectContent({ className, children }: SelectContentProps) {
       // flush against the trigger, then separates into its own rounded pill;
       // sits above or below depending on available space
       className={cn(
-        "absolute inset-x-0 z-20 rounded-xl bg-field-focus",
+        "absolute inset-x-0 z-20 rounded-xl border border-border bg-background shadow-lg",
         isTop ? "bottom-full" : "top-full",
         className,
       )}
@@ -415,11 +418,10 @@ export function SelectItem({
   const selected = ctx.value === value;
   const label = typeof children === "string" ? children : value;
 
-  const { register, unregister } = ctx;
   useLayoutEffect(() => {
-    register(value, label);
-    return () => unregister(value);
-  }, [register, unregister, value, label]);
+    ctx.register(value, label);
+    return () => ctx.unregister(value);
+  }, [ctx.register, ctx.unregister, value, label]);
 
   return (
     <motion.li variants={ctx.reduce ? undefined : ITEM_VARIANTS}>

@@ -334,7 +334,28 @@ p {
   body {
     @apply bg-background text-foreground;
   }
+  /* Drawn at 90%, as Barista: what it looks right at, at a normal 100% (the
+     browser's own zoom still works on top). By the root font size, not CSS
+     zoom: every size is in rem, so they shrink together, and menus and
+     tooltips stay on their buttons. */
   html {
     @apply font-sans;
+    font-size: 90%;
+  }
+}
+/* The calculator: a sheen across the searching rows; tab rows that scroll without a bar. */
+@keyframes shimmer-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
   }
 }
