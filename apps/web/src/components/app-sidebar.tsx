@@ -3,6 +3,7 @@
 import { type ComponentProps, Suspense } from 'react';
 
 import { NavMain } from '@/components/nav-main';
+import { ShopSwitcher } from '@/components/shop-switcher';
 import { SidebarBrand } from '@/components/sidebar-brand';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
@@ -30,9 +31,14 @@ const BLACK_SIDEBAR_CLASS = [
  */
 export function AppSidebar({
   workspaceId,
+  still = false,
   className,
   ...props
-}: ComponentProps<typeof Sidebar> & { workspaceId: string }) {
+}: ComponentProps<typeof Sidebar> & {
+  workspaceId: string;
+  /** Drawn while the app starts (nothing signed in yet): the brand where the shop switcher will be. */
+  still?: boolean;
+}) {
   return (
     <Sidebar collapsible="icon" className={cn(BLACK_SIDEBAR_CLASS, className)} {...props}>
       <SidebarHeader>
@@ -51,7 +57,8 @@ export function AppSidebar({
         <Suspense fallback={null}>
           <NavMain items={NAV_FOOT} workspaceId={workspaceId} className="p-0" />
         </Suspense>
-        <SidebarBrand />
+        {/* The shop switcher, as Notion's workspaces (the brand while the app starts). */}
+        {still ? <SidebarBrand /> : <ShopSwitcher />}
       </SidebarFooter>
     </Sidebar>
   );

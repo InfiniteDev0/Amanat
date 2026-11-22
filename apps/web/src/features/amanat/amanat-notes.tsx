@@ -12,6 +12,7 @@ import { CalendarMarkGlyph } from '@/components/glyphs';
 import { colourFor } from '@/components/shop-badge';
 import { useShortMoney } from '@/features/profit/money-text';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
+import { inScope, useShopScope } from '@/features/workspaces/shop-scope';
 import { useWorkspace } from '@/features/workspaces/workspace-context';
 import { errorKey, useMessage } from '@/lib/api/errors';
 import { cn } from '@/lib/utils';
@@ -487,7 +488,9 @@ export function AmanatNotes() {
   const locale = useLocale();
   const dayLabel = useDayLabel();
   const { workspace, can } = useWorkspace();
-  const shops = (useMyWorkspaces().data ?? []).map((m) => m.workspace);
+  const scope = useShopScope();
+  // The shop picked in the sidebar's switcher, or every shop.
+  const shops = inScope(useMyWorkspaces().data ?? [], scope).map((m) => m.workspace);
   const shopIds = shops.map((s) => s.id);
   const lists = useAmanatOfShops(shopIds);
   const trashLists = useTrashedAmanat(shopIds);

@@ -96,7 +96,7 @@ export function FrameLoading() {
         className="min-h-0 flex-1"
         style={{ '--sidebar-width': 'calc(var(--spacing) * 72)', '--sidebar-width-icon': 'calc(var(--spacing) * 14)' } as CSSProperties}
       >
-        <AppSidebar variant="inset" dir={dir} workspaceId={shopId} className="top-12 bottom-0 h-auto pt-0" />
+        <AppSidebar still variant="inset" dir={dir} workspaceId={shopId} className="top-12 bottom-0 h-auto pt-0" />
         <SidebarInset className="border-border mt-0! min-h-0 overflow-hidden rounded-sm! border" />
       </SidebarProvider>
     </div>

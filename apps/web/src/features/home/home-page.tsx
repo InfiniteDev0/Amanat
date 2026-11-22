@@ -9,6 +9,7 @@ import { FrameLoading } from '@/components/layout/frame-loading';
 import { RateChip } from '@/features/rates/rate-chip';
 import { RatesDialog } from '@/features/rates/rates-dialog';
 import { useMyWorkspaces } from '@/features/workspaces/queries';
+import { inScope, useShopScope } from '@/features/workspaces/shop-scope';
 import { useWorkspace as useWorkspaceShop, WorkspaceProvider } from '@/features/workspaces/workspace-context';
 
 import { Greeting } from './home-header';
@@ -28,17 +29,20 @@ import { YourShops } from './your-shops';
  */
 export function HomePage() {
   const shops = useMyWorkspaces();
+  const scope = useShopScope();
   const [shown, setShown] = useState<string | null>(null);
   if (shops.isPending) return <FrameLoading />;
-  const list = shops.data ?? [];
-  const main = list.find((m) => m.workspace.isMain) ?? list[0];
+  const all = shops.data ?? [];
+  const main = all.find((m) => m.workspace.isMain) ?? all[0];
   if (!main) return null;
+  // The shop picked in the sidebar's switcher, or every shop.
+  const list = inScope(all, scope);
   const shownId = list.some((m) => m.workspace.id === shown) ? shown! : main.workspace.id;
   const onScreen = list.find((m) => m.workspace.id === shownId);
 
   return (
     <WorkspaceProvider workspace={main.workspace} role={main.role}>
-      <AppFrame title={<PageBreadcrumb />} workspaceId={main.workspace.id}>
+      <AppFrame title={<PageBreadcrumb />} workspaceId={(list.length === 1 ? list[0]! : main).workspace.id}>
         {/* Today's rate missing: the strip across the top, with Set rates (for the shop on screen). */}
         {onScreen ? (
           <ShopContext membership={onScreen}>

@@ -1610,5 +1610,17 @@
     "fromRequired": "How much they hand over.",
     "rateRequired": "The rate, like 129.",
     "soon": "Saving exchanges comes in the next update."
+  },
+  "switcher": {
+    "label": "Switch shop",
+    "allShops": "All shops",
+    "planMembers": "{count, plural, one {Free Plan · # member} other {Free Plan · # members}}",
+    "shopsCount": "{count, plural, one {# shop} other {# shops}} together",
+    "upgrade": "Upgrade",
+    "settings": "Settings",
+    "invite": "Invite members",
+    "main": "Main",
+    "newShop": "New shop",
+    "logOut": "Log out"
   }
 }

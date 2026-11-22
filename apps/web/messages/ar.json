@@ -1610,5 +1610,17 @@
     "fromRequired": "كم يسلّم.",
     "rateRequired": "السعر، مثل 129.",
     "soon": "حفظ عمليات الصرف يأتي في التحديث القادم."
+  },
+  "switcher": {
+    "label": "بدّل المحل",
+    "allShops": "كل المحلات",
+    "planMembers": "{count, plural, one {الخطة المجانية · عضو واحد} other {الخطة المجانية · # أعضاء}}",
+    "shopsCount": "{count, plural, one {محل واحد} other {# محلات}} معًا",
+    "upgrade": "ترقية",
+    "settings": "الإعدادات",
+    "invite": "دعوة أعضاء",
+    "main": "الرئيسي",
+    "newShop": "محل جديد",
+    "logOut": "تسجيل الخروج"
   }
 }

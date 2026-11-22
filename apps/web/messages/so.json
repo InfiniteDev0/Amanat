@@ -1610,5 +1610,17 @@
     "fromRequired": "Inta uu keenayo.",
     "rateRequired": "Sicirka, sida 129.",
     "soon": "Kaydinta sarrifka waxay imaan doontaa cusboonaysiinta xigta."
+  },
+  "switcher": {
+    "label": "Beddel dukaanka",
+    "allShops": "Dhammaan dukaamada",
+    "planMembers": "{count, plural, one {Free Plan · # xubin} other {Free Plan · # xubnood}}",
+    "shopsCount": "{count, plural, one {# dukaan} other {# dukaan}} wada jir",
+    "upgrade": "Kor u qaad",
+    "settings": "Dejinta",
+    "invite": "Martiqaad xubno",
+    "main": "Ugu weyn",
+    "newShop": "Dukaan cusub",
+    "logOut": "Ka bax"
   }
 }
