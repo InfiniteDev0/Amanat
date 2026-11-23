@@ -5,10 +5,11 @@ import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Sans_Arabic, Luxurious_Roman, Manrope, Outfit } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { Providers } from '@/components/providers';
 import { getTheme } from '@/features/theme/get-theme';
+import { publicMessages } from '@/i18n/public-messages';
 import { directionOf, routing } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 
@@ -47,6 +48,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
 
   const theme = await getTheme();
   const dir = directionOf(locale);
+  // Signed-out pages get only their own words; the (app) layout adds the rest.
+  const messages = publicMessages(await getMessages());
 
   return (
     <html
@@ -56,7 +59,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
       style={{ colorScheme: theme }}
     >
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
           <Providers dir={dir} theme={theme}>
             {children}
           </Providers>
